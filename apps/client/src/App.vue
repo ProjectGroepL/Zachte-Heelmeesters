@@ -1,11 +1,13 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref } from 'vue';
+
+const counter = ref<number>(0);
+</script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <div class="w-screen h-screen flex justify-center items-center">
+    <button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition" @click="counter++">
+      Count is: {{ counter }}
+    </button>
+  </div>
 </template>
-
-<style scoped></style>

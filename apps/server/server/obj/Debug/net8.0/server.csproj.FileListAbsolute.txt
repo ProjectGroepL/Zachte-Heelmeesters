@@ -32,3 +32,4 @@ C:\Users\LuukO\Development\School\Projects\ZachteHeelmeesters\apps\server\server
 C:\Users\LuukO\Development\School\Projects\ZachteHeelmeesters\apps\server\server\obj\Debug\net8.0\server.pdb
 C:\Users\LuukO\Development\School\Projects\ZachteHeelmeesters\apps\server\server\obj\Debug\net8.0\server.genruntimeconfig.cache
 C:\Users\LuukO\Development\School\Projects\ZachteHeelmeesters\apps\server\server\obj\Debug\net8.0\ref\server.dll
+C:\Users\LuukO\Development\School\Projects\ZachteHeelmeesters\apps\server\server\obj\Debug\net8.0\server.sourcelink.json

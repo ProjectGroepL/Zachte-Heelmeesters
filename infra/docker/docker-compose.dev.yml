@@ -1,0 +1,52 @@
+name: zhm-dev
+
+services:
+  mssql:
+    container_name: zhm-mssql
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      SA_PASSWORD: "Test12345!"
+      ACCEPT_EULA: "Y"
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo > /dev/tcp/localhost/1433"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - mssql-data:/var/opt/mssql
+
+  server:
+    build:
+      context: ../../apps/server/server
+      dockerfile: Dockerfile
+    depends_on:
+      mssql:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__{{JouwConnectieNaam}}=Server=mssql;Database={{Jouwdatabasenaam}};User=sa;Password={{Jouw wachtwoord}};TrustServerCertificate=True;Encrypt=True
+    # Do not publish backend directly; proxy will route /api to this service
+  client:
+    build:
+      context: ../../
+      dockerfile: apps/client/Dockerfile
+    depends_on:
+      - server
+    # Do not publish frontend directly; proxy will serve the frontend on host port 80
+    restart: unless-stopped
+  proxy:
+    image: nginx:stable-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      server:
+        condition: service_started
+      client:
+        condition: service_started
+    restart: unless-stopped
+
+volumes:
+  mssql-data:
+    driver: local

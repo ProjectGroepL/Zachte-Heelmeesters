@@ -1,0 +1,24 @@
+{
+  "name": "zhm",
+  "version": "1.0.0",
+  "description": "The monorepo for Zachte Heelmeesters",
+  "license": "ISC",
+  "author": "GroepL",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test"
+  },
+  "workspaces": [
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "npm@11.3.0",
+  "devDependencies": {
+    "turbo": "^2.6.1"
+  }
+}

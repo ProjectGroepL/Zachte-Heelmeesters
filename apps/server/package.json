@@ -1,0 +1,11 @@
+{
+  "name": "@zhm/server",
+  "version": "1.0.0",
+  "description": "ASP.NET server api for Zachte Heelmeesters",
+  "private": true,
+  "scripts": {
+    "prepare": "dotnet restore server.sln",
+    "dev": "dotnet run --launch-profile https --project server/server.csproj",
+    "build": "dotnet publish server/server.csproj -c Release --no-restore -o dist"
+  }
+}

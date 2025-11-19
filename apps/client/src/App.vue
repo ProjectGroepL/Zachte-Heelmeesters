@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { Button } from '@/components/ui/button';
 
 const counter = ref<number>(0);
 </script>
 
 <template>
-  <div class="w-screen h-screen flex justify-center items-center">
-    <button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition" @click="counter++">
+  <div class="w-screen h-screen flex flex-col justify-center items-center space-y-4">
+    <div class="flex flex-col items-center">
+      <h1 class="text-2xl font-bold">Zachte Heelmeesters</h1>
+      <p>Dit is het startproject van de zachte heelmeesters app, probeer de counter eens uit!</p>
+    </div>
+    <Button @click="counter++">
       Count is: {{ counter }}
-    </button>
+    </Button>
   </div>
 </template>

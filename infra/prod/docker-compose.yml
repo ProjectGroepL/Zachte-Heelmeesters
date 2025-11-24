@@ -1,16 +1,19 @@
-name: zhm-dev
+name: zhm-prod
 
 services:
   mssql:
     container_name: zhm-mssql
     image: mcr.microsoft.com/mssql/server:2022-latest
     ports:
-      - "1433:1433"
+      - "${DB_PORT}:1433"
     environment:
-      SA_PASSWORD: "Test12345!"
+      SA_PASSWORD: "${DB_SA_PASSWORD}"
       ACCEPT_EULA: "Y"
+    env_file:
+      - path: .env
+        required: true
     healthcheck:
-      test: ["CMD", "bash", "-c", "echo > /dev/tcp/localhost/1433"]
+      test: [ "CMD", "bash", "-c", "echo > /dev/tcp/localhost/1433" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -26,7 +29,7 @@ services:
         condition: service_healthy
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__{{JouwConnectieNaam}}=Server=mssql;Database={{Jouwdatabasenaam}};User=sa;Password={{Jouw wachtwoord}};TrustServerCertificate=True;Encrypt=True
+      - Data Source=localhost,${DB_PORT};Persist Security Info=False;User ID=sa;Password=${DB_SA_PASSWORD};Pooling=False;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True
     # Do not publish backend directly; proxy will route /api to this service
   client:
     build:

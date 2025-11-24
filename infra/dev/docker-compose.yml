@@ -1,0 +1,25 @@
+name: zhm-dev
+
+services:
+  mssql:
+    container_name: zhm-mssql
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "${DB_PORT}:1433"
+    environment:
+      SA_PASSWORD: "${DB_SA_PASSWORD}"
+      ACCEPT_EULA: "Y"
+    env_file:
+      - path: .env
+        required: true
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "echo > /dev/tcp/localhost/1433" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - mssql-data:/var/opt/mssql
+
+volumes:
+  mssql-data:
+    driver: local

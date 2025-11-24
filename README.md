@@ -60,7 +60,8 @@ npm install
 
 **Start the database:**
 ```bash
-docker-compose -f infra/docker/docker-compose.local.yml up -d
+cd /infra/dev
+docker-compose up -d
 ```
 
 **Start the client and server**
@@ -108,9 +109,12 @@ npm run dev -w @zhm/server
 │           ├── Controllers/  # API controllers
 │           └── Properties/   # Launch settings
 ├── infra/
-│   └── docker/           # Docker configurations
-│       ├── docker-compose.local.yml   # Local development
-│       ├── docker-compose.prod.yml    # Production
+│   ├── dev/              # Development environment
+│   │   ├── docker-compose.yml  # Local development database
+│   │   └── .env          # Development environment variables
+│   └── prod/             # Production environment
+│       ├── docker-compose.yml  # Full production stack
+│       ├── .env          # Production environment variables
 │       └── nginx/        # nginx configuration
 ├── package.json          # Root package.json
 └── turbo.json           # Turborepo configuration
@@ -178,22 +182,42 @@ Check the current components in `apps/client/src/components/ui/` or visit the [s
 ## 🐳 Docker Development
 
 ### Local Development
-Start the full development environment with database:
+Start the development database:
 
 ```bash
-docker-compose -f infra/docker/docker-compose.local.yml up -d
+cd /infra/dev
+docker-compose.yml up -d
 ```
 
 This will start:
-- SQL Server database on port 1433
+- SQL Server database on the port specified in `infra/dev/.env` (default: 1433)
 
 ### Database Connection
 - **Host:** localhost
 - **Port:** 1433
 - **Username:** sa
-- **Password:** Test12345!
+- **Password:** Configured in `infra/dev/.env`
+
+### Production Deployment
+For production deployment with full stack:
+
+```bash
+cd /infra/prod
+docker-compose up -d
+```
+
+This will start:
+- SQL Server database
+- ASP.NET Core API server
+- Vue.js client application
+- nginx reverse proxy
 
 ## 🧪 Testing
+
+### Entire fullstack app
+```bash
+npm run test
+```
 
 ### Frontend Testing
 ```bash
@@ -204,7 +228,7 @@ npm run test
 ### Backend Testing
 ```bash
 cd apps/server
-dotnet test
+npm run test
 ```
 
 ## 📦 Building for Production
@@ -233,12 +257,13 @@ dotnet build --configuration Release
 The project includes Docker configurations for production deployment:
 
 ```bash
-docker-compose -f infra/docker/docker-compose.prod.yml up -d
+cd /infra/prod
+docker-compose up -d
 ```
 
 ## 👥 Contributing
 
-1. Fork the repository
+1. Clone the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)

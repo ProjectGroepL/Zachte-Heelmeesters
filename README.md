@@ -114,7 +114,11 @@ npm run dev -w @zhm/server
 │   └── server/           # ASP.NET Core backend
 │       └── server/
 │           ├── Controllers/  # API controllers
+│           ├── Data/         # Database context and data access
+│           ├── Dtos/         # Data Transfer Objects
+│           ├── Models/       # Domain models and entities
 │           └── Properties/   # Launch settings
+
 ├── infra/
 │   ├── dev/              # Development environment
 │   │   ├── docker-compose.yml  # Local development database

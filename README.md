@@ -52,8 +52,15 @@ cd Zachte-Heelmeesters
 ```
 
 ### 2. Install dependencies
+**Install npm packages**
 ```bash
 npm install
+```
+
+**Install nuget packages**
+```bash
+cd /apps/server
+npm run prepare
 ```
 
 ### 3. Start the development environment

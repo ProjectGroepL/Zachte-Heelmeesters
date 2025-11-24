@@ -2,7 +2,7 @@ name: zhm-prod
 
 services:
   mssql:
-    container_name: zhm-mssql
+    container_name: zhm-prod-mssql
     image: mcr.microsoft.com/mssql/server:2022-latest
     ports:
       - "${DB_PORT}:1433"

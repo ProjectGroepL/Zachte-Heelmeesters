@@ -9,7 +9,6 @@ import {
   Users2,
 } from "lucide-vue-next"
 import NavMain from '@/components/layout/dashboard/NavMain.vue'
-import NavProjects from '@/components/layout/dashboard/NavAdmin.vue'
 import NavUser from '@/components/layout/dashboard/NavUser.vue'
 
 import {
@@ -21,6 +20,9 @@ import {
   useSidebar
 } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
+import { useRouter } from 'vue-router'
+import NavAdmin from '@/components/layout/dashboard/NavAdmin.vue'
+import Separator from '@/components/ui/separator/Separator.vue'
 
 const props = withDefaults(defineProps<SidebarProps>(), {
   collapsible: "icon",
@@ -40,31 +42,28 @@ const data = {
     {
       title: "Overzicht",
       url: "/",
-      icon: ChartColumn,
-      isActive: true,
+      icon: ChartColumn
     },
     {
       title: "Afspraken",
       url: "/afspraken",
       icon: ClipboardClock,
-      isActive: false,
     },
     {
       title: "Agenda",
       url: "/agenda",
       icon: Calendar,
-      isActive: false,
     },
   ],
   projects: [
     {
-      name: "Gebruikers",
-      url: "#",
+      title: "Gebruikers",
+      url: "/admin/gebruikers",
       icon: Users2,
     },
     {
-      name: "Activiteiten",
-      url: "#",
+      title: "Activiteiten",
+      url: "/admin/activiteiten",
       icon: Activity,
     },
   ],
@@ -86,7 +85,10 @@ const data = {
     </SidebarHeader>
     <SidebarContent>
       <NavMain :items="data.navMain" />
-      <NavProjects :admin-items="data.projects" />
+      <div v-if="!open" class="w-full px-2">
+        <Separator />
+      </div>
+      <NavAdmin :items="data.projects" />
     </SidebarContent>
     <SidebarFooter>
       <NavUser :user="data.user" />

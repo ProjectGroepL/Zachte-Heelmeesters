@@ -7,15 +7,19 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
+import { useRouter } from "vue-router";
 
 defineProps<{
   items: {
     title: string
     url: string
     icon?: LucideIcon
-    isActive?: boolean
   }[]
 }>()
+
+const { currentRoute } = useRouter()
+
+const isActive = (url: string) => currentRoute.value.path === url
 </script>
 
 <template>
@@ -24,7 +28,8 @@ defineProps<{
     <SidebarMenu>
       <SidebarMenuItem v-for="item in items" :key="item.title">
         <RouterLink :to="item.url" class="flex items-center gap-2 w-full">
-          <SidebarMenuButton :tooltip="item.title" :class="item.isActive ? 'bg-accent text-accent-foreground' : ''">
+          <SidebarMenuButton :tooltip="item.title"
+            :class="isActive(item.url) ? 'bg-accent text-accent-foreground' : ''">
             <component :is="item.icon" v-if="item.icon" />
             <span>{{ item.title }}</span>
           </SidebarMenuButton>

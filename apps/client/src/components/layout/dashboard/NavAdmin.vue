@@ -23,29 +23,33 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
+import { useRouter } from "vue-router";
 
 defineProps<{
-  adminItems: {
-    name: string
+  items: {
+    title: string
     url: string
-    icon: LucideIcon
+    icon?: LucideIcon
   }[]
 }>()
 
-const { isMobile } = useSidebar()
+const { currentRoute } = useRouter()
+
+const isActive = (url: string) => currentRoute.value.path === url
 </script>
 
 <template>
-  <SidebarGroup class="group-data-[collapsible=icon]:hidden">
+  <SidebarGroup>
     <SidebarGroupLabel>Administratie</SidebarGroupLabel>
     <SidebarMenu>
-      <SidebarMenuItem v-for="item in adminItems" :key="item.name">
-        <SidebarMenuButton as-child>
-          <a :href="item.url">
-            <component :is="item.icon" />
-            <span>{{ item.name }}</span>
-          </a>
-        </SidebarMenuButton>
+      <SidebarMenuItem v-for="item in items" :key="item.title">
+        <RouterLink :to="item.url" class="flex items-center gap-2 w-full">
+          <SidebarMenuButton :tooltip="item.title"
+            :class="isActive(item.url) ? 'bg-accent text-accent-foreground' : ''">
+            <component :is="item.icon" v-if="item.icon" />
+            <span>{{ item.title }}</span>
+          </SidebarMenuButton>
+        </RouterLink>
       </SidebarMenuItem>
     </SidebarMenu>
   </SidebarGroup>

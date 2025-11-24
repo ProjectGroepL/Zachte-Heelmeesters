@@ -194,7 +194,7 @@ This will start:
 
 ### Database Connection
 - **Host:** localhost
-- **Port:** 1433
+- **Port:** Configured in `infra/dev/.env`
 - **Username:** sa
 - **Password:** Configured in `infra/dev/.env`
 

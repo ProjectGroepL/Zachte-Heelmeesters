@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ZhmApi.Models;
 
-namespace ZhmApi.Data;
+namespace ZhmApi.Data{
 
 public class ApiContext : DbContext
 {
@@ -9,6 +9,8 @@ public class ApiContext : DbContext
 
   public DbSet<Role> Roles { get; set; } = null!;
   public DbSet<User> Users { get; set; } = null!;
+  public Dbset<TwoFactorCode> TwoFactorCodes {get; set;} = null!;
+  public Dbset<AuditEvent> AuditEvents {get; set;} = null!;
 
   #region UpdatedAt timestamp handling
   public override int SaveChanges()
@@ -44,4 +46,4 @@ public class ApiContext : DbContext
   #region Seed Data
 
   #endregion
-}
+}}

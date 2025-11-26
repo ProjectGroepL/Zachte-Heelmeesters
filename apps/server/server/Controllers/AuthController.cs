@@ -4,6 +4,7 @@ using ZhmApi.Data;
 using ZhmApi.Dtos;
 using ZhmApi.Services;
 using BCrypt.Net;
+using ZhmApi.Models;
 
 
 namespace ZhmApi.Controllers
@@ -21,6 +22,35 @@ namespace ZhmApi.Controllers
             _twoFa = twoFa;
         }
 
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterDto dto)
+        {
+            if (await _db.Users.AnyAsync(u => u.Email == dto.Email))
+                return Conflict(new { error = "email_exists" });
+
+            var user = new User
+            {
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                Email = dto.Email,
+                PhoneNumber = dto.PhoneNumber,
+                ZipCode = dto.ZipCode,
+                Street = dto.Street,
+                HouseNumber = dto.HouseNumber,
+                PostalCode = dto.PostalCode,
+                City = dto.City,
+                Province = dto.Province,
+                Country = dto.Country,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+                TwoFactorEnabled = true // <-- heel belangrijk
+            };
+
+            _db.Users.Add(user);
+            await _db.SaveChangesAsync();
+
+            return Ok(new { message = "registered" });
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
         {
@@ -30,34 +60,36 @@ namespace ZhmApi.Controllers
             if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
                 return Unauthorized("invalid_credentials");
 
-            // If no 2FA → login success
+            // Als 2FA uit → direct ingelogd
             if (!user.TwoFactorEnabled)
-                return Ok(new { token = "demo-token-no-2fa" });
+                return Ok(new { token = "jwt-token-zonder-2fa" });
 
-            // Create and send 2FA
+            // 2FA actief → stuur code
             var sessionId = await _twoFa.CreateAndSendCodeAsync(user.Id, user.Email);
 
             return Ok(new { requires2FA = true, tempSessionId = sessionId });
         }
 
+        // 2️⃣ VERIFY CODE
         [HttpPost("verify-2fa")]
         public async Task<IActionResult> Verify([FromBody] TwoFaVerifyDto dto)
         {
-            var result = await _twoFa.VerifyCodeAsync(dto.TempSessionId, dto.Code);
+            var (success, reason) = await _twoFa.VerifyCodeAsync(dto.TempSessionId, dto.Code);
 
-            if (!result.success)
-                return BadRequest(new { error = result.reason });
+            if (!success)
+                return BadRequest(new { error = reason });
 
-            return Ok(new { token = "demo-jwt-token" });
+            return Ok(new { token = "jwt-token-echte" });
         }
 
+        // 3️⃣ RESEND CODE
         [HttpPost("resend-code")]
         public async Task<IActionResult> Resend([FromBody] ResendDto dto)
         {
-            var result = await _twoFa.ResendAsync(dto.TempSessionId);
+            var (success, reason) = await _twoFa.ResendAsync(dto.TempSessionId);
 
-            if (!result.success)
-                return BadRequest(new { error = result.reason });
+            if (!success)
+                return BadRequest(new { error = reason });
 
             return Ok(new { message = "resent" });
         }

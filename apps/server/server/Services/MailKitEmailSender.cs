@@ -18,14 +18,18 @@ namespace ZhmApi.Services
         public async Task SendAsync(string to, string subject, string body)
         {
             var msg = new MimeMessage();
-            msg.From.Add(new MailboxAddress(_settings.SenderName, _settings.SenderEmail));            msg.To.Add(MailboxAddress.Parse(to));
+            msg.From.Add(new MailboxAddress(_settings.SenderName, _settings.SenderEmail));           
+            msg.To.Add(MailboxAddress.Parse(to));
             msg.Subject = subject;
             msg.Body = new TextPart("plain") { Text = body };
 
             using var client = new SmtpClient();
             // no SSL param for dev Mailtrap; for production use true with port 465 or STARTTLS
-            await client.ConnectAsync(_settings.Host, _settings.Port, MailKit.Security.SecureSocketOptions.StartTlsWhenAvailable);
-
+            await client.ConnectAsync(
+                _settings.Host,
+                _settings.Port,
+                MailKit.Security.SecureSocketOptions.StartTls
+            );
             if (!string.IsNullOrEmpty(_settings.Username))
             {
                 await client.AuthenticateAsync(_settings.Username, _settings.Password);

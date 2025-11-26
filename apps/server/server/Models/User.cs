@@ -34,7 +34,7 @@
 
         public string Country { get; set; } = null!;
 
-        public int RoleId { get; set; }
+        public int RoleId { get; set; } =1;
         public Role Role { get; set; } = null!;
     }
 }

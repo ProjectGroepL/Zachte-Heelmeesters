@@ -15,6 +15,7 @@ if (builder.Environment.IsDevelopment())
 {
     Env.Load(Path.Combine(Directory.GetCurrentDirectory(), "..", ".env"));
 }
+
 // Load config BEFORE services
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: false)

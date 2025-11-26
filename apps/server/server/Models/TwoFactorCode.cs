@@ -1,18 +1,23 @@
+using System;
+using System.ComponentModel.DataAnnotations;
+
 namespace ZhmApi.Models
 {
     public class TwoFactorCode
     {
-        [key]
-        public Guid Id{get; set;}
-        public int UserId{get; set;}
-        public User User{get;set;}
+        [Key]
+        public int Id { get; set; }
 
-        public string CodeHash {get; set;} // the code used to verify
-        public DateTime CreatedAt{get; set;}
-        public DateTime ExpiresAt{get; set;}
-        public bool Used {get; set;}= false;
+        public int UserId { get; set; }
 
-        public int ResendCount {get; set;} = 0;
-        public DateTime? LastSentAt {get; set;}
+        [Required]
+        public string CodeHash { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+        public DateTime ExpiresAt { get; set; }
+        public bool Used { get; set; } = false;
+
+        public int ResendCount { get; set; } = 0;
+        public DateTime LastSentAt { get; set; }
     }
 }

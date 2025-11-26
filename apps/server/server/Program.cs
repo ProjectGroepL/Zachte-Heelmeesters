@@ -1,8 +1,12 @@
 using System.Text.Json.Serialization;
 using DotNetEnv;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using ZhmApi.Data;
+using zhmApi.Models;
+using ZhmApi.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +15,24 @@ if (builder.Environment.IsDevelopment())
 {
     Env.Load(Path.Combine(Directory.GetCurrentDirectory(), "..", ".env"));
 }
+// Load config BEFORE services
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .AddEnvironmentVariables();
+
+
+// Register ApiContext with DI
+var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ?? builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("CONNECTION_STRING environment variable or DefaultConnection in appsettings is required");
+
+builder.Services.AddDbContext<ApiContext>(options =>
+    options.UseSqlServer(connectionString));
+
+// Register Services
+builder.Services.AddScoped<TwoFactorService>();
+builder.Services.AddScoped<IEmailSender, MailKitEmailSender>();
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("SMTP"));
+
 
 // Add JSON options to serialize enums as strings
 builder.Services.AddControllers().AddJsonOptions(x =>
@@ -56,11 +78,7 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 
-// Register ApiContext with DI
-var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ?? builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("CONNECTION_STRING environment variable or DefaultConnection in appsettings is required");
 
-builder.Services.AddDbContext<ApiContext>(options =>
-    options.UseSqlServer(connectionString));
 
 var app = builder.Build();
 

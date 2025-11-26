@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using zhmApi.Models;
 using ZhmApi.Models;
 
 namespace ZhmApi.Data{
@@ -9,8 +10,8 @@ public class ApiContext : DbContext
 
   public DbSet<Role> Roles { get; set; } = null!;
   public DbSet<User> Users { get; set; } = null!;
-  public Dbset<TwoFactorCode> TwoFactorCodes {get; set;} = null!;
-  public Dbset<AuditEvent> AuditEvents {get; set;} = null!;
+  public DbSet<TwoFactorCode> TwoFactorCodes {get; set;} = null!;
+  public DbSet<AuditEvent> AuditEvents { get; set; }
 
   #region UpdatedAt timestamp handling
   public override int SaveChanges()

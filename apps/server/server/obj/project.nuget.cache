@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "ZHioojQBH/o=",
+  "dgSpecHash": "CwU3eukGwB8=",
   "success": true,
-  "projectFilePath": "c:\\Users\\mathi\\Zachte-Heelmeesters\\apps\\server\\server\\ZhmApi.csproj",
+  "projectFilePath": "C:\\Users\\mathi\\Zachte-Heelmeesters\\apps\\server\\server\\ZhmApi.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\mathi\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\mathi\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
+    "C:\\Users\\mathi\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\mathi\\.nuget\\packages\\bouncycastle.cryptography\\2.6.1\\bouncycastle.cryptography.2.6.1.nupkg.sha512",
     "C:\\Users\\mathi\\.nuget\\packages\\dotnetenv\\3.1.1\\dotnetenv.3.1.1.nupkg.sha512",
     "C:\\Users\\mathi\\.nuget\\packages\\humanizer\\2.14.1\\humanizer.2.14.1.nupkg.sha512",

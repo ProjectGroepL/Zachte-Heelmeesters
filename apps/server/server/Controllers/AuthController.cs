@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ZhmApi.Data;
 using ZhmApi.Dtos;
 using ZhmApi.Services;
-
+using BCrypt.Net;
 
 
 namespace ZhmApi.Controllers
@@ -27,8 +27,7 @@ namespace ZhmApi.Controllers
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
             if (user == null) return Unauthorized("invalid_credentials");
 
-            // ❌ Placeholder password check
-            if (user.PasswordHash != dto.Password)
+            if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
                 return Unauthorized("invalid_credentials");
 
             // If no 2FA → login success

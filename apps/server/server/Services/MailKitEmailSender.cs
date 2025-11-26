@@ -18,8 +18,7 @@ namespace ZhmApi.Services
         public async Task SendAsync(string to, string subject, string body)
         {
             var msg = new MimeMessage();
-            msg.From.Add(new MailboxAddress(_settings.SenderName, _settings.From));
-            msg.To.Add(MailboxAddress.Parse(to));
+            msg.From.Add(new MailboxAddress(_settings.SenderName, _settings.SenderEmail));            msg.To.Add(MailboxAddress.Parse(to));
             msg.Subject = subject;
             msg.Body = new TextPart("plain") { Text = body };
 

@@ -10,6 +10,17 @@ namespace ZhmApi.Controllers
 [Route("api/[controller]")]
 public class TestController : ControllerBase
 {
+    private readonly ApiContext _db;
+    private readonly IEmailSender _mail;
+    private readonly IConfiguration _config;
+
+        public TestController(ApiContext db, IEmailSender mail, IConfiguration config)
+        {
+           _db = db;
+            _mail = mail;
+            _config = config;
+        }
+
     [HttpGet("config-test")]
     public IActionResult TestConfig([FromServices] IConfiguration config)
     {
@@ -22,7 +33,7 @@ public class TestController : ControllerBase
     [HttpGet("mail-test")]
     public async Task<IActionResult> TestMail([FromServices] IEmailSender mail)
     {
-        await mail.SendAsync("test@example.com", "Test email", "Hello from ZHM!");
+        await mail.SendAsync("m.voets1@student.avans.nl", "Test email", "Hello from ZHM!");
         return Ok("Email verstuurd!");
     }
     

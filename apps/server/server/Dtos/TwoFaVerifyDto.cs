@@ -4,7 +4,7 @@ namespace ZhmApi.Dtos
 {
     public class TwoFaVerifyDto
     {
-        public Guid TempSessionId { get; set; } // or userId if you want
+        public int TempSessionId { get; set; } // or userId if you want
         public string Code { get; set; } = string.Empty;
     }
 }

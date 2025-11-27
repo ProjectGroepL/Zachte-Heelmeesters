@@ -3,8 +3,8 @@
   "WorkspaceRootPath": "C:\\Users\\LuukO\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{120FE3F4-9750-4DF0-9098-15CACA3D8A12}|server\\ZhmApi.csproj|c:\\users\\luuko\\development\\school\\projects\\zachteheelmeesters\\apps\\server\\server\\controllers\\rolescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{120FE3F4-9750-4DF0-9098-15CACA3D8A12}|server\\ZhmApi.csproj|solutionrelative:server\\controllers\\rolescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{120FE3F4-9750-4DF0-9098-15CACA3D8A12}|server\\ZhmApi.csproj|c:\\users\\luuko\\development\\school\\projects\\zachteheelmeesters\\apps\\server\\server\\controllers\\healthcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{120FE3F4-9750-4DF0-9098-15CACA3D8A12}|server\\ZhmApi.csproj|solutionrelative:server\\controllers\\healthcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{120FE3F4-9750-4DF0-9098-15CACA3D8A12}|server\\ZhmApi.csproj|c:\\users\\luuko\\development\\school\\projects\\zachteheelmeesters\\apps\\server\\server\\data\\apicontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -34,8 +34,21 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 0,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "HealthController.cs",
+              "DocumentMoniker": "C:\\Users\\LuukO\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\Controllers\\HealthController.cs",
+              "RelativeDocumentMoniker": "server\\Controllers\\HealthController.cs",
+              "ToolTip": "C:\\Users\\LuukO\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\Controllers\\HealthController.cs",
+              "RelativeToolTip": "server\\Controllers\\HealthController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-24T17:29:12.074Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Document",
               "DocumentIndex": 2,
@@ -47,19 +60,6 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
               "WhenOpened": "2025-11-24T17:25:08.791Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "RolesController.cs",
-              "DocumentMoniker": "C:\\Users\\LuukO\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\Controllers\\RolesController.cs",
-              "RelativeDocumentMoniker": "server\\Controllers\\RolesController.cs",
-              "ToolTip": "C:\\Users\\LuukO\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\Controllers\\RolesController.cs",
-              "RelativeToolTip": "server\\Controllers\\RolesController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-24T17:28:14.396Z",
               "EditorCaption": ""
             },
             {

@@ -1,8 +1,12 @@
 using System.Text.Json.Serialization;
 using DotNetEnv;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using ZhmApi.Data;
+using ZhmApi.Models;
+using ZhmApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +15,11 @@ if (builder.Environment.IsDevelopment())
 {
     Env.Load(Path.Combine(Directory.GetCurrentDirectory(), "..", ".env"));
 }
+
+// Get configuration from environment variables (with fallbacks to appsettings)
+var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? builder.Configuration["JWT:Key"] ?? throw new InvalidOperationException("JWT_KEY environment variable or JWT:Key in appsettings is required");
+var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? builder.Configuration["JWT:Issuer"] ?? throw new InvalidOperationException("JWT_ISSUER environment variable or JWT:Issuer in appsettings is required");
+var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? builder.Configuration["JWT:Audience"] ?? throw new InvalidOperationException("JWT_AUDIENCE environment variable or JWT:Audience in appsettings is required");
 
 // Add JSON options to serialize enums as strings
 builder.Services.AddControllers().AddJsonOptions(x =>
@@ -62,6 +71,33 @@ var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING"
 builder.Services.AddDbContext<ApiContext>(options =>
     options.UseSqlServer(connectionString));
 
+// Configure Identity
+builder.Services.AddIdentity<User, Role>(options =>
+{
+    // Password settings
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = true;
+    options.Password.RequiredLength = 6;
+    options.Password.RequiredUniqueChars = 1;
+
+    // Lockout settings
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
+
+    // User settings
+    options.User.AllowedUserNameCharacters =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+    options.User.RequireUniqueEmail = true;
+})
+.AddEntityFrameworkStores<ApiContext>()
+.AddDefaultTokenProviders();
+
+// Register JWT service
+builder.Services.AddScoped<IJwtService, JwtService>();
+
 var app = builder.Build();
 
 // Configure forwarded headers for proxy support
@@ -86,6 +122,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

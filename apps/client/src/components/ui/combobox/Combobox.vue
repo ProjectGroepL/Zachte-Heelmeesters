@@ -62,13 +62,8 @@ function selectOption(selectedValue: string) {
 <template>
   <Popover v-model:open="open">
     <PopoverTrigger as-child>
-      <Button 
-        variant="outline" 
-        role="combobox" 
-        :aria-expanded="open" 
-        :disabled="disabled"
-        :class="cn('w-full justify-between', props.class)"
-      >
+      <Button variant="outline" role="combobox" :aria-expanded="open" :disabled="disabled"
+        :class="cn('w-full justify-between', props.class)">
         {{ selectedOption?.label || placeholder }}
         <ChevronsUpDownIcon class="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </Button>
@@ -79,15 +74,10 @@ function selectOption(selectedValue: string) {
         <CommandList>
           <CommandEmpty>{{ emptyMessage }}</CommandEmpty>
           <CommandGroup>
-            <CommandItem 
-              v-for="option in options" 
-              :key="option.value" 
-              :value="option.value"
-              :disabled="option.disabled"
+            <CommandItem v-for="option in options" :key="option.value" :value="option.value" :disabled="option.disabled"
               @select="(ev) => {
                 selectOption(ev.detail.value as string)
-              }"
-            >
+              }">
               {{ option.label }}
               <CheckIcon :class="cn(
                 'ml-auto h-4 w-4',

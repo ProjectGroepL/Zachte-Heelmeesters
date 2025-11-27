@@ -77,7 +77,7 @@ namespace ZhmApi.Services
             var entry = await _db.TwoFactorCodes
                 .Include(tc => tc.User)
                 .FirstOrDefaultAsync(tc => tc.Id == sessionId);
-                
+
             if (entry == null) return (false, "no_session");
 
             if (entry.ResendCount >= 3)
@@ -89,12 +89,18 @@ namespace ZhmApi.Services
             if (entry.ExpiresAt < DateTime.UtcNow)
                 return (false, "expired");
 
+            // Generate a new code for the resend
+            var newCode = GenerateNumericCode(6);
+            var newCodeHash = HashCode(newCode, entry.UserId);
+
+            // Update the entry with the new code
+            entry.CodeHash = newCodeHash;
             entry.ResendCount++;
             entry.LastSentAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
 
-            await _emailSender.SendAsync(entry.User.Email!, "Je verificatiecode (opnieuw verzonden)", 
-                "Je verificatiecode is opnieuw verzonden. Controleer je inbox voor de oorspronkelijke code.\n\nDeze code is nog steeds geldig.");
+            await _emailSender.SendAsync(entry.User.Email!, "Je nieuwe verificatiecode",
+                $"Je nieuwe verificatiecode is: {newCode}\n\nDeze code is 10 minuten geldig.");
 
             return (true, "");
         }

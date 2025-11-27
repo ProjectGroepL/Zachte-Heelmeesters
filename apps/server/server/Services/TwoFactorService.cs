@@ -42,28 +42,34 @@ namespace ZhmApi.Services
             return twoFactorCode.Id;
         }
 
-        public async Task<(bool success, string reason)> VerifyCodeAsync(int sessionId, string code)
+        public async Task<(bool success, string reason, int userId)> VerifyCodeAsync(int sessionId, string code)
         {
-            var now = DateTime.UtcNow;
-
             var entry = await _db.TwoFactorCodes.FindAsync(sessionId);
             if (entry == null)
-                return (false, "no_session");
+                return (false, "no_session", 0);
 
             if (entry.Used)
-                return (false, "already_used");
+                return (false, "already_used", 0);
 
-            if (entry.ExpiresAt < now)
-                return (false, "expired");
+            if (entry.ExpiresAt < DateTime.UtcNow)
+                return (false, "expired", 0);
 
             var hash = HashCode(code, entry.UserId);
             if (!SecureEquals(hash, entry.CodeHash))
-                return (false, "invalid_code");
+                return (false, "invalid_code", 0);
 
-            entry.Used = true;
-            await _db.SaveChangesAsync();
+            return (true, "", entry.UserId);
+        }
 
-            return (true, "");
+
+        public async Task MarkAsUsedAsync(int sessionId)
+        {
+            var entry = await _db.TwoFactorCodes.FindAsync(sessionId);
+            if (entry != null)
+            {
+                entry.Used = true;
+                await _db.SaveChangesAsync();
+            }
         }
 
         public async Task<(bool success, string reason)> ResendAsync(int sessionId)
@@ -93,7 +99,7 @@ namespace ZhmApi.Services
             return (true, "");
         }
 
-        // Utility methods
+        // Utility methodsQZ
         private string HashCode(string code, int userId)
         {
             var secret = _config["TWO_FACTOR_SECRET"] ?? "default-secret-key-change-in-production";

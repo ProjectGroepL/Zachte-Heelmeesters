@@ -129,14 +129,10 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<TwoFactorService>();
 
 // Register Email services
-builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 // Register email sender based on environment
 if (builder.Environment.IsDevelopment())
-{
-    builder.Services.AddScoped<IEmailSender, ConsoleEmailSender>();
-}
-else
 {
     builder.Services.AddScoped<IEmailSender, MailKitEmailSender>();
 }

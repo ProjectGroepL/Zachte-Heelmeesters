@@ -12783,23 +12783,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\LuukO\\.nuget\\packages\\": {},
+    "C:\\Users\\mathi\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\ZhmApi.csproj",
+      "projectUniqueName": "c:\\Users\\mathi\\Zachte-Heelmeesters\\apps\\server\\server\\ZhmApi.csproj",
       "projectName": "ZhmApi",
-      "projectPath": "E:\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\ZhmApi.csproj",
-      "packagesPath": "C:\\Users\\LuukO\\.nuget\\packages\\",
-      "outputPath": "E:\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\obj\\",
+      "projectPath": "c:\\Users\\mathi\\Zachte-Heelmeesters\\apps\\server\\server\\ZhmApi.csproj",
+      "packagesPath": "C:\\Users\\mathi\\.nuget\\packages\\",
+      "outputPath": "c:\\Users\\mathi\\Zachte-Heelmeesters\\apps\\server\\server\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\LuukO\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\mathi\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -12826,7 +12826,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.300"
+      "SdkAnalysisLevel": "10.0.100"
     },
     "frameworks": {
       "net8.0": {
@@ -12916,7 +12916,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.100-rc.1.25451.107/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

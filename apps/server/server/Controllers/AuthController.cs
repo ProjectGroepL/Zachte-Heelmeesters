@@ -299,21 +299,23 @@ namespace ZhmApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var (success, reason) = await _twoFactorService.VerifyCodeAsync(dto.TempSessionId, dto.Code);
+            var (success, reason, userId) = await _twoFactorService.VerifyCodeAsync(dto.TempSessionId, dto.Code);
 
             if (!success)
             {
                 return BadRequest(new { message = GetErrorMessage(reason) });
             }
 
-            // Get the user from the session
-            var twoFactorCode = await _tokenService.GetTwoFactorCodeBySessionAsync(dto.TempSessionId);
-            if (twoFactorCode?.User == null)
+            // Haal user vanuit userId (dit werkt ALTIJD)
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+
+            if (user == null)
             {
-                return BadRequest(new { message = "Invalid session" });
+                return BadRequest(new { message = "User not found" });
             }
 
-            var user = twoFactorCode.User;
+            // Code pas hier ongeldig maken:
+            await _twoFactorService.MarkAsUsedAsync(dto.TempSessionId);
 
             // Generate tokens after successful 2FA verification
             var token = _jwtService.GenerateToken(user.Id);
@@ -354,6 +356,8 @@ namespace ZhmApi.Controllers
 
             return Ok(response);
         }
+
+        
 
         [HttpPost("resend-2fa")]
         public async Task<IActionResult> ResendTwoFactor([FromBody] ResendDto dto)

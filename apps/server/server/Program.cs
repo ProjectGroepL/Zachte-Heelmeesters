@@ -68,6 +68,20 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 
+// Handle CORS
+var corsOrigins = Environment.GetEnvironmentVariable("CORS_ORIGINS")?.Split(',') ?? ["http://localhost:5173", "https://localhost:5173"];
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowClient", policy =>
+    {
+        policy.WithOrigins(corsOrigins) // From environment variable
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 // Register ApiContext with DI
 var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ?? builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("CONNECTION_STRING environment variable or DefaultConnection in appsettings is required");
 
@@ -134,7 +148,8 @@ builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Emai
 // Register email sender based on environment
 if (builder.Environment.IsDevelopment())
 {
-    builder.Services.AddScoped<IEmailSender, MailKitEmailSender>();
+    // builder.Services.AddScoped<IEmailSender, MailKitEmailSender>();
+    builder.Services.AddScoped<IEmailSender, ConsoleEmailSender>();
 }
 
 var app = builder.Build();
@@ -160,6 +175,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowClient");
 
 app.UseAuthentication();
 app.UseAuthorization();

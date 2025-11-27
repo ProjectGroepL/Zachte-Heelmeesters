@@ -144,22 +144,15 @@ export const useAuth = () => {
     }
   }
 
-  const logout = async (): Promise<void> => {
-    try {
-      const storedRefreshToken = localStorage.getItem('refresh_token')
-      if (storedRefreshToken) {
-        // Note: Server doesn't have logout endpoint yet, but we prepare for it
-        // await api.post('/auth/logout', {
-        //   refreshToken: storedRefreshToken
-        // } as RefreshTokenRequest)
-      }
-    } catch {
-      // Continue with logout even if server call fails
-    } finally {
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
-      router.replace('/auth/login')
-    }
+  //TODO add server logout endpoint to invalidate refresh tokens
+  const logout = (): void => {
+
+    // Remove tokens from localStorage
+    localStorage.removeItem('access_token')
+    localStorage.removeItem('refresh_token')
+
+    // Redirect to login page
+    router.replace('/auth/login')
   }
 
   const getUser = async (): Promise<ApiResponse<User>> => {

@@ -17,11 +17,18 @@ import AppSidebar from '@/components/layout/dashboard/AppSidebar.vue'
 import { useRouter } from 'vue-router'
 import { House } from 'lucide-vue-next'
 import { computed } from 'vue'
+import { useAuth } from "@/composables/useAuth";
 
-const { currentRoute } = useRouter()
+const { isAuthenticated } = useAuth();
+const router = useRouter();
+
+// If the user is not authenticated, redirect to login page
+if (!isAuthenticated()) {
+  router.push('/auth/login');
+}
 
 const filteredPathSegments = computed(() => {
-  const pathSegments = currentRoute.value.path.split('/')
+  const pathSegments = router.currentRoute.value.path.split('/')
 
   // Remove empty segments
   const filtered = pathSegments.map((segment) => segment.trim()).filter((segment) => segment.length > 0)

@@ -125,6 +125,22 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 // Register Token service
 builder.Services.AddScoped<ITokenService, TokenService>();
 
+// Register 2FA services
+builder.Services.AddScoped<TwoFactorService>();
+
+// Register Email services
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
+
+// Register email sender based on environment
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddScoped<IEmailSender, ConsoleEmailSender>();
+}
+else
+{
+    builder.Services.AddScoped<IEmailSender, MailKitEmailSender>();
+}
+
 var app = builder.Build();
 
 // Configure forwarded headers for proxy support

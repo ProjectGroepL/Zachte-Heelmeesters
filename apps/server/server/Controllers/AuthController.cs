@@ -17,17 +17,20 @@ namespace ZhmApi.Controllers
         private readonly SignInManager<User> _signInManager;
         private readonly IJwtService _jwtService;
         private readonly ITokenService _tokenService;
+        private readonly TwoFactorService _twoFactorService;
 
         public AuthController(
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             IJwtService jwtService,
-            ITokenService tokenService)
+            ITokenService tokenService,
+            TwoFactorService twoFactorService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _jwtService = jwtService;
             _tokenService = tokenService;
+            _twoFactorService = twoFactorService;
         }
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
@@ -126,9 +129,24 @@ namespace ZhmApi.Controllers
             {
                 return Unauthorized(new { message = "Invalid email or password" });
             }
-            ;
 
-            // Generate tokens
+            // Check if 2FA is enabled for this user
+            if (user.TwoFactorEnabled)
+            {
+                // Create and send 2FA code
+                var sessionId = await _twoFactorService.CreateAndSendCodeAsync(user.Id, user.Email!);
+
+                return Ok(new AuthResponseDto
+                {
+                    RequiresTwoFactor = true,
+                    TempSessionId = sessionId,
+                    Token = string.Empty,
+                    RefreshToken = string.Empty,
+                    User = null!
+                });
+            }
+
+            // Generate tokens for non-2FA users
             var token = _jwtService.GenerateToken(user.Id);
             var refreshTokenExpirationDays = int.Parse(Environment.GetEnvironmentVariable("REFRESH_TOKEN_EXPIRATION_DAYS") ?? "7");
             var refreshTokenEntity = await _tokenService.CreateTokenAsync(
@@ -136,7 +154,6 @@ namespace ZhmApi.Controllers
                 TokenType.RefreshToken,
                 TimeSpan.FromDays(refreshTokenExpirationDays));
 
-            // Get user roles
             // Get user roles
             var roles = await _userManager.GetRolesAsync(user);
             var role = roles.FirstOrDefault() ?? "User";
@@ -272,6 +289,101 @@ namespace ZhmApi.Controllers
             };
 
             return Ok(userDto);
+        }
+
+        [HttpPost("verify-2fa")]
+        public async Task<IActionResult> VerifyTwoFactor([FromBody] TwoFaVerifyDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var (success, reason) = await _twoFactorService.VerifyCodeAsync(dto.TempSessionId, dto.Code);
+
+            if (!success)
+            {
+                return BadRequest(new { message = GetErrorMessage(reason) });
+            }
+
+            // Get the user from the session
+            var twoFactorCode = await _tokenService.GetTwoFactorCodeBySessionAsync(dto.TempSessionId);
+            if (twoFactorCode?.User == null)
+            {
+                return BadRequest(new { message = "Invalid session" });
+            }
+
+            var user = twoFactorCode.User;
+
+            // Generate tokens after successful 2FA verification
+            var token = _jwtService.GenerateToken(user.Id);
+            var refreshTokenExpirationDays = int.Parse(Environment.GetEnvironmentVariable("REFRESH_TOKEN_EXPIRATION_DAYS") ?? "7");
+            var refreshTokenEntity = await _tokenService.CreateTokenAsync(
+                user.Id,
+                TokenType.RefreshToken,
+                TimeSpan.FromDays(refreshTokenExpirationDays));
+
+            // Get user roles
+            var roles = await _userManager.GetRolesAsync(user);
+            var role = roles.FirstOrDefault() ?? "User";
+
+            var userDto = new UserDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                MiddleName = user.MiddleName,
+                LastName = user.LastName,
+                Email = user.Email!,
+                PhoneNumber = user.PhoneNumber!,
+                Street = user.Street,
+                HouseNumber = user.HouseNumber,
+                HouseNumberAddition = user.HouseNumberAddition,
+                ZipCode = user.ZipCode,
+                City = user.City,
+                Country = user.Country,
+                TwoFactorEnabled = user.TwoFactorEnabled,
+                Role = role
+            };
+
+            var response = new AuthResponseDto
+            {
+                Token = token,
+                RefreshToken = refreshTokenEntity.Value,
+                User = userDto
+            };
+
+            return Ok(response);
+        }
+
+        [HttpPost("resend-2fa")]
+        public async Task<IActionResult> ResendTwoFactor([FromBody] ResendDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var (success, reason) = await _twoFactorService.ResendAsync(dto.TempSessionId);
+
+            if (!success)
+            {
+                return BadRequest(new { message = GetErrorMessage(reason) });
+            }
+
+            return Ok(new { message = "Code has been resent to your email" });
+        }
+
+        private string GetErrorMessage(string reason)
+        {
+            return reason switch
+            {
+                "no_session" => "Invalid or expired session",
+                "already_used" => "Code has already been used",
+                "expired" => "Code has expired",
+                "invalid_code" => "Invalid verification code",
+                "too_many_resends" => "Too many resend attempts. Please try logging in again.",
+                _ => "An error occurred during verification"
+            };
         }
     }
 }

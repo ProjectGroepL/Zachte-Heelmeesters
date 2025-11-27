@@ -5,6 +5,8 @@ namespace ZhmApi.Dtos
     public string Token { get; set; } = null!;
     public string RefreshToken { get; set; } = null!;
     public UserDto User { get; set; } = null!;
+    public bool RequiresTwoFactor { get; set; } = false;
+    public int? TempSessionId { get; set; }
   }
 
   public class RefreshTokenDto

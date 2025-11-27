@@ -9,7 +9,8 @@ public class ApiContext : IdentityDbContext<User, Role, int>
   public ApiContext(DbContextOptions<ApiContext> options) : base(options) { }
 
   // DbSets are inherited from IdentityDbContext
-  public DbSet<Token> Tokens { get; set; }
+  public DbSet<Token> Tokens { get; set; } = null!;
+  public DbSet<TwoFactorCode> TwoFactorCodes { get; set; } = null!;
 
   #region UpdatedAt timestamp handling
   public override int SaveChanges()
@@ -65,6 +66,20 @@ public class ApiContext : IdentityDbContext<User, Role, int>
 
     modelBuilder.Entity<Token>()
         .HasIndex(t => t.ExpiresAt);
+
+    // Configure TwoFactorCode-User relationship
+    modelBuilder.Entity<TwoFactorCode>()
+        .HasOne(tfc => tfc.User)
+        .WithMany()
+        .HasForeignKey(tfc => tfc.UserId)
+        .OnDelete(DeleteBehavior.Cascade);
+
+    // Configure TwoFactorCode indexes
+    modelBuilder.Entity<TwoFactorCode>()
+        .HasIndex(tfc => tfc.UserId);
+
+    modelBuilder.Entity<TwoFactorCode>()
+        .HasIndex(tfc => tfc.ExpiresAt);
 
     // Seed initial data
     SeedData(modelBuilder);

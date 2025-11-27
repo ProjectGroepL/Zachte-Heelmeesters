@@ -162,7 +162,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "a586ba57-ecd0-42c3-aab3-76c4f2550421",
+                            ConcurrencyStamp = "576e497b-7f51-444d-a6e6-2943f50a7430",
                             Description = "Patiënt die gebruik maakt van het systeem voor medische zorg en behandelingen",
                             Name = "Patient",
                             NormalizedName = "PATIENT"
@@ -170,7 +170,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "bcd0959e-6c8b-4c4f-bd93-a70b9634b267",
+                            ConcurrencyStamp = "c096f743-4f67-4bf7-86e4-bba1db188106",
                             Description = "Medisch specialist die gespecialiseerde zorg verleent in een specifiek vakgebied",
                             Name = "Specialist",
                             NormalizedName = "SPECIALIST"
@@ -178,7 +178,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "adc4f357-be97-4e2f-842c-e65c9f54f3e2",
+                            ConcurrencyStamp = "e256c0af-25a9-44d2-88ad-4660346e00d4",
                             Description = "Huisarts die eerste lijn zorg verleent en patiënten doorverwijst naar specialisten",
                             Name = "Huisarts",
                             NormalizedName = "HUISARTS"
@@ -186,7 +186,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 4,
-                            ConcurrencyStamp = "884d3830-95af-4c54-868b-1fd9ba48245e",
+                            ConcurrencyStamp = "de11e5e8-b1f5-489f-b27f-2dde2cf7c086",
                             Description = "Medewerker van zorgverzekeraar die verantwoordelijk is voor vergoedingen en polisbeheer",
                             Name = "Zorgverzekeraar",
                             NormalizedName = "ZORGVERZEKERAAR"
@@ -194,7 +194,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 5,
-                            ConcurrencyStamp = "83b92caa-c1a7-44c7-ae0b-f4c3d22b2b76",
+                            ConcurrencyStamp = "2209c602-3438-4a0a-bee9-8d5699762448",
                             Description = "Systeembeheerder met volledige toegang tot alle functionaliteiten en gebruikersbeheer",
                             Name = "Systeembeheerder",
                             NormalizedName = "SYSTEEMBEHEERDER"
@@ -202,7 +202,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 6,
-                            ConcurrencyStamp = "81da1535-86f3-4c1e-996e-f0b36f594630",
+                            ConcurrencyStamp = "d7eb02f1-6c16-4048-884d-edb1ce68f88f",
                             Description = "Administratief medewerker in ziekenhuis die ondersteuning biedt bij balieservice en patiëntenzorg",
                             Name = "Administratie",
                             NormalizedName = "ADMINISTRATIE"
@@ -220,9 +220,6 @@ namespace ZhmApi.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("DeviceInfo")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("datetime2");
 
@@ -231,9 +228,6 @@ namespace ZhmApi.Migrations
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
-
-                    b.Property<DateTime?>("UsedAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -252,6 +246,45 @@ namespace ZhmApi.Migrations
                         .IsUnique();
 
                     b.ToTable("Tokens");
+                });
+
+            modelBuilder.Entity("ZhmApi.Models.TwoFactorCode", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CodeHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("LastSentAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ResendCount")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Used")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpiresAt");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TwoFactorCodes");
                 });
 
             modelBuilder.Entity("ZhmApi.Models.User", b =>
@@ -413,6 +446,17 @@ namespace ZhmApi.Migrations
                 });
 
             modelBuilder.Entity("ZhmApi.Models.Token", b =>
+                {
+                    b.HasOne("ZhmApi.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ZhmApi.Models.TwoFactorCode", b =>
                 {
                     b.HasOne("ZhmApi.Models.User", "User")
                         .WithMany()

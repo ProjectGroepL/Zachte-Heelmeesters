@@ -13,6 +13,7 @@ namespace ZhmApi.Services
     Task RevokeAllUserTokensAsync(int userId, TokenType type);
     Task<bool> UseTokenAsync(string tokenValue, TokenType type);
     Task CleanupExpiredTokensAsync();
+    Task<TwoFactorCode?> GetTwoFactorCodeBySessionAsync(int sessionId);
   }
 
   public class TokenService : ITokenService
@@ -111,6 +112,13 @@ namespace ZhmApi.Services
 
       _context.Tokens.RemoveRange(expiredTokens);
       await _context.SaveChangesAsync();
+    }
+
+    public async Task<TwoFactorCode?> GetTwoFactorCodeBySessionAsync(int sessionId)
+    {
+      return await _context.TwoFactorCodes
+          .Include(tfc => tfc.User)
+          .FirstOrDefaultAsync(tfc => tfc.Id == sessionId && !tfc.Used);
     }
 
     private static string GenerateTokenValue()

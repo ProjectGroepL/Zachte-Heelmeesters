@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using ZhmApi.Dtos;
 using ZhmApi.Models;
 using ZhmApi.Services;
@@ -13,17 +16,19 @@ namespace ZhmApi.Controllers
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IJwtService _jwtService;
+        private readonly ITokenService _tokenService;
 
         public AuthController(
             UserManager<User> userManager,
             SignInManager<User> signInManager,
-            IJwtService jwtService)
+            IJwtService jwtService,
+            ITokenService tokenService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _jwtService = jwtService;
+            _tokenService = tokenService;
         }
-
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
         {
@@ -69,7 +74,10 @@ namespace ZhmApi.Controllers
 
             // Generate tokens
             var token = _jwtService.GenerateToken(user.Id);
-            var refreshToken = _jwtService.GenerateRefreshToken();
+            var refreshTokenEntity = await _tokenService.CreateTokenAsync(
+                user.Id,
+                TokenType.RefreshToken,
+                TimeSpan.FromDays(7));
 
             var userDto = new UserDto
             {
@@ -92,7 +100,7 @@ namespace ZhmApi.Controllers
             var response = new AuthResponseDto
             {
                 Token = token,
-                RefreshToken = refreshToken,
+                RefreshToken = refreshTokenEntity.Value,
                 User = userDto
             };
 
@@ -118,11 +126,17 @@ namespace ZhmApi.Controllers
             {
                 return Unauthorized(new { message = "Invalid email or password" });
             }
+            ;
 
             // Generate tokens
             var token = _jwtService.GenerateToken(user.Id);
-            var refreshToken = _jwtService.GenerateRefreshToken();
+            var refreshTokenExpirationDays = int.Parse(Environment.GetEnvironmentVariable("REFRESH_TOKEN_EXPIRATION_DAYS") ?? "7");
+            var refreshTokenEntity = await _tokenService.CreateTokenAsync(
+                user.Id,
+                TokenType.RefreshToken,
+                TimeSpan.FromDays(refreshTokenExpirationDays));
 
+            // Get user roles
             // Get user roles
             var roles = await _userManager.GetRolesAsync(user);
             var role = roles.FirstOrDefault() ?? "User";
@@ -148,11 +162,116 @@ namespace ZhmApi.Controllers
             var response = new AuthResponseDto
             {
                 Token = token,
-                RefreshToken = refreshToken,
+                RefreshToken = refreshTokenEntity.Value,
                 User = userDto
             };
 
             return Ok(response);
+        }
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh([FromBody] RefreshTokenDto refreshTokenDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Validate refresh token
+            var tokenEntity = await _tokenService.GetValidTokenAsync(refreshTokenDto.RefreshToken, TokenType.RefreshToken);
+            if (tokenEntity == null)
+            {
+                return Unauthorized(new { message = "Invalid or expired refresh token" });
+            }
+
+            var user = tokenEntity.User;
+
+            // Revoke the old refresh token
+            await _tokenService.RevokeTokenAsync(refreshTokenDto.RefreshToken, TokenType.RefreshToken);
+
+            // Generate new tokens
+            var newToken = _jwtService.GenerateToken(user.Id);
+            var refreshTokenExpirationDays = int.Parse(Environment.GetEnvironmentVariable("REFRESH_TOKEN_EXPIRATION_DAYS") ?? "7");
+            var newRefreshTokenEntity = await _tokenService.CreateTokenAsync(
+                user.Id,
+                TokenType.RefreshToken,
+                TimeSpan.FromDays(refreshTokenExpirationDays));
+
+            // Get user roles
+            var roles = await _userManager.GetRolesAsync(user);
+            var role = roles.FirstOrDefault() ?? "User";
+
+            var userDto = new UserDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                MiddleName = user.MiddleName,
+                LastName = user.LastName,
+                Email = user.Email!,
+                PhoneNumber = user.PhoneNumber!,
+                Street = user.Street,
+                HouseNumber = user.HouseNumber,
+                HouseNumberAddition = user.HouseNumberAddition,
+                ZipCode = user.ZipCode,
+                City = user.City,
+                Country = user.Country,
+                TwoFactorEnabled = user.TwoFactorEnabled,
+                Role = role
+            };
+
+            var response = new AuthResponseDto
+            {
+                Token = newToken,
+                RefreshToken = newRefreshTokenEntity.Value,
+                User = userDto
+            };
+
+            return Ok(response);
+        }
+
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<IActionResult> Me()
+        {
+            // Get user ID from claims (automatically parsed by JWT middleware)
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
+                             User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized(new { message = "Invalid token claims" });
+            }
+
+            // Get user from database
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found" });
+            }
+
+            // Get user roles
+            var roles = await _userManager.GetRolesAsync(user);
+            var role = roles.FirstOrDefault() ?? "User";
+
+            var userDto = new UserDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                MiddleName = user.MiddleName,
+                LastName = user.LastName,
+                Email = user.Email!,
+                PhoneNumber = user.PhoneNumber!,
+                Street = user.Street,
+                HouseNumber = user.HouseNumber,
+                HouseNumberAddition = user.HouseNumberAddition,
+                ZipCode = user.ZipCode,
+                City = user.City,
+                Country = user.Country,
+                TwoFactorEnabled = user.TwoFactorEnabled,
+                Role = role
+            };
+
+            return Ok(userDto);
         }
     }
 }

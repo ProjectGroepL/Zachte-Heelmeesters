@@ -2,13 +2,13 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using ZhmApi.Models;
 
 namespace ZhmApi.Services
 {
   public interface IJwtService
   {
     string GenerateToken(int userId);
-    string GenerateRefreshToken();
     bool ValidateToken(string token);
     int? GetUserIdFromToken(string token);
   }
@@ -50,14 +50,6 @@ namespace ZhmApi.Services
       );
 
       return new JwtSecurityTokenHandler().WriteToken(token);
-    }
-
-    public string GenerateRefreshToken()
-    {
-      var randomBytes = new byte[32];
-      using var rng = System.Security.Cryptography.RandomNumberGenerator.Create();
-      rng.GetBytes(randomBytes);
-      return Convert.ToBase64String(randomBytes);
     }
 
     public bool ValidateToken(string token)
@@ -106,7 +98,7 @@ namespace ZhmApi.Services
           ClockSkew = TimeSpan.Zero
         }, out SecurityToken validatedToken);
 
-        var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userIdClaim = principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value ?? principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (int.TryParse(userIdClaim, out int userId))
         {
           return userId;
@@ -118,5 +110,6 @@ namespace ZhmApi.Services
         return null;
       }
     }
+
   }
 }

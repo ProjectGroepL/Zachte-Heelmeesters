@@ -1,8 +1,10 @@
 using System.Text.Json.Serialization;
 using DotNetEnv;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ZhmApi.Data;
 using ZhmApi.Models;
@@ -20,6 +22,7 @@ if (builder.Environment.IsDevelopment())
 var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? builder.Configuration["JWT:Key"] ?? throw new InvalidOperationException("JWT_KEY environment variable or JWT:Key in appsettings is required");
 var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? builder.Configuration["JWT:Issuer"] ?? throw new InvalidOperationException("JWT_ISSUER environment variable or JWT:Issuer in appsettings is required");
 var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? builder.Configuration["JWT:Audience"] ?? throw new InvalidOperationException("JWT_AUDIENCE environment variable or JWT:Audience in appsettings is required");
+var refreshTokenExpirationDays = int.Parse(Environment.GetEnvironmentVariable("REFRESH_TOKEN_EXPIRATION_DAYS") ?? builder.Configuration["JWT:RefreshTokenExpirationDays"] ?? "7");
 
 // Add JSON options to serialize enums as strings
 builder.Services.AddControllers().AddJsonOptions(x =>
@@ -95,8 +98,32 @@ builder.Services.AddIdentity<User, Role>(options =>
 .AddEntityFrameworkStores<ApiContext>()
 .AddDefaultTokenProviders();
 
+// Configure JWT Authentication
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtKey)),
+        ValidateIssuer = true,
+        ValidIssuer = jwtIssuer,
+        ValidateAudience = true,
+        ValidAudience = jwtAudience,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
 // Register JWT service
 builder.Services.AddScoped<IJwtService, JwtService>();
+
+// Register Token service
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
 

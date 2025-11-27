@@ -9,6 +9,7 @@ public class ApiContext : IdentityDbContext<User, Role, int>
   public ApiContext(DbContextOptions<ApiContext> options) : base(options) { }
 
   // DbSets are inherited from IdentityDbContext
+  public DbSet<Token> Tokens { get; set; }
 
   #region UpdatedAt timestamp handling
   public override int SaveChanges()
@@ -46,6 +47,24 @@ public class ApiContext : IdentityDbContext<User, Role, int>
         .WithMany()
         .HasForeignKey(u => u.RoleId)
         .OnDelete(DeleteBehavior.Restrict);
+
+    // Configure the Token-User relationship
+    modelBuilder.Entity<Token>()
+        .HasOne(t => t.User)
+        .WithMany()
+        .HasForeignKey(t => t.UserId)
+        .OnDelete(DeleteBehavior.Cascade);
+
+    // Configure Token indexes for better performance
+    modelBuilder.Entity<Token>()
+        .HasIndex(t => new { t.Value, t.Type })
+        .IsUnique();
+
+    modelBuilder.Entity<Token>()
+        .HasIndex(t => t.UserId);
+
+    modelBuilder.Entity<Token>()
+        .HasIndex(t => t.ExpiresAt);
 
     // Seed initial data
     SeedData(modelBuilder);

@@ -7,6 +7,11 @@ namespace ZhmApi.Dtos
     public UserDto User { get; set; } = null!;
   }
 
+  public class RefreshTokenDto
+  {
+    public string RefreshToken { get; set; } = null!;
+  }
+
   public class UserDto
   {
     public int Id { get; set; }

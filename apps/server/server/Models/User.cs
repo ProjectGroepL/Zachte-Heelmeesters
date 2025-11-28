@@ -35,6 +35,11 @@
         public string Country { get; set; } = null!;
 
         public int RoleId { get; set; }
+
         public Role Role { get; set; } = null!;
+        // Self-referencing GP relationship
+        public int? GeneralPractitionerId { get; set; }  // FK, nullable if user has no GP
+        public User? GeneralPractitioner { get; set; }   // Navigation property
+        public ICollection<User>? Patients { get; set; } // Inverse navigation
     }
 }

@@ -62,10 +62,27 @@ var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING"
 builder.Services.AddDbContext<ApiContext>(options =>
     options.UseSqlServer(connectionString));
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost5173",
+        policy => policy
+            .WithOrigins(
+                "http://localhost:5173", // Vue dev server HTTP
+                "https://localhost:7048" // API HTTPS redirect
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+    );
+});
+
+
 var app = builder.Build();
 
 // Configure forwarded headers for proxy support
 app.UseForwardedHeaders();
+
+// Use CORS
+app.UseCors("AllowLocalhost5173");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -85,7 +102,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
 
 app.MapControllers();

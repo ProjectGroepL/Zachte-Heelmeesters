@@ -45,6 +45,36 @@ declare module 'vue-router/auto-routes' {
       { path: ParamValue<false> },
       | never
     >,
+    '/auth': RouteRecordInfo<
+      '/auth',
+      '/auth',
+      Record<never, never>,
+      Record<never, never>,
+      | '/auth/2fa'
+      | '/auth/login'
+      | '/auth/registreren'
+    >,
+    '/auth/2fa': RouteRecordInfo<
+      '/auth/2fa',
+      '/auth/2fa',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/auth/login': RouteRecordInfo<
+      '/auth/login',
+      '/auth/login',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/auth/registreren': RouteRecordInfo<
+      '/auth/registreren',
+      '/auth/registreren',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
   }
 
   /**
@@ -75,6 +105,33 @@ declare module 'vue-router/auto-routes' {
     'src/pages/(protected)/[...path].vue': {
       routes:
         | '/(protected)/[...path]'
+      views:
+        | never
+    }
+    'src/pages/auth.vue': {
+      routes:
+        | '/auth'
+        | '/auth/2fa'
+        | '/auth/login'
+        | '/auth/registreren'
+      views:
+        | 'default'
+    }
+    'src/pages/auth/2fa.vue': {
+      routes:
+        | '/auth/2fa'
+      views:
+        | never
+    }
+    'src/pages/auth/login.vue': {
+      routes:
+        | '/auth/login'
+      views:
+        | never
+    }
+    'src/pages/auth/registreren.vue': {
+      routes:
+        | '/auth/registreren'
       views:
         | never
     }

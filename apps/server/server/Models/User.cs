@@ -1,24 +1,16 @@
-﻿namespace ZhmApi.Models
-{
-    public class User
-    {
-        public int Id { get; set; }
+﻿using Microsoft.AspNetCore.Identity;
 
+namespace ZhmApi.Models
+{
+    public class User : IdentityUser<int>
+    {
         public string FirstName { get; set; } = null!;
 
         public string? MiddleName { get; set; }
 
         public string LastName { get; set; } = null!;
 
-        public string Email { get; set; } = null!;
-
-        public string PhoneNumber { get; set; } = null!;
-
         public string ZipCode { get; set; } = null!;
-
-        public string PasswordHash { get; set; } = null!;
-
-        public bool TwoFactorEnabled { get; set; } = false;
 
         public string Street { get; set; } = null!;
 
@@ -26,11 +18,7 @@
 
         public string? HouseNumberAddition { get; set; }
 
-        public string PostalCode { get; set; } = null!;
-
         public string City { get; set; } = null!;
-
-        public string Province { get; set; } = null!;
 
         public string Country { get; set; } = null!;
 

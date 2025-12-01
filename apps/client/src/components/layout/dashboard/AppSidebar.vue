@@ -73,7 +73,7 @@ const data = {
 <template>
   <Sidebar v-bind="props">
     <SidebarHeader>
-      <a>
+      <RouterLink to="/">
         <div :class="cn('flex items-center w-full', open && 'px-4 py-3 space-x-2 ')">
           <div :class="cn('bg-primary text-primary-foreground! rounded-sm size-8 p-2', open && 'size-10')">
             <Activity class="size-full" />
@@ -81,7 +81,7 @@ const data = {
           <span v-if="open" class="text-lg text-primary font-bold leading-tight">Zachte
             Heelmeesters</span>
         </div>
-      </a>
+      </RouterLink>
     </SidebarHeader>
     <SidebarContent>
       <NavMain :items="data.navMain" />

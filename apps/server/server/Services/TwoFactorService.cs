@@ -1,0 +1,141 @@
+using ZhmApi.Data;
+using ZhmApi.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
+
+namespace ZhmApi.Services
+{
+    public class TwoFactorService
+    {
+        private readonly ApiContext _db;
+        private readonly IEmailSender _emailSender;
+        private readonly IConfiguration _config;
+
+        public TwoFactorService(ApiContext db, IEmailSender emailSender, IConfiguration config)
+        {
+            _db = db;
+            _emailSender = emailSender;
+            _config = config;
+        }
+
+        public async Task<int> CreateAndSendCodeAsync(int userId, string email)
+        {
+            var code = GenerateNumericCode(6);
+            var codeHash = HashCode(code, userId);
+
+            var twoFactorCode = new TwoFactorCode
+            {
+                UserId = userId,
+                CodeHash = codeHash,
+                CreatedAt = DateTime.UtcNow,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(10),
+                Used = false,
+                ResendCount = 0,
+                LastSentAt = DateTime.UtcNow
+            };
+
+            _db.TwoFactorCodes.Add(twoFactorCode);
+            await _db.SaveChangesAsync();
+
+            await _emailSender.SendAsync(email, "Je verificatiecode", $"Je verificatiecode is: {code}\n\nDeze code is 10 minuten geldig.");
+
+            return twoFactorCode.Id;
+        }
+
+        public async Task<(bool success, string reason, int userId)> VerifyCodeAsync(int sessionId, string code)
+        {
+            var entry = await _db.TwoFactorCodes.FindAsync(sessionId);
+            if (entry == null)
+                return (false, "no_session", 0);
+
+            if (entry.Used)
+                return (false, "already_used", 0);
+
+            if (entry.ExpiresAt < DateTime.UtcNow)
+                return (false, "expired", 0);
+
+            var hash = HashCode(code, entry.UserId);
+            if (!SecureEquals(hash, entry.CodeHash))
+                return (false, "invalid_code", 0);
+
+            return (true, "", entry.UserId);
+        }
+
+
+        public async Task MarkAsUsedAsync(int sessionId)
+        {
+            var entry = await _db.TwoFactorCodes.FindAsync(sessionId);
+            if (entry != null)
+            {
+                entry.Used = true;
+                await _db.SaveChangesAsync();
+            }
+        }
+
+        public async Task<(bool success, string reason)> ResendAsync(int sessionId)
+        {
+            var entry = await _db.TwoFactorCodes
+                .Include(tc => tc.User)
+                .FirstOrDefaultAsync(tc => tc.Id == sessionId);
+
+            if (entry == null) return (false, "no_session");
+
+            if (entry.ResendCount >= 3)
+                return (false, "too_many_resends");
+
+            if (entry.Used)
+                return (false, "already_used");
+
+            if (entry.ExpiresAt < DateTime.UtcNow)
+                return (false, "expired");
+
+            // Generate a new code for the resend
+            var newCode = GenerateNumericCode(6);
+            var newCodeHash = HashCode(newCode, entry.UserId);
+
+            // Update the entry with the new code
+            entry.CodeHash = newCodeHash;
+            entry.ResendCount++;
+            entry.LastSentAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+
+            await _emailSender.SendAsync(entry.User.Email!, "Je nieuwe verificatiecode",
+                $"Je nieuwe verificatiecode is: {newCode}\n\nDeze code is 10 minuten geldig.");
+
+            return (true, "");
+        }
+
+        // Utility methodsQZ
+        private string HashCode(string code, int userId)
+        {
+            var secret = _config["TWO_FACTOR_SECRET"] ?? "default-secret-key-change-in-production";
+            using var hmac = new HMACSHA256(
+                System.Text.Encoding.UTF8.GetBytes(secret + userId)
+            );
+            var hash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(code));
+            return Convert.ToBase64String(hash);
+        }
+
+        private bool SecureEquals(string a, string b)
+        {
+            try
+            {
+                return CryptographicOperations.FixedTimeEquals(
+                    Convert.FromBase64String(a),
+                    Convert.FromBase64String(b)
+                );
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private string GenerateNumericCode(int length)
+        {
+            var bytes = new byte[length];
+            RandomNumberGenerator.Fill(bytes);
+            return string.Join("", bytes.Select(b => (b % 10).ToString()));
+        }
+    }
+}

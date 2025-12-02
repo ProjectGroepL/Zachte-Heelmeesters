@@ -58,7 +58,6 @@ namespace ZhmApi.Tests
         ZipCode = "1234AB",
         Country = "NL",
         TwoFactorEnabled = true,
-        RoleId = 1
       };
     }
 

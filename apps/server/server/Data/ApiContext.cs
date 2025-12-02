@@ -8,9 +8,14 @@ public class ApiContext : IdentityDbContext<User, Role, int>
 {
   public ApiContext(DbContextOptions<ApiContext> options) : base(options) { }
 
+  public DbSet<User> Users { get; set; } = null!;
+  public DbSet<Role> Roles { get; set; } = null!;
   // DbSets are inherited from IdentityDbContext
   public DbSet<Token> Tokens { get; set; } = null!;
   public DbSet<TwoFactorCode> TwoFactorCodes { get; set; } = null!;
+  public DbSet<Afspraak> Afspraken { get; set; } = null!;
+  public DbSet<PriveAfspraak> PriveAfspraken { get; set; } = null!;
+  public DbSet<SpecialistIcal> SpecialistIcals { get; set; } = null!;
 
   #region UpdatedAt timestamp handling
   public override int SaveChanges()
@@ -80,6 +85,46 @@ public class ApiContext : IdentityDbContext<User, Role, int>
 
     modelBuilder.Entity<TwoFactorCode>()
         .HasIndex(tfc => tfc.ExpiresAt);
+
+    // Afspraak 
+    modelBuilder.Entity<Afspraak>(entity =>
+    {
+        entity.HasKey(a => a.Id);
+
+        entity.HasOne(a => a.Specialist)
+            .WithMany()
+            .HasForeignKey(a => a.SpecialistId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        entity.HasOne(a => a.Patient)
+            .WithMany()
+            .HasForeignKey(a => a.PatientId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        // TODO: add Behandelingen
+    });
+    
+    // PriveAfspraak
+    modelBuilder.Entity<PriveAfspraak>(entity =>
+    {
+        entity.HasKey(p => p.Uid);
+
+        entity.HasOne(p => p.User)
+            .WithMany()
+            .HasForeignKey(p => p.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+    });
+    
+    // SpecialistIcal
+    modelBuilder.Entity<SpecialistIcal>(entity =>
+    {
+        entity.HasKey(s => s.UserId);
+
+        entity.HasOne(s => s.User) // 1:1
+            .WithOne()
+            .HasForeignKey<SpecialistIcal>(s => s.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+    });
 
     // Seed initial data
     SeedData(modelBuilder);

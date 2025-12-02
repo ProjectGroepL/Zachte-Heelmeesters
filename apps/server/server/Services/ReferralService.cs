@@ -9,16 +9,21 @@ namespace ZhmApi.Services
     {
         private readonly ApiContext _db;
 
+        public ReferralService(ApiContext db)
+        {
+            _db = db;
+        }
+
         public async Task<(bool Succes, string? Error, Referral? Referral)> CreateReferralAsync(
             int doctorId, CreateReferralRequest request)
         {
             bool allowed = await _db.DoctorPatients
-                .AnyAsync(dp => dp.DoctorId == doctorId && dp.PatientId == request.patientId);
+                .AnyAsync(dp => dp.DoctorId == doctorId && dp.PatientId == request.PatientId);
             if(!allowed)
                 return(false, "Patient niet toegestaan", null);
 
             bool exists = await _db.Referrals
-                .AnyAsync(r => r.PatientId == request.patientId && r.TreatmentId == request.TreatmentId);
+                .AnyAsync(r => r.PatientId == request.PatientId && r.TreatmentId == request.TreatmentId);
 
             if(exists)
                 return(false, "deze doorverwijzing bestaat al", null);   
@@ -26,8 +31,10 @@ namespace ZhmApi.Services
             var referral = new Referral
             {
                 DoctorId = doctorId,
-                PatientId = request.patientId,
-                TreatmentId = request.TreatmentId 
+                PatientId = request.PatientId,
+                TreatmentId = request.TreatmentId,
+                Notes = request.Notes,
+                Status = string.IsNullOrWhiteSpace(request.Status) ? "open" : request.Status!
             };
 
             _db.Referrals.Add(referral);
@@ -39,6 +46,7 @@ namespace ZhmApi.Services
         {
             return await _db.Referrals
                     .Include(r => r.Treatment)
+                    .Include(r => r.Patient)
                     .FirstOrDefaultAsync(r => r.Id == id);
         }
         public async Task<IEnumerable<ReferralResponse>>  GetPatientReferralAsync(int patientId)
@@ -48,10 +56,29 @@ namespace ZhmApi.Services
                 .Select(r => new ReferralResponse
                 {
                     Id = r.Id,
-                    Treatment = r.Treatment.Description,
-                    CreatedAt = r.CreatedAt 
+                    PatientName = r.Patient.FirstName + " " + r.Patient.LastName,
+                    TreatmentName = r.Treatment.Description,
+                    CreatedAt = r.CreatedAt,
+                    Status = "open"
             })
             .ToListAsync();
+        }
+
+        public async Task<IEnumerable<ReferralResponse>> GetDoctorReferralsAsync(int doctorId)
+        {
+            return await _db.Referrals
+                .Where(r => r.DoctorId == doctorId)
+                .Include(r => r.Patient)
+                .Include(r => r.Treatment)
+                .Select(r => new ReferralResponse
+                {
+                    Id = r.Id,
+                    PatientName = r.Patient.FirstName + " " + r.Patient.LastName,
+                    TreatmentName = r.Treatment.Description,
+                    CreatedAt = r.CreatedAt,
+                    Status = "open"
+                })
+                .ToListAsync();
         }
     }
 }

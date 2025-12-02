@@ -8,5 +8,6 @@ namespace ZhmApi.Services
         Task<(bool Succes, String? Error, Referral? Referral)> CreateReferralAsync(int doctorId, CreateReferralRequest request);
         Task<Referral?> GetReferralAsync(int id);
         Task<IEnumerable<ReferralResponse>> GetPatientReferralAsync(int patientId);
+        Task<IEnumerable<ReferralResponse>> GetDoctorReferralsAsync(int doctorId);
     }
 }

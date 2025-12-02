@@ -10,6 +10,7 @@ import {
 } from "lucide-vue-next"
 import NavMain from '@/components/layout/dashboard/NavMain.vue'
 import NavUser from '@/components/layout/dashboard/NavUser.vue'
+import NavDoctor from '@/components/layout/dashboard/NavDoctor.vue'
 
 import {
   Sidebar,
@@ -23,12 +24,44 @@ import { cn } from '@/lib/utils'
 import { useRouter } from 'vue-router'
 import NavAdmin from '@/components/layout/dashboard/NavAdmin.vue'
 import Separator from '@/components/ui/separator/Separator.vue'
+import { useAuth } from '@/composables/useAuth'
+import { onMounted, ref } from 'vue'
+
 
 const props = withDefaults(defineProps<SidebarProps>(), {
   collapsible: "icon",
 })
 
 const { open } = useSidebar()
+
+const { isAuthenticated, getUser } = useAuth()
+
+import type { User } from '@/types/Auth'
+const user = ref<User | null>(null)
+
+onMounted(async () => {
+  if (!isAuthenticated()) return
+  const res = await getUser()
+  if (res.success) user.value = res.data!
+})
+
+const hasRole = (roleName: string) => {
+  if (!user.value) return false
+
+  // Case 1: server returns an array `role: Role[]`
+  const maybeRolesArray = (user.value as any).role
+  if (Array.isArray(maybeRolesArray)) {
+    return maybeRolesArray.some((r: any) => (r && (r.name === roleName || r === roleName)))
+  }
+
+  // Case 2: server returns a single role string `Role` or `role` (legacy)
+  const maybeRoleString = (user.value as any).Role || (user.value as any).role
+  if (typeof maybeRoleString === 'string') {
+    return maybeRoleString === roleName || maybeRoleString.toLowerCase() === roleName.toLowerCase()
+  }
+
+  return false
+}
 
 // This is sample data.
 const data = {
@@ -88,6 +121,8 @@ const data = {
       <div v-if="!open" class="w-full px-2">
         <Separator />
       </div>
+       <!-- Doctor -->
+      <NavDoctor v-if="hasRole('Huisarts')" />
       <NavAdmin :items="data.projects" />
     </SidebarContent>
     <SidebarFooter>

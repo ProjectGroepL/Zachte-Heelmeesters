@@ -10,6 +10,7 @@ import type {
   TwoFactorResponse,
   ApiResponse
 } from "@/types/Auth"
+
 import api from "@/lib/api"
 import { useRouter } from "vue-router";
 

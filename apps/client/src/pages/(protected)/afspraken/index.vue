@@ -1,75 +1,89 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted } from 'vue'
 
-interface Referral {
-  id: number;
-  patientId: number;
-  doctorId: number;
-  treatmentId: number;
-  notes?: string;
-  status: string;
-  createdAt: string;
+interface AppointmentDto {
+    referralId: number
+    patientName: string
+    notes: string
+    status: string
+    treatmentDescription: string
+    treatmentInstructions: string
 }
 
-interface Treatment {
-  id: number;
-  name: string;
-  specialInstructions?: string;
-}
-
-interface Appointment {
-  id: number;
-  referralId: number;
-  referral: Referral;
-  treatment?: Treatment;
-}
-
-const appointments = ref<Appointment[]>([]);
-const loading = ref(true);
+const appointments = ref<AppointmentDto[]>([])
+const loading = ref(true)
+const error = ref<string | null>(null)
 
 const fetchAppointments = async () => {
-  try {
-    const res = await fetch('https://localhost:5001/api/appointments');
-    appointments.value = await res.json();
-  } catch (err) {
-    console.error('Fout bij ophalen van afspraken:', err);
-  } finally {
-    loading.value = false;
-  }
-};
+    loading.value = true
+    error.value = null
 
-onMounted(fetchAppointments);
+    try {
+        const token = localStorage.getItem('access_token')
+        if (!token) throw new Error('Niet ingelogd')
+
+        // fetch uitvoeren
+        const res = await fetch('https://localhost:7048/api/appointments', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
+
+        // hier mag je res.json() aanroepen
+        const data = await res.json()
+        console.log('Server response:', data)
+
+        // Vue state updaten
+        appointments.value = data.Appointments || data
+
+    } catch (err: any) {
+        console.error('Fout bij ophalen van afspraken:', err)
+        error.value = 'Er is een fout opgetreden bij het laden van de afspraken.'
+    } finally {
+        loading.value = false
+    }
+}
+
+
+onMounted(fetchAppointments)
+
 </script>
 
+
 <template>
-  <div class="p-6 flex flex-col space-y-6">
-    <h1 class="text-2xl font-bold">Dashboard Afspraken</h1>
+    <div class="p-6 flex flex-col space-y-6">
+        <h1 class="text-2xl font-bold">Mijn Afspraken</h1>
 
-    <div v-if="loading" class="text-gray-500">Afspraken laden...</div>
+        <div v-if="loading" class="text-gray-500">Afspraken laden...</div>
+        <div v-else-if="error" class="text-red-500">{{ error }}</div>
+        <div v-else>
+            <p v-if="appointments.length === 0" class="text-gray-600">Er zijn nog geen afspraken.</p>
 
-    <div v-else>
-      <p v-if="appointments.length === 0" class="text-gray-600">Er zijn nog geen afspraken.</p>
-
-      <div v-else class="overflow-x-auto">
-        <table class="min-w-full table-auto border border-gray-300">
-          <thead class="bg-gray-100">
-            <tr>
-              <th class="border px-4 py-2">ID</th>
-              <th class="border px-4 py-2">Doorverwijzing ID</th>
-              <th class="border px-4 py-2">Behandeling</th>
-              <th class="border px-4 py-2">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="appointment in appointments" :key="appointment.id" class="hover:bg-gray-50">
-              <td class="border px-4 py-2">{{ appointment.id }}</td>
-              <td class="border px-4 py-2">{{ appointment.referralId }}</td>
-              <td class="border px-4 py-2">{{ appointment.treatment?.name ?? '-' }}</td>
-              <td class="border px-4 py-2">{{ appointment.referral.status }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+            <div v-else class="overflow-x-auto">
+                <table class="min-w-full table-auto border border-gray-300">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="border px-4 py-2">Doorverwijzing ID</th>
+                            <th class="border px-4 py-2">Behandeling</th>
+                            <th class="border px-4 py-2">Instructies</th>
+                            <th class="border px-4 py-2">Status</th>
+                            <th class="border px-4 py-2">Notities</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="appointment in appointments" :key="appointment.referralId" class="hover:bg-gray-50">
+                            <td class="border px-4 py-2">{{ appointment.referralId }}</td>
+                            <td class="border px-4 py-2">{{ appointment.treatmentDescription }}</td>
+                            <td class="border px-4 py-2">{{ appointment.treatmentInstructions }}</td>
+                            <td class="border px-4 py-2">{{ appointment.status }}</td>
+                            <td class="border px-4 py-2">{{ appointment.notes }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-  </div>
 </template>

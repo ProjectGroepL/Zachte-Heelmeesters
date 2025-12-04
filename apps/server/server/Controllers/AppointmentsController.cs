@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ZhmApi.Data;     
-using ZhmApi.Models;   
+using ZhmApi.Models;
 using ZhmApi.Data;
+using ZhmApi.Dtos;
+using System.Security.Claims;
 
 namespace ZhmApi.Controllers
 {
@@ -21,7 +22,7 @@ namespace ZhmApi.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateAppointment([FromBody] Appointment appointment)
         {
-            // mandatory referral check
+            // Mandatory referral check
             var referralExists = await _context.Referrals
                 .AnyAsync(r => r.Id == appointment.ReferralId);
 
@@ -30,7 +31,7 @@ namespace ZhmApi.Controllers
                 return BadRequest(new { message = "Referral does not exist." });
             }
 
-            // save to database
+            // Save to database
             _context.Appointments.Add(appointment);
             await _context.SaveChangesAsync();
 
@@ -39,12 +40,33 @@ namespace ZhmApi.Controllers
 
         // GET: api/appointments
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Appointment>>> GetAppointments()
+        public async Task<ActionResult<IEnumerable<AppointmentDto>>> GetAppointments()
         {
-            return await _context.Appointments
+            // Haal userId uit JWT claim van de ingelogde gebruiker
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdClaim, out int userId))
+                return Unauthorized("Niet ingelogd");
+
+            Console.WriteLine($"Logged in userIdClaim: {userId}");
+
+            var appointments = await _context.Appointments
                 .Include(a => a.Referral)
+                    .ThenInclude(r => r.Patient)
+                .Include(a => a.Referral.Treatment)
+                .Where(a => a.Referral.PatientId == userId) // Filter op ingelogde user
+                .Select(a => new AppointmentDto
+                {
+                    ReferralId = a.ReferralId,
+                    Notes = a.Referral.Notes,
+                    Status = a.Referral.Status,
+                    TreatmentDescription = a.Referral.Treatment.Description,
+                    TreatmentInstructions = a.Referral.Treatment.Instructions,
+                    PatientName = $"{a.Referral.Patient.FirstName} {a.Referral.Patient.MiddleName} {a.Referral.Patient.LastName}".Trim()
+                })
                 .ToListAsync();
+
+            return Ok(new { UserId = userId, Appointments = appointments });
+
         }
     }
-
 }

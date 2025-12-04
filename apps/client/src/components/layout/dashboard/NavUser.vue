@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { ref, computed, onMounted } from "vue"
 import {
   BadgeCheck,
   Bell,
   ChevronsUpDown,
   CreditCard,
   LogOut,
+  Settings,
   Sparkles,
 } from "lucide-vue-next"
 
@@ -28,16 +30,44 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
-
-const props = defineProps<{
-  user: {
-    name: string
-    email: string
-    avatar: string | null
-  }
-}>()
+import { useAuth } from '@/composables/useAuth'
+import type { User } from '@/types/Auth'
 
 const { isMobile } = useSidebar()
+const { getUser, logout } = useAuth()
+
+const user = ref<User | null>(null)
+const isLoading = ref(true)
+
+// Computed values for display
+const displayName = computed(() => {
+  if (!user.value) return 'Loading...'
+  const { firstName, middleName, lastName } = user.value
+  return middleName ? `${firstName} ${middleName} ${lastName}` : `${firstName} ${lastName}`
+})
+
+const initials = computed(() => {
+  if (!user.value) return 'LO'
+  return `${user.value.firstName.charAt(0)}${user.value.lastName.charAt(0)}`.toUpperCase()
+})
+
+// Fetch user data on component mount
+onMounted(async () => {
+  try {
+    const response = await getUser()
+    if (response.success && response.data) {
+      user.value = response.data
+    }
+  } catch (error) {
+    console.error('Failed to fetch user data:', error)
+  } finally {
+    isLoading.value = false
+  }
+})
+
+const handleLogout = () => {
+  logout()
+}
 </script>
 
 <template>
@@ -48,14 +78,13 @@ const { isMobile } = useSidebar()
           <SidebarMenuButton size="lg"
             class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
             <Avatar class="h-8 w-8 rounded-lg">
-              <AvatarImage v-if="user.avatar" :src="user.avatar" :alt="user.name" />
               <AvatarFallback class="rounded-lg">
-                JJ
+                {{ initials }}
               </AvatarFallback>
             </Avatar>
             <div class="grid flex-1 text-left text-sm leading-tight">
-              <span class="truncate font-medium">{{ user.name }}</span>
-              <span class="truncate text-xs">{{ user.email }}</span>
+              <span class="truncate font-medium">{{ displayName }}</span>
+              <span class="truncate text-xs">{{ user?.email || 'Loading...' }}</span>
             </div>
             <ChevronsUpDown class="ml-auto size-4" />
           </SidebarMenuButton>
@@ -65,41 +94,29 @@ const { isMobile } = useSidebar()
           <DropdownMenuLabel class="p-0 font-normal">
             <div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
               <Avatar class="h-8 w-8 rounded-lg">
-                <AvatarImage v-if="user.avatar" :src="user.avatar" :alt="user.name" />
                 <AvatarFallback class="rounded-lg">
-                  CN
+                  {{ initials }}
                 </AvatarFallback>
               </Avatar>
               <div class="grid flex-1 text-left text-sm leading-tight">
-                <span class="truncate font-semibold">{{ user.name }}</span>
-                <span class="truncate text-xs">{{ user.email }}</span>
+                <span class="truncate font-semibold">{{ displayName }}</span>
+                <span class="truncate text-xs">{{ user?.email || 'Loading...' }}</span>
               </div>
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem>
-              <Sparkles />
-              Upgrade to Pro
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <BadgeCheck />
-              Account
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <CreditCard />
-              Billing
-            </DropdownMenuItem>
-            <DropdownMenuItem>
               <Bell />
-              Notifications
+              Meldingen
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Settings />
+              Instellingen
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
+          <DropdownMenuItem @click="handleLogout">
             <LogOut />
             Log out
           </DropdownMenuItem>

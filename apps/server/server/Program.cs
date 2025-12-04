@@ -1,8 +1,14 @@
 using System.Text.Json.Serialization;
 using DotNetEnv;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ZhmApi.Data;
+using ZhmApi.Models;
+using ZhmApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +17,12 @@ if (builder.Environment.IsDevelopment())
 {
     Env.Load(Path.Combine(Directory.GetCurrentDirectory(), "..", ".env"));
 }
+
+// Get configuration from environment variables (with fallbacks to appsettings)
+var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? builder.Configuration["JWT:Key"] ?? throw new InvalidOperationException("JWT_KEY environment variable or JWT:Key in appsettings is required");
+var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? builder.Configuration["JWT:Issuer"] ?? throw new InvalidOperationException("JWT_ISSUER environment variable or JWT:Issuer in appsettings is required");
+var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? builder.Configuration["JWT:Audience"] ?? throw new InvalidOperationException("JWT_AUDIENCE environment variable or JWT:Audience in appsettings is required");
+var refreshTokenExpirationDays = int.Parse(Environment.GetEnvironmentVariable("REFRESH_TOKEN_EXPIRATION_DAYS") ?? builder.Configuration["JWT:RefreshTokenExpirationDays"] ?? "7");
 
 // Add JSON options to serialize enums as strings
 builder.Services.AddControllers().AddJsonOptions(x =>
@@ -56,6 +68,20 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 
+// Handle CORS
+var corsOrigins = Environment.GetEnvironmentVariable("CORS_ORIGINS")?.Split(',') ?? ["http://localhost:5173", "https://localhost:5173"];
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowClient", policy =>
+    {
+        policy.WithOrigins(corsOrigins) // From environment variable
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 // Register ApiContext with DI
 var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ?? builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("CONNECTION_STRING environment variable or DefaultConnection in appsettings is required");
 
@@ -75,6 +101,69 @@ builder.Services.AddCors(options =>
     );
 });
 
+// Configure Identity
+builder.Services.AddIdentity<User, Role>(options =>
+{
+    // Password settings
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = true;
+    options.Password.RequiredLength = 6;
+    options.Password.RequiredUniqueChars = 1;
+
+    // Lockout settings
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
+
+    // User settings
+    options.User.AllowedUserNameCharacters =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+    options.User.RequireUniqueEmail = true;
+})
+.AddEntityFrameworkStores<ApiContext>()
+.AddDefaultTokenProviders();
+
+// Configure JWT Authentication
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtKey)),
+        ValidateIssuer = true,
+        ValidIssuer = jwtIssuer,
+        ValidateAudience = true,
+        ValidAudience = jwtAudience,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+// Register JWT service
+builder.Services.AddScoped<IJwtService, JwtService>();
+
+// Register Token service
+builder.Services.AddScoped<ITokenService, TokenService>();
+
+// Register 2FA services
+builder.Services.AddScoped<TwoFactorService>();
+
+// Register Email services
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+
+// Register email sender based on environment
+if (builder.Environment.IsDevelopment())
+{
+    // builder.Services.AddScoped<IEmailSender, MailKitEmailSender>();
+    builder.Services.AddScoped<IEmailSender, ConsoleEmailSender>();
+}
 
 var app = builder.Build();
 
@@ -102,6 +191,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowClient");
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

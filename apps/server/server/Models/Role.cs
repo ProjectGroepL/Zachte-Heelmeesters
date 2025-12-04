@@ -1,11 +1,9 @@
-﻿namespace ZhmApi.Models
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace ZhmApi.Models
 {
-    public class Role
+    public class Role : IdentityRole<int>
     {
-        public int Id { get; set; }
-
-        public string Name { get; set; } = null!;
-
         public string Description { get; set; } = null!;
     }
 }

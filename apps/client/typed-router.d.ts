@@ -30,6 +30,7 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | '/(protected)/'
       | '/(protected)/[...path]'
+      | '/(protected)/afspraken/'
       | '/(protected)/referrals/'
       | '/(protected)/referrals/new'
     >,
@@ -45,6 +46,13 @@ declare module 'vue-router/auto-routes' {
       '/:path(.*)',
       { path: ParamValue<true> },
       { path: ParamValue<false> },
+      | never
+    >,
+    '/(protected)/afspraken/': RouteRecordInfo<
+      '/(protected)/afspraken/',
+      '/afspraken',
+      Record<never, never>,
+      Record<never, never>,
       | never
     >,
     '/(protected)/referrals/': RouteRecordInfo<
@@ -109,6 +117,7 @@ declare module 'vue-router/auto-routes' {
         | '/(protected)'
         | '/(protected)/'
         | '/(protected)/[...path]'
+        | '/(protected)/afspraken/'
         | '/(protected)/referrals/'
         | '/(protected)/referrals/new'
       views:
@@ -123,6 +132,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/(protected)/[...path].vue': {
       routes:
         | '/(protected)/[...path]'
+      views:
+        | never
+    }
+    'src/pages/(protected)/afspraken/index.vue': {
+      routes:
+        | '/(protected)/afspraken/'
       views:
         | never
     }

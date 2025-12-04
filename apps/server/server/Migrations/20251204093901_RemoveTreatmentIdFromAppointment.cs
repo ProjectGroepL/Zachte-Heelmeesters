@@ -5,13 +5,13 @@
 namespace ZhmApi.Migrations
 {
     /// <inheritdoc />
-    public partial class AppointmentModelAdded : Migration
+    public partial class RemoveTreatmentIdFromAppointment : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "Instructions",
+                name: "SpecialInstructions",
                 table: "Treatments",
                 type: "nvarchar(max)",
                 nullable: true);
@@ -22,8 +22,7 @@ namespace ZhmApi.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ReferralId = table.Column<int>(type: "int", nullable: false),
-                    TreatmentId = table.Column<int>(type: "int", nullable: false)
+                    ReferralId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -34,12 +33,6 @@ namespace ZhmApi.Migrations
                         principalTable: "Referrals",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Appointments_Treatments_TreatmentId",
-                        column: x => x.TreatmentId,
-                        principalTable: "Treatments",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.UpdateData(
@@ -47,52 +40,47 @@ namespace ZhmApi.Migrations
                 keyColumn: "Id",
                 keyValue: 1,
                 column: "ConcurrencyStamp",
-                value: "46219096-3d79-48b4-aa70-783bccce8220");
+                value: "988819c4-8ee0-45c5-b18c-2448c7e2aaae");
 
             migrationBuilder.UpdateData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
                 keyValue: 2,
                 column: "ConcurrencyStamp",
-                value: "ce7ce13b-3855-4328-9f21-168fd8ae5ba8");
+                value: "a41bdaa4-c189-4c83-b017-e250c53f968d");
 
             migrationBuilder.UpdateData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
                 keyValue: 3,
                 column: "ConcurrencyStamp",
-                value: "638f7544-733e-4efd-85e0-140e81243a84");
+                value: "620d814f-c800-44da-9b6c-b7221d6f2c7b");
 
             migrationBuilder.UpdateData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
                 keyValue: 4,
                 column: "ConcurrencyStamp",
-                value: "48350225-6d34-49c7-a1eb-7e2b45803337");
+                value: "f0ec3e50-5a3d-4743-8dc5-f557135e16d3");
 
             migrationBuilder.UpdateData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
                 keyValue: 5,
                 column: "ConcurrencyStamp",
-                value: "cb81a495-13fb-40c3-b066-266b7a6c9201");
+                value: "66c619ef-cda6-41f5-a63a-8a8292cfe1bd");
 
             migrationBuilder.UpdateData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
                 keyValue: 6,
                 column: "ConcurrencyStamp",
-                value: "87892b23-7287-4d0d-82ff-49dc86c9b0a5");
+                value: "c7ad8cd4-2db1-4a75-ae5b-7401d2fe2a59");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Appointments_ReferralId",
                 table: "Appointments",
                 column: "ReferralId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Appointments_TreatmentId",
-                table: "Appointments",
-                column: "TreatmentId");
         }
 
         /// <inheritdoc />
@@ -102,7 +90,7 @@ namespace ZhmApi.Migrations
                 name: "Appointments");
 
             migrationBuilder.DropColumn(
-                name: "Instructions",
+                name: "SpecialInstructions",
                 table: "Treatments");
 
             migrationBuilder.UpdateData(

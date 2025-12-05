@@ -8,6 +8,7 @@ interface AppointmentDto {
     status: string
     treatmentDescription: string
     treatmentInstructions: string
+    date: string
 }
 
 const appointments = ref<AppointmentDto[]>([])
@@ -77,6 +78,7 @@ onMounted(fetchAppointments)
                             <th class="border px-4 py-2">Instructies</th>
                             <th class="border px-4 py-2">Status</th>
                             <th class="border px-4 py-2">Notities</th>
+                            <th class="border px-4 py-2">Datum</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -86,6 +88,8 @@ onMounted(fetchAppointments)
                             <td class="border px-4 py-2">{{ appointment.treatmentInstructions }}</td>
                             <td class="border px-4 py-2">{{ appointment.status }}</td>
                             <td class="border px-4 py-2">{{ appointment.notes }}</td>
+                            <td class="border px-4 py-2">{{ new Date(appointment.date).toLocaleString('nl-NL') }}</td>
+
                         </tr>
                     </tbody>
                 </table>

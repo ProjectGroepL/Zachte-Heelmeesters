@@ -20,18 +20,24 @@ namespace ZhmApi.Controllers
 
         // POST: api/appointments
         [HttpPost]
-        public async Task<IActionResult> CreateAppointment([FromBody] Appointment appointment)
+        public async Task<IActionResult> CreateAppointment([FromBody] AppointmentCreateDto request)
         {
-            // Mandatory referral check
-            var referralExists = await _context.Referrals
-                .AnyAsync(r => r.Id == appointment.ReferralId);
+            // Check referral
+            var referralExists = await _context.Referrals.AnyAsync(r => r.Id == request.ReferralId);
+            if (!referralExists) return BadRequest(new { message = "Referral does not exist." });
 
-            if (!referralExists)
+            // Combine date & time
+            if (!DateTime.TryParse($"{request.Date} {request.Time}", out var appointmentDateTime))
             {
-                return BadRequest(new { message = "Referral does not exist." });
+                return BadRequest(new { message = "Invalid date/time format" });
             }
 
-            // Save to database
+            var appointment = new Appointment
+            {
+                ReferralId = request.ReferralId,
+                Date = appointmentDateTime
+            };
+
             _context.Appointments.Add(appointment);
             await _context.SaveChangesAsync();
 
@@ -40,33 +46,35 @@ namespace ZhmApi.Controllers
 
         // GET: api/appointments
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AppointmentDto>>> GetAppointments()
+        public async Task<ActionResult<IEnumerable<AppointmentDto>>> GetAppointments([FromServices] ILogger<AppointmentsController> logger)
         {
             // Haal userId uit JWT claim van de ingelogde gebruiker
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!int.TryParse(userIdClaim, out int userId))
                 return Unauthorized("Niet ingelogd");
 
-            Console.WriteLine($"Logged in userIdClaim: {userId}");
-
-            var appointments = await _context.Appointments
+            // Raw entities ophalen (om te kunnen loggen)
+            var appointmentsRaw = await _context.Appointments
                 .Include(a => a.Referral)
                     .ThenInclude(r => r.Patient)
                 .Include(a => a.Referral.Treatment)
-                .Where(a => a.Referral.PatientId == userId) // Filter op ingelogde user
-                .Select(a => new AppointmentDto
-                {
-                    ReferralId = a.ReferralId,
-                    Notes = a.Referral.Notes,
-                    Status = a.Referral.Status,
-                    TreatmentDescription = a.Referral.Treatment.Description,
-                    TreatmentInstructions = a.Referral.Treatment.Instructions,
-                    PatientName = $"{a.Referral.Patient.FirstName} {a.Referral.Patient.MiddleName} {a.Referral.Patient.LastName}".Trim()
-                })
+                .Where(a => a.Referral.PatientId == userId)
                 .ToListAsync();
 
-            return Ok(new { UserId = userId, Appointments = appointments });
+            // Map naar DTO met string formatting voor Date
+            var appointments = appointmentsRaw.Select(a => new AppointmentDto
+            {
+                ReferralId = a.ReferralId,
+                Notes = a.Referral.Notes,
+                Status = a.Referral.Status,
+                TreatmentDescription = a.Referral.Treatment.Description,
+                TreatmentInstructions = a.Referral.Treatment.Instructions,
+                PatientName = $"{a.Referral.Patient.FirstName} {a.Referral.Patient.MiddleName} {a.Referral.Patient.LastName}".Trim(),
+                Date = a.Date.ToString("yyyy-MM-dd HH:mm")
+            }).ToList();
 
+            return Ok(new { UserId = userId, appointments });
         }
+
     }
 }

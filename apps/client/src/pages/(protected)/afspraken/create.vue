@@ -40,7 +40,7 @@ const fetchReferrals = async () => {
     }
 }
 
-// Submit functie
+// Submit function
 const createAppointment = async () => {
     if (!selectedReferralId.value || !appointmentDate.value || !appointmentTime.value) {
         alert('Selecteer een doorverwijzing, datum en tijd')
@@ -54,7 +54,6 @@ const createAppointment = async () => {
         const token = localStorage.getItem('access_token')
         if (!token) throw new Error('Niet ingelogd')
 
-        // Optioneel: combineer datum + tijd tot één string of laat backend zelf behandelen
         const payload = {
             referralId: selectedReferralId.value,
             date: appointmentDate.value,

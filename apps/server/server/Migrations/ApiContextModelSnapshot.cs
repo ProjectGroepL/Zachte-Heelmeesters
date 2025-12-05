@@ -133,6 +133,9 @@ namespace ZhmApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("ReferralId")
                         .HasColumnType("int");
 
@@ -233,7 +236,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "153d0c2b-500c-40a8-991b-2557e8242566",
+                            ConcurrencyStamp = "6fdd1e63-18e5-4a64-a17a-25b949df1b29",
                             Description = "Patiënt die gebruik maakt van het systeem voor medische zorg en behandelingen",
                             Name = "Patient",
                             NormalizedName = "PATIENT"
@@ -241,7 +244,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "ff77d632-3585-49b7-9566-32c9222ef748",
+                            ConcurrencyStamp = "56d46283-e1b4-490d-8a5a-20aa2198e6ea",
                             Description = "Medisch specialist die gespecialiseerde zorg verleent in een specifiek vakgebied",
                             Name = "Specialist",
                             NormalizedName = "SPECIALIST"
@@ -249,7 +252,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "eb413989-b648-4380-aed3-d137fb8733b0",
+                            ConcurrencyStamp = "f2ba51b3-8fd3-438e-ba15-c2df64c7ecb4",
                             Description = "Huisarts die eerste lijn zorg verleent en patiënten doorverwijst naar specialisten",
                             Name = "Huisarts",
                             NormalizedName = "HUISARTS"
@@ -257,7 +260,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 4,
-                            ConcurrencyStamp = "3c2544fa-802c-4d19-95bb-4ec74a8c82cf",
+                            ConcurrencyStamp = "bf15a3b6-ee48-4c43-991c-b1b7abb4c4f0",
                             Description = "Medewerker van zorgverzekeraar die verantwoordelijk is voor vergoedingen en polisbeheer",
                             Name = "Zorgverzekeraar",
                             NormalizedName = "ZORGVERZEKERAAR"
@@ -265,7 +268,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 5,
-                            ConcurrencyStamp = "61694bd1-9775-4d35-b898-ba32bf2dc769",
+                            ConcurrencyStamp = "c9da61f9-99d6-4404-b810-007193ce596b",
                             Description = "Systeembeheerder met volledige toegang tot alle functionaliteiten en gebruikersbeheer",
                             Name = "Systeembeheerder",
                             NormalizedName = "SYSTEEMBEHEERDER"
@@ -273,7 +276,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 6,
-                            ConcurrencyStamp = "38b682fd-ccbf-4551-bbc7-03bb6cd1cde3",
+                            ConcurrencyStamp = "f58c40b6-1f2b-4e6a-9079-d1122ed8be62",
                             Description = "Administratief medewerker in ziekenhuis die ondersteuning biedt bij balieservice en patiëntenzorg",
                             Name = "Administratie",
                             NormalizedName = "ADMINISTRATIE"
@@ -331,7 +334,7 @@ namespace ZhmApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SpecialInstructions")
+                    b.Property<string>("Instructions")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

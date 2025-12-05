@@ -37,8 +37,7 @@ const fetchAppointments = async () => {
         console.log('Server response:', data)
 
         // Vue state updaten
-        appointments.value = data.Appointments || data
-
+        appointments.value = data.appointments
     } catch (err: any) {
         console.error('Fout bij ophalen van afspraken:', err)
         error.value = 'Er is een fout opgetreden bij het laden van de afspraken.'
@@ -55,7 +54,14 @@ onMounted(fetchAppointments)
 
 <template>
     <div class="p-6 flex flex-col space-y-6">
-        <h1 class="text-2xl font-bold">Mijn Afspraken</h1>
+        <div class="flex items-center justify-between">
+            <h1 class="text-2xl font-bold">Mijn Afspraken</h1>
+
+            <router-link to="/afspraken/create" class="px-4 py-2 bg-black text-white rounded hover:bg-blue-700">
+                Nieuwe afspraak maken
+            </router-link>
+        </div>
+
 
         <div v-if="loading" class="text-gray-500">Afspraken laden...</div>
         <div v-else-if="error" class="text-red-500">{{ error }}</div>
@@ -85,5 +91,6 @@ onMounted(fetchAppointments)
                 </table>
             </div>
         </div>
+
     </div>
 </template>

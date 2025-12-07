@@ -62,7 +62,6 @@ namespace ZhmApi.Controllers
                 ZipCode = registerDto.ZipCode,
                 City = registerDto.City,
                 Country = registerDto.Country,
-                RoleId = 1, // Default to Patient role
                 EmailConfirmed = false // Will be set to true after email verification
             };
 

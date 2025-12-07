@@ -22,7 +22,6 @@ namespace ZhmApi.Models
 
         public string Country { get; set; } = null!;
 
-        public int RoleId { get; set; }
-        public Role Role { get; set; } = null!;
+        public ICollection<DoctorPatients> DoctorPatients {get; set;} = new List<DoctorPatients>();
     }
 }

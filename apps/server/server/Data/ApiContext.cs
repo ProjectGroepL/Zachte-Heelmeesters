@@ -9,8 +9,13 @@ public class ApiContext : IdentityDbContext<User, Role, int>
   public ApiContext(DbContextOptions<ApiContext> options) : base(options) { }
 
   // DbSets are inherited from IdentityDbContext
+
   public DbSet<Token> Tokens { get; set; } = null!;
   public DbSet<TwoFactorCode> TwoFactorCodes { get; set; } = null!;
+  public DbSet<DoctorPatients> DoctorPatients {get; set;}= null!;
+  public DbSet<Treatment> Treatments {get; set;}
+  public DbSet<Referral> Referrals {get; set;}
+
 
   #region UpdatedAt timestamp handling
   public override int SaveChanges()
@@ -41,13 +46,6 @@ public class ApiContext : IdentityDbContext<User, Role, int>
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {
     base.OnModelCreating(modelBuilder);
-
-    // Configure the User-Role relationship to avoid cascade delete conflicts
-    modelBuilder.Entity<User>()
-        .HasOne(u => u.Role)
-        .WithMany()
-        .HasForeignKey(u => u.RoleId)
-        .OnDelete(DeleteBehavior.Restrict);
 
     // Configure the Token-User relationship
     modelBuilder.Entity<Token>()
@@ -81,6 +79,39 @@ public class ApiContext : IdentityDbContext<User, Role, int>
     modelBuilder.Entity<TwoFactorCode>()
         .HasIndex(tfc => tfc.ExpiresAt);
 
+        modelBuilder.Entity<DoctorPatients>()
+        .HasKey(dp => new { dp.DoctorId, dp.PatientId });
+    //Many2Many relationdefinebyhand
+    modelBuilder.Entity<DoctorPatients>()
+        .HasOne(dp => dp.Doctor)
+        .WithMany(u => u.DoctorPatients)
+        .HasForeignKey(dp => dp.DoctorId)
+        .OnDelete(DeleteBehavior.Restrict);
+
+    modelBuilder.Entity<DoctorPatients>()
+        .HasOne(dp => dp.Patient)
+        .WithMany()
+        .HasForeignKey(dp => dp.PatientId)
+        .OnDelete(DeleteBehavior.Restrict);
+      // made sure that cascade wasnt being set on two of the tables
+      modelBuilder.Entity<Referral>()
+        .HasOne(r => r.Patient)
+        .WithMany()
+        .HasForeignKey(r => r.PatientId)
+        .OnDelete(DeleteBehavior.NoAction);
+
+    modelBuilder.Entity<Referral>()
+        .HasOne(r => r.Doctor)
+        .WithMany()
+        .HasForeignKey(r => r.DoctorId)
+        .OnDelete(DeleteBehavior.NoAction);
+
+    modelBuilder.Entity<Referral>()
+        .HasOne(r => r.Treatment)
+        .WithMany()
+        .HasForeignKey(r => r.TreatmentId)
+        .OnDelete(DeleteBehavior.NoAction);
+        
     // Seed initial data
     SeedData(modelBuilder);
   }

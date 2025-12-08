@@ -18,7 +18,7 @@ namespace ZhmApi.Models
         // Current referral status (e.g. open, accepted, closed)
         public string Status { get; set; } = "open";
 
-        public DateTime CreatedAt {get; set; }
+        public DateTime CreatedAt {get; set; } = DateTime.UtcNow;
         public DateTime ValidUntil {get; set;}
 
         public Referral()

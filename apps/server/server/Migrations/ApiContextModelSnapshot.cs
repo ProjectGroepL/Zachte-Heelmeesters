@@ -125,6 +125,27 @@ namespace ZhmApi.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ZhmApi.Models.Appointment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ReferralId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReferralId");
+
+                    b.ToTable("Appointments");
+                });
+
             modelBuilder.Entity("ZhmApi.Models.DoctorPatients", b =>
                 {
                     b.Property<int>("DoctorId")
@@ -167,6 +188,9 @@ namespace ZhmApi.Migrations
                     b.Property<int>("TreatmentId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("ValidUntil")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
                     b.HasIndex("DoctorId");
@@ -175,7 +199,12 @@ namespace ZhmApi.Migrations
 
                     b.HasIndex("TreatmentId");
 
-                    b.ToTable("Referrals");
+                    b.ToTable("Referrals", t =>
+                        {
+                            t.HasTrigger("TR_Referrals_Expire");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("ZhmApi.Models.Role", b =>
@@ -215,7 +244,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "c444b778-192b-4c70-a7e0-1d957dbad7c8",
+                            ConcurrencyStamp = "2078fd50-2034-4e6e-83b3-c697e4e6d467",
                             Description = "Patiënt die gebruik maakt van het systeem voor medische zorg en behandelingen",
                             Name = "Patient",
                             NormalizedName = "PATIENT"
@@ -223,7 +252,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "b551bd37-0765-46d9-9712-cccd2ad51b6e",
+                            ConcurrencyStamp = "fd1f5e6f-f69c-4d36-9290-a7294658f078",
                             Description = "Medisch specialist die gespecialiseerde zorg verleent in een specifiek vakgebied",
                             Name = "Specialist",
                             NormalizedName = "SPECIALIST"
@@ -231,7 +260,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "a1b33eb3-add7-454c-bde6-a1454e8bc0ce",
+                            ConcurrencyStamp = "59c356ed-e187-4803-b1b6-b2518d6deb6f",
                             Description = "Huisarts die eerste lijn zorg verleent en patiënten doorverwijst naar specialisten",
                             Name = "Huisarts",
                             NormalizedName = "HUISARTS"
@@ -239,7 +268,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 4,
-                            ConcurrencyStamp = "d8d60a89-8424-4fba-b307-ad36d588a7ad",
+                            ConcurrencyStamp = "1fd4d8fd-a84e-42d3-8aa6-a2119119155d",
                             Description = "Medewerker van zorgverzekeraar die verantwoordelijk is voor vergoedingen en polisbeheer",
                             Name = "Zorgverzekeraar",
                             NormalizedName = "ZORGVERZEKERAAR"
@@ -247,7 +276,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 5,
-                            ConcurrencyStamp = "3dbb1b05-13d4-4c2f-bc80-139959c4fe08",
+                            ConcurrencyStamp = "08bff71d-9660-4931-8e93-25d890bdbd8d",
                             Description = "Systeembeheerder met volledige toegang tot alle functionaliteiten en gebruikersbeheer",
                             Name = "Systeembeheerder",
                             NormalizedName = "SYSTEEMBEHEERDER"
@@ -255,7 +284,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 6,
-                            ConcurrencyStamp = "0853ef1a-1a86-4970-9360-c635c246feaa",
+                            ConcurrencyStamp = "894d29c3-8b65-459e-9a8a-1cdc562e00c1",
                             Description = "Administratief medewerker in ziekenhuis die ondersteuning biedt bij balieservice en patiëntenzorg",
                             Name = "Administratie",
                             NormalizedName = "ADMINISTRATIE"
@@ -311,6 +340,9 @@ namespace ZhmApi.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Instructions")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -508,6 +540,17 @@ namespace ZhmApi.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ZhmApi.Models.Appointment", b =>
+                {
+                    b.HasOne("ZhmApi.Models.Referral", "Referral")
+                        .WithMany()
+                        .HasForeignKey("ReferralId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Referral");
                 });
 
             modelBuilder.Entity("ZhmApi.Models.DoctorPatients", b =>

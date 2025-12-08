@@ -22,9 +22,12 @@ namespace ZhmApi.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateAppointment([FromBody] AppointmentCreateDto request)
         {
-            // Check referral
-            var referralExists = await _context.Referrals.AnyAsync(r => r.Id == request.ReferralId);
-            if (!referralExists) return BadRequest(new { message = "Referral does not exist." });
+            // Referral ophalen
+            var referral = await _context.Referrals
+                .FirstOrDefaultAsync(r => r.Id == request.ReferralId);
+
+            if (referral == null)
+                return BadRequest(new { message = "Referral does not exist." });
 
             // Combine date & time
             if (!DateTime.TryParse($"{request.Date} {request.Time}", out var appointmentDateTime))
@@ -39,10 +42,15 @@ namespace ZhmApi.Controllers
             };
 
             _context.Appointments.Add(appointment);
+
+            // ✅ Status aanpassen
+            referral.Status = "afspraak gemaakt";
+
             await _context.SaveChangesAsync();
 
             return Ok(appointment);
         }
+
 
         // GET: api/appointments
         [HttpGet]

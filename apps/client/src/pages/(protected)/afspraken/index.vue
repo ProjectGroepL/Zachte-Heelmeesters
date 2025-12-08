@@ -24,7 +24,7 @@ const fetchAppointments = async () => {
         if (!token) throw new Error('Niet ingelogd')
 
         // fetch uitvoeren
-        const res = await fetch('https://localhost:7048/api/appointments', {
+        const res = await fetch('${import.meta.env.VITE_API_URL}/appointments', {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'

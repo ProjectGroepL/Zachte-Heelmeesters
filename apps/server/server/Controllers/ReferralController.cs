@@ -6,10 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using ZhmApi.Dtos;
 using ZhmApi.Models;
 using ZhmApi.Services;
+using System.Security.Claims;
 
 namespace ZhmApi.Controllers
 {
-    [Authorize(Roles = "Huisarts,Specialist")]
+    [Authorize(Roles = "Huisarts,Specialist,Patient")]
     [ApiController]
     [Route("api/[controller]")]
     public class ReferralsController : ControllerBase
@@ -93,6 +94,34 @@ namespace ZhmApi.Controllers
                 .ToListAsync();
 
             return Ok(new { doctorPatients, referrals });
+        }
+
+        // GET: api/referrals/{patientID}
+        [HttpGet("patient")]
+        public async Task<ActionResult<IEnumerable<ReferralDto>>> GetReferrals()
+        {
+            // Haal userId uit JWT claim van ingelogde gebruiker
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdClaim, out int userId))
+                return Unauthorized("Niet ingelogd");
+
+            // Selecteer de referrals van deze gebruiker
+            var referrals = await _db.Referrals
+                .Include(r => r.Treatment)
+                .Where(r => r.PatientId == userId && r.Status == "open" && r.ValidUntil >= DateTime.UtcNow)
+                .Select(r => new ReferralDto
+                {
+                    Id = r.Id,
+                    TreatmentDescription = r.Treatment.Description,
+                    Instructions = r.Treatment.Instructions,
+                    Status = r.Status,
+                    Notes = r.Notes,
+                    CreatedAt = r.CreatedAt,
+                    ValidUntil = r.ValidUntil
+                })
+                .ToListAsync();
+
+            return Ok(referrals);
         }
     }
 }

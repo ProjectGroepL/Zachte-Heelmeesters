@@ -20,6 +20,7 @@ public class ApiContext : IdentityDbContext<User, Role, int>
   public DbSet<DoctorPatients> DoctorPatients {get; set;}= null!;
   public DbSet<Treatment> Treatments {get; set;}
   public DbSet<Referral> Referrals {get; set;}
+  public DbSet<Appointment> Appointments {get; set;}
 
 
   #region UpdatedAt timestamp handling
@@ -156,6 +157,10 @@ public class ApiContext : IdentityDbContext<User, Role, int>
         .WithMany()
         .HasForeignKey(r => r.TreatmentId)
         .OnDelete(DeleteBehavior.NoAction);
+
+    modelBuilder.Entity<Referral>()
+    .ToTable(tb => tb.HasTrigger("TR_Referrals_Expire"));
+
         
     // Seed initial data
     SeedData(modelBuilder);

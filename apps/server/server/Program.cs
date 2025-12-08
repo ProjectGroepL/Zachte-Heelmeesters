@@ -145,6 +145,9 @@ builder.Services.AddScoped<TwoFactorService>();
 // Register Email services
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
+// register referralservice
+builder.Services.AddScoped<IReferralService, ReferralService>();
+
 // Register email sender based on environment
 if (builder.Environment.IsDevelopment())
 {
@@ -182,5 +185,60 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+// new roles and users so that we can login more easily
+using(var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
 
+    var roles = new[]
+    {
+        "Patient", "Specialist", "Huisarts",
+        "Zorgverzekeraar", "Systeembeheerder", "Administratie"
+    };
+
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new Role
+            {
+                Name = role,
+                NormalizedName = role.ToUpper()
+            });
+        }
+    }
+
+    // Helper method to create users
+    async Task CreateUser(string email, string password, string firstName, string lastName, string role)
+    {
+        var user = await userManager.FindByEmailAsync(email);
+        if (user == null)
+        {
+            user = new User
+            {
+                UserName = email,
+                Email = email,
+                FirstName = firstName,
+                LastName = lastName,
+                City = "Amsterdam",
+                Country = "NL",
+                ZipCode = "1000AA",
+                Street = "Main",
+                HouseNumber = "1",
+                EmailConfirmed = true
+            };
+
+            await userManager.CreateAsync(user, password);
+            await userManager.AddToRoleAsync(user, role);
+        }
+    }
+
+    await CreateUser("admin@zhm.nl", "Admin123!", "System", "Admin", "Systeembeheerder");
+    await CreateUser("huisarts@zhm.nl", "Doctor123!", "Harry", "Huisarts", "Huisarts");
+    await CreateUser("specialist@zhm.nl", "Specialist123!", "Sam", "Specialist", "Specialist");
+    await CreateUser("patient@zhm.nl", "Patient123!", "Pieter", "Patient", "Patient");
+    await CreateUser("verzekeraar@zhm.nl", "Insurance123!", "Vera", "Verzekeraar", "Zorgverzekeraar");
+    await CreateUser("admin-ziekenhuis@zhm.nl", "AdminMed123!", "Anja", "Admin", "Administratie");
+}
 app.Run();

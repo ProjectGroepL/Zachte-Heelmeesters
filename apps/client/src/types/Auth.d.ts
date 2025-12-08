@@ -13,7 +13,7 @@ export interface User {
   city: string
   country: string
   twoFactorEnabled: boolean
-  role: string
+  role: Role[]
 }
 
 // Auth request types
@@ -77,4 +77,9 @@ export interface ApiResponse<T> {
   status: number
   data?: T
   message?: string
+}
+
+export interface Role {
+  id: number 
+  name: string
 }

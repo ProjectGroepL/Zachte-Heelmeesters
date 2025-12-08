@@ -30,6 +30,8 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | '/(protected)/'
       | '/(protected)/[...path]'
+      | '/(protected)/referrals/'
+      | '/(protected)/referrals/new'
     >,
     '/(protected)/': RouteRecordInfo<
       '/(protected)/',
@@ -43,6 +45,20 @@ declare module 'vue-router/auto-routes' {
       '/:path(.*)',
       { path: ParamValue<true> },
       { path: ParamValue<false> },
+      | never
+    >,
+    '/(protected)/referrals/': RouteRecordInfo<
+      '/(protected)/referrals/',
+      '/referrals',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/(protected)/referrals/new': RouteRecordInfo<
+      '/(protected)/referrals/new',
+      '/referrals/new',
+      Record<never, never>,
+      Record<never, never>,
       | never
     >,
     '/auth': RouteRecordInfo<
@@ -93,6 +109,8 @@ declare module 'vue-router/auto-routes' {
         | '/(protected)'
         | '/(protected)/'
         | '/(protected)/[...path]'
+        | '/(protected)/referrals/'
+        | '/(protected)/referrals/new'
       views:
         | 'default'
     }
@@ -105,6 +123,18 @@ declare module 'vue-router/auto-routes' {
     'src/pages/(protected)/[...path].vue': {
       routes:
         | '/(protected)/[...path]'
+      views:
+        | never
+    }
+    'src/pages/(protected)/referrals/index.vue': {
+      routes:
+        | '/(protected)/referrals/'
+      views:
+        | never
+    }
+    'src/pages/(protected)/referrals/new.vue': {
+      routes:
+        | '/(protected)/referrals/new'
       views:
         | never
     }

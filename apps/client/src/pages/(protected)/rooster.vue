@@ -70,16 +70,82 @@ type Appointment = {
   end: Date
 }
 
-// Dummy data; in de praktijk vul je dit met data uit je API
-const appointments = ref<Appointment[]>([])
+// Helper om een datum in deze week te maken (offset = 0 is maandag)
+function createWeekDate(dayOffset: number, hour: number, minute = 0): Date {
+  const base = new Date(weekStart.value)
+  base.setDate(base.getDate() + dayOffset)
+  base.setHours(hour, minute, 0, 0)
+  return base
+}
+
+const appointments = ref<Appointment[]>([
+  // Dummy data; in de praktijk vul je dit met data uit je API
+  {
+    id: 1,
+    title: 'Intake – Patiënt A',
+    start: createWeekDate(0, 9),  // Maandag 09:00
+    end: createWeekDate(0, 10),   // Maandag 10:00
+  },
+  {
+    id: 2,
+    title: 'Controle – Patiënt B',
+    start: createWeekDate(1, 11), // Dinsdag 11:00
+    end: createWeekDate(1, 17),   // Dinsdag 12:00
+  },
+  {
+    id: 3,
+    title: 'Behandeling – Patiënt C',
+    start: createWeekDate(2, 14), // Woensdag 14:00
+    end: createWeekDate(2, 15, 30), // Woensdag 15:30
+  },
+  {
+    id: 4,
+    title: 'Nabespreking – Patiënt D',
+    start: createWeekDate(3, 10), // Donderdag 10:00
+    end: createWeekDate(3, 11),   // Donderdag 11:00
+  },
+  {
+    id: 5,
+    title: 'Consult – Patiënt E',
+    start: createWeekDate(4, 16), // Vrijdag 16:00
+    end: createWeekDate(4, 17),   // Vrijdag 17:00
+  },
+])
+
+
+// Hoogte van één uur-slot in pixels (moet overeenkomen met je CSS h-16 → ±64px)
+const SLOT_HEIGHT = 64
 
 function isSameDay(a: Date, b: Date) {
   return (
-      a.getFullYear() === b.getFullYear() &&
-      a.getMonth() === b.getMonth() &&
-      a.getDate() === b.getDate()
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
   )
 }
+
+// Alle afspraken voor één dag
+function getAppointmentsForDay(day: Date) {
+  return appointments.value.filter((appt) => isSameDay(appt.start, day))
+}
+
+// Bepaal top/height voor een afspraak in de dagkolom
+function getAppointmentStyle(appt: Appointment) {
+  const startHour = appt.start.getHours() + appt.start.getMinutes() / 60
+  const endHour = appt.end.getHours() + appt.end.getMinutes() / 60
+  const durationHours = Math.max(endHour - startHour, 0.25) // min 15 min, voorkomt 0
+
+  const topPx = (startHour - startHourBase.value) * SLOT_HEIGHT
+  const heightPx = durationHours * SLOT_HEIGHT
+
+  return {
+    top: `${topPx}px`,
+    height: `${heightPx}px`,
+  }
+}
+
+// Basisuur voor de eerste rij (zelfde als startHour)
+const startHourBase = computed(() => startHour)
 
 function getAppointmentsForDayAndHour(day: Date, hour: number) {
   return appointments.value.filter((appt) => {
@@ -123,46 +189,60 @@ function onAddAgenda() {
         </strong>
       </p>
 
-      <div class="border rounded-lg overflow-hidden bg-white">
-        <!-- Kop met dagen -->
-        <div class="grid" :style="{ gridTemplateColumns: `80px repeat(7, 1fr)` }">
-          <div
-              class="bg-slate-50 border-b border-r h-12 flex items-center justify-center text-xs font-medium text-slate-500"
-          >
-            Tijd
-          </div>
-          <div
-              v-for="(d, i) in weekDays"
-              :key="i"
-              class="bg-slate-50 border-b border-r h-12 flex flex-col items-center justify-center text-xs font-medium"
-          >
-            <span>{{ formatDateLabel(d) }}</span>
-          </div>
-        </div>
-
         <!-- Lichaam met tijdslots -->
-        <div>
+        <div class="border rounded-lg overflow-hidden bg-white">
+          <!-- Kop met dagen -->
+          <div class="grid" :style="{ gridTemplateColumns: `80px repeat(7, 1fr)` }">
+            <div
+                class="bg-slate-50 border-b border-r h-12 flex items-center justify-center text-xs font-medium text-slate-500"
+            >
+              Tijd
+            </div>
+            <div
+                v-for="(d, i) in weekDays"
+                :key="i"
+                class="bg-slate-50 border-b border-r h-12 flex flex-col items-center justify-center text-xs font-medium"
+            >
+              <span>{{ formatDateLabel(d) }}</span>
+            </div>
+          </div>
+
+          <!-- Lichaam met tijdslots -->
           <div
-              v-for="hour in hours"
-              :key="hour"
               class="grid"
               :style="{ gridTemplateColumns: `80px repeat(7, 1fr)` }"
           >
-            <div
-                class="border-r border-t h-16 px-2 flex items-start justify-end text-xs text-slate-500 pt-1 bg-slate-50/60"
-            >
-              {{ formatHourLabel(hour) }}
+            <!-- Linker kolom: tijdlabels -->
+            <div class="border-r bg-slate-50/60 relative">
+              <div
+                  v-for="hour in hours"
+                  :key="hour"
+                  class="h-16 px-2 flex items-start justify-end text-xs text-slate-500 pt-1"
+              >
+                {{ formatHourLabel(hour) }}
+              </div>
             </div>
 
+            <!-- Dagkolommen -->
             <div
                 v-for="(day, dayIndex) in weekDays"
                 :key="dayIndex"
-                class="border-t border-r h-16 relative group bg-white"
+                class="border-r relative bg-white"
+                :style="{ height: `${(endHour - startHour) * SLOT_HEIGHT}px` }"
             >
+              <!-- Achtergrond-uurvakken -->
               <div
-                  v-for="appt in getAppointmentsForDayAndHour(day, hour)"
+                  v-for="hour in hours"
+                  :key="hour"
+                  class="h-16 border-t last:border-b border-slate-200/80"
+              />
+
+              <!-- Afspraken in deze dag -->
+              <div
+                  v-for="appt in getAppointmentsForDay(day)"
                   :key="appt.id"
-                  class="absolute inset-1 rounded bg-blue-500/80 text-white text-xs p-1 overflow-hidden group-hover:bg-blue-600 cursor-pointer shadow-sm"
+                  class="absolute left-1 right-1 rounded bg-blue-500/80 text-white text-xs p-1 overflow-hidden hover:bg-blue-600 cursor-pointer shadow-sm"
+                  :style="getAppointmentStyle(appt)"
               >
                 <div class="font-semibold truncate">
                   {{ appt.title }}
@@ -186,7 +266,6 @@ function onAddAgenda() {
             </div>
           </div>
         </div>
-      </div>
     </div>
 
     <!-- Rechterzijde: date picker + Add Agenda -->

@@ -32,6 +32,7 @@ declare module 'vue-router/auto-routes' {
       | '/(protected)/[...path]'
       | '/(protected)/referrals/'
       | '/(protected)/referrals/new'
+      | '/(protected)/rooster'
     >,
     '/(protected)/': RouteRecordInfo<
       '/(protected)/',
@@ -57,6 +58,13 @@ declare module 'vue-router/auto-routes' {
     '/(protected)/referrals/new': RouteRecordInfo<
       '/(protected)/referrals/new',
       '/referrals/new',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/(protected)/rooster': RouteRecordInfo<
+      '/(protected)/rooster',
+      '/rooster',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -111,6 +119,7 @@ declare module 'vue-router/auto-routes' {
         | '/(protected)/[...path]'
         | '/(protected)/referrals/'
         | '/(protected)/referrals/new'
+        | '/(protected)/rooster'
       views:
         | 'default'
     }
@@ -135,6 +144,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/(protected)/referrals/new.vue': {
       routes:
         | '/(protected)/referrals/new'
+      views:
+        | never
+    }
+    'src/pages/(protected)/rooster.vue': {
+      routes:
+        | '/(protected)/rooster'
       views:
         | never
     }

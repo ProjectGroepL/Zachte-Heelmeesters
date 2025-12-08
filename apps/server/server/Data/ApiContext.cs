@@ -8,8 +8,8 @@ public class ApiContext : IdentityDbContext<User, Role, int>
 {
   public ApiContext(DbContextOptions<ApiContext> options) : base(options) { }
 
-  public DbSet<User> Users { get; set; } = null!;
-  public DbSet<Role> Roles { get; set; } = null!;
+  // public DbSet<User> Users { get; set; } = null!;
+  // public DbSet<Role> Roles { get; set; } = null!;
   // DbSets are inherited from IdentityDbContext
 
   public DbSet<Token> Tokens { get; set; } = null!;

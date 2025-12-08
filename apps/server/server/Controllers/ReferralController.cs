@@ -115,7 +115,9 @@ namespace ZhmApi.Controllers
                     TreatmentDescription = r.Treatment.Description,
                     Instructions = r.Treatment.Instructions,
                     Status = r.Status,
-                    Notes = r.Notes
+                    Notes = r.Notes,
+                    CreatedAt = r.CreatedAt,
+                    ValidUntil = r.ValidUntil
                 })
                 .ToListAsync();
 

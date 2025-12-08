@@ -7,5 +7,8 @@ namespace ZhmApi.Dtos
         public string? Instructions { get; set; }
         public string Status { get; set; } = null!;
         public string? Notes { get; set; }
+
+        public DateTime CreatedAt {get; set;}
+        public DateTime ValidUntil {get; set;}
     }
 }

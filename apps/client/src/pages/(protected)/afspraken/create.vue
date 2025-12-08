@@ -9,6 +9,7 @@ interface ReferralDto {
     instructions?: string
     status: string
     notes?: string
+    createdAt: string
 }
 
 // reactive state
@@ -18,6 +19,7 @@ const loading = ref(true)
 const error = ref<string | null>(null)
 const appointmentDate = ref<string>('') // YYYY-MM-DD
 const appointmentTime = ref<string>('') // HH:MM
+const successMessage = ref<string | null>(null)
 
 // computed property for selected referral instead of number
 const selectedReferral = computed(() => {
@@ -64,11 +66,16 @@ const createAppointment = async () => {
             headers: { Authorization: `Bearer ${token}` }
         })
 
-        alert('Afspraak aangemaakt!')
-        // reset formulier
+        successMessage.value = 'Afspraak aangemaakt!'
+        setTimeout(() => {
+            successMessage.value = null
+        }, 3000) // Disappear after 3 seconds
+
+        // reset form and fetch referrals again to refresh the select box
         selectedReferralId.value = null
         appointmentDate.value = ''
         appointmentTime.value = ''
+        fetchReferrals()
     } catch (err: any) {
         console.error(err)
         error.value = 'Kon de afspraak niet aanmaken'
@@ -85,31 +92,48 @@ onMounted(fetchReferrals)
     <div class="p-6">
         <h1 class="text-2xl font-bold mb-4">Nieuwe afspraak</h1>
 
-        <!-- Statusmeldingen -->
-        <div v-if="loading" class="text-gray-500">Referrals laden...</div>
+        <!-- Status reports -->
+        <div v-if="loading" class="text-gray-500">Doorverwijzingen laden...</div>
         <div v-else-if="error" class="text-red-500">{{ error }}</div>
+
+        <div v-if="successMessage" class="bg-green-200 text-green-800 p-2 rounded mb-4">
+            {{ successMessage }}
+        </div>
+
 
         <!-- Formulier -->
         <div v-else>
             <label for="referral" class="block mb-2">Kies een doorverwijzing:</label>
-            <select v-model="selectedReferralId" id="referral" class="border p-2 rounded w-full">
-                <option value="" disabled selected>Selecteer een referral</option>
-                <option v-for="ref in referrals" :key="ref.id" :value="ref.id">
-                    {{ ref.treatmentDescription }} - {{ ref.status }}
-                </option>
-            </select>
+
+            <div v-if="referrals.length > 0">
+                <select v-model="selectedReferralId" id="referral" class="border p-2 rounded w-full">
+                    <option value="" disabled selected>Selecteer een doorverwijzing</option>
+                    <option v-for="ref in referrals" :key="ref.id" :value="ref.id">
+                        {{ ref.treatmentDescription }} - {{ ref.status }}
+                    </option>
+                </select>
+            </div>
+
+            <div v-else class="text-red-500">
+                Er zijn geen actieve doorverwijzingen beschikbaar.
+            </div>
+
 
             <!-- Datum en tijd selectie -->
             <div v-if="selectedReferralId" class="mt-4 space-y-2">
                 <p>Je hebt doorverwijzing {{ selectedReferral?.treatmentDescription }} geselecteerd.</p>
 
                 <label class="block">Datum:</label>
-                <input type="date" v-model="appointmentDate" class="border p-2 rounded w-full" required />
+                <input type="date" v-model="appointmentDate"
+                    :min="selectedReferral ? new Date(selectedReferral.createdAt).toISOString().split('T')[0] : ''"
+                    class="border p-2 rounded w-full" required />
+
 
                 <label class="block">Tijd:</label>
                 <input type="time" v-model="appointmentTime" class="border p-2 rounded w-full" required />
 
-                <button @click="createAppointment" class="bg-black text-white px-4 py-2 rounded mt-2 w-full hover:bg-blue-600">
+                <button @click="createAppointment"
+                    class="bg-black text-white px-4 py-2 rounded mt-2 w-full hover:bg-blue-600">
                     Maak afspraak
                 </button>
 

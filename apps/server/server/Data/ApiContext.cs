@@ -112,6 +112,10 @@ public class ApiContext : IdentityDbContext<User, Role, int>
         .WithMany()
         .HasForeignKey(r => r.TreatmentId)
         .OnDelete(DeleteBehavior.NoAction);
+
+    modelBuilder.Entity<Referral>()
+    .ToTable(tb => tb.HasTrigger("TR_Referrals_Expire"));
+
         
     // Seed initial data
     SeedData(modelBuilder);

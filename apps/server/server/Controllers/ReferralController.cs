@@ -108,7 +108,7 @@ namespace ZhmApi.Controllers
             // Selecteer de referrals van deze gebruiker
             var referrals = await _db.Referrals
                 .Include(r => r.Treatment)
-                .Where(r => r.PatientId == userId && r.Status == "open")
+                .Where(r => r.PatientId == userId && r.Status == "open" && r.ValidUntil >= DateTime.UtcNow)
                 .Select(r => new ReferralDto
                 {
                     Id = r.Id,

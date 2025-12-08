@@ -188,6 +188,9 @@ namespace ZhmApi.Migrations
                     b.Property<int>("TreatmentId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("ValidUntil")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
                     b.HasIndex("DoctorId");
@@ -236,7 +239,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "6fdd1e63-18e5-4a64-a17a-25b949df1b29",
+                            ConcurrencyStamp = "bf85a925-4682-4c55-8773-a952e2837a08",
                             Description = "Patiënt die gebruik maakt van het systeem voor medische zorg en behandelingen",
                             Name = "Patient",
                             NormalizedName = "PATIENT"
@@ -244,7 +247,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "56d46283-e1b4-490d-8a5a-20aa2198e6ea",
+                            ConcurrencyStamp = "f433a10e-de23-4052-8c92-2bf224a846c6",
                             Description = "Medisch specialist die gespecialiseerde zorg verleent in een specifiek vakgebied",
                             Name = "Specialist",
                             NormalizedName = "SPECIALIST"
@@ -252,7 +255,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "f2ba51b3-8fd3-438e-ba15-c2df64c7ecb4",
+                            ConcurrencyStamp = "92dd4992-0170-4200-8fb8-4178e5c6f01a",
                             Description = "Huisarts die eerste lijn zorg verleent en patiënten doorverwijst naar specialisten",
                             Name = "Huisarts",
                             NormalizedName = "HUISARTS"
@@ -260,7 +263,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 4,
-                            ConcurrencyStamp = "bf15a3b6-ee48-4c43-991c-b1b7abb4c4f0",
+                            ConcurrencyStamp = "d52a7110-ce74-4e0f-a70a-4d81d645d705",
                             Description = "Medewerker van zorgverzekeraar die verantwoordelijk is voor vergoedingen en polisbeheer",
                             Name = "Zorgverzekeraar",
                             NormalizedName = "ZORGVERZEKERAAR"
@@ -268,7 +271,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 5,
-                            ConcurrencyStamp = "c9da61f9-99d6-4404-b810-007193ce596b",
+                            ConcurrencyStamp = "b8940ba8-853e-43e6-aa8c-18b66c60f7c9",
                             Description = "Systeembeheerder met volledige toegang tot alle functionaliteiten en gebruikersbeheer",
                             Name = "Systeembeheerder",
                             NormalizedName = "SYSTEEMBEHEERDER"
@@ -276,7 +279,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 6,
-                            ConcurrencyStamp = "f58c40b6-1f2b-4e6a-9079-d1122ed8be62",
+                            ConcurrencyStamp = "8a39ee30-7aaa-4b9c-9878-dc8802087273",
                             Description = "Administratief medewerker in ziekenhuis die ondersteuning biedt bij balieservice en patiëntenzorg",
                             Name = "Administratie",
                             NormalizedName = "ADMINISTRATIE"

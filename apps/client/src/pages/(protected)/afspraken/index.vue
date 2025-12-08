@@ -76,7 +76,6 @@ onMounted(fetchAppointments)
                             <th class="border px-4 py-2">Doorverwijzing ID</th>
                             <th class="border px-4 py-2">Behandeling</th>
                             <th class="border px-4 py-2">Instructies</th>
-                            <th class="border px-4 py-2">Status</th>
                             <th class="border px-4 py-2">Notities</th>
                             <th class="border px-4 py-2">Datum</th>
                         </tr>
@@ -86,10 +85,8 @@ onMounted(fetchAppointments)
                             <td class="border px-4 py-2">{{ appointment.referralId }}</td>
                             <td class="border px-4 py-2">{{ appointment.treatmentDescription }}</td>
                             <td class="border px-4 py-2">{{ appointment.treatmentInstructions }}</td>
-                            <td class="border px-4 py-2">{{ appointment.status }}</td>
                             <td class="border px-4 py-2">{{ appointment.notes }}</td>
                             <td class="border px-4 py-2">{{ new Date(appointment.date).toLocaleString('nl-NL') }}</td>
-
                         </tr>
                     </tbody>
                 </table>

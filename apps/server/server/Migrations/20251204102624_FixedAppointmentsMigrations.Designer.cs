@@ -334,7 +334,7 @@ namespace ZhmApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SpecialInstructions")
+                    b.Property<string>("Instructions")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

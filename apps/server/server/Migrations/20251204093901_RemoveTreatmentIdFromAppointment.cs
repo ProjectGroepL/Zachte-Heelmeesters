@@ -11,7 +11,7 @@ namespace ZhmApi.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "SpecialInstructions",
+                name: "Instructions",
                 table: "Treatments",
                 type: "nvarchar(max)",
                 nullable: true);
@@ -90,7 +90,7 @@ namespace ZhmApi.Migrations
                 name: "Appointments");
 
             migrationBuilder.DropColumn(
-                name: "SpecialInstructions",
+                name: "Instructions",
                 table: "Treatments");
 
             migrationBuilder.UpdateData(

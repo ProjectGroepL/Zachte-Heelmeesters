@@ -16,6 +16,8 @@ import { Combobox } from "@/components/ui/combobox"
 import { useAuth } from "@/composables/useAuth"
 import { useRouter } from "vue-router"
 import { z } from "zod"
+import { useQuery } from "@/composables/useApi"
+import { type GpName } from "@/types/GeneralPractitioner"
 
 const router = useRouter()
 const { register, isAuthenticated } = useAuth()
@@ -39,6 +41,14 @@ const confirmPassword = ref('')
 
 const formError = ref<string | null>(null)
 const errors = ref<Record<string, string[]>>({})
+
+const {data: gps, loading, error} = useQuery<GpName[]>("/DoctorPatients/general-practitioners")
+
+const gpOptions = computed(() => gps.value && gps.value.map((gp) => {
+  return {
+  label: gp.fullName,
+  value: gp.Id
+}}))
 
 // Redirect to home if already authenticated
 if (isAuthenticated()) {
@@ -286,7 +296,7 @@ const props = defineProps<{
 
       <Field>
         <FieldLabel>Selecteer je huisarts</FieldLabel>
-        <Combobox v-model="selectedDoctor" :options="doctors" placeholder="Selecteer een huisarts..."
+        <Combobox v-if="gps" v-model="selectedDoctor" :options="gpOptions || undefined" placeholder="Selecteer een huisarts..."
           search-placeholder="Zoek een huisarts..." empty-message="Geen huisarts gevonden." />
         <FieldDescription>
           Kies de huisarts waar u uw afspraken mee maakt.

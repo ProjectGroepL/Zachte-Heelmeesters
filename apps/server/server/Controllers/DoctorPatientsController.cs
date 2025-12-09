@@ -8,7 +8,6 @@ using ZhmApi.Models;
 
 namespace ZhmApi.Controllers
 {
-    [Authorize(Roles = "Huisarts,Specialist")]
     [ApiController]
     [Route("api/[controller]")]
     public class DoctorPatientsController : ControllerBase
@@ -21,6 +20,7 @@ namespace ZhmApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Huisarts,Specialist")]
         public async Task<IActionResult> AddPatientToDoctor(int patientId)
         {
             // Read user id claim robustly
@@ -37,7 +37,7 @@ namespace ZhmApi.Controllers
                 .AnyAsync(dp => dp.DoctorId == doctorId && dp.PatientId == patientId);
 
             if (exists)
-                return Conflict("Patient already gekoppeld.");
+                return Conflict("Patient is al gekoppeld.");
 
             var relation = new DoctorPatients
             {
@@ -52,6 +52,7 @@ namespace ZhmApi.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Huisarts,Specialist")]
         public async Task<IActionResult> GetMyPatients()
         {
             // Read user id claim robustly
@@ -84,6 +85,27 @@ namespace ZhmApi.Controllers
                 // Return a safer 500 with minimal info (stacktrace will still appear in Development)
                 return Problem(detail: ex.Message, title: "Failed to get patients");
             }
+        }
+
+        // get endpoint to get all GP's from database
+        // GET /api/DoctorPatients/general-practitioners
+        [HttpGet("general-practitioners")]
+        public async Task<IActionResult> GetDoctors()
+        {
+            var doctors = await (
+                from ur in _db.UserRoles
+                join u in _db.Users on ur.UserId equals u.Id
+                where ur.RoleId == 3
+                select new
+                {
+                    id = u.Id,
+                    fullName =
+                        u.FirstName + " " +
+                        (u.MiddleName ?? "") + " " +
+                        u.LastName
+                })
+                .ToListAsync();
+            return Ok(doctors);
         }
     }
 }

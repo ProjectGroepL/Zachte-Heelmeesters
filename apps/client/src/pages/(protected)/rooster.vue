@@ -133,7 +133,6 @@ function submitIcal() {
     return
   }
 
-  // hier later je API-call
   console.log('iCal URL opslaan:', icalUrl.value)
   saveIcalWithAuth(icalUrl.value).catch((err) => {
     icalError.value = err.message || 'Er is een fout opgetreden bij het opslaan.'

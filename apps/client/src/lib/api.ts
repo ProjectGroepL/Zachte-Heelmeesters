@@ -79,9 +79,4 @@ api.interceptors.response.use(
   }
 )
 
-export async function saveSpecialistIcal(url: string) {
-    const response = await api.post('/SpecialistIcal', { url })
-    return response.data as { message: string; url: string }
-}
-
 export default api

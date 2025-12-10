@@ -1,5 +1,4 @@
-export interface GpName
-{
+export interface GpName {
     fullName: string,
-    Id: number
+    id: number
 }

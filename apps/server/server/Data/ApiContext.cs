@@ -17,7 +17,7 @@ public class ApiContext : IdentityDbContext<User, Role, int>
   public DbSet<Afspraak> Afspraken { get; set; } = null!;
   public DbSet<PriveAfspraak> PriveAfspraken { get; set; } = null!;
   public DbSet<SpecialistIcal> SpecialistIcals { get; set; } = null!;
-  public DbSet<DoctorPatients> DoctorPatients {get; set;}= null!;
+  public DbSet<DoctorPatients> DoctorPatients {get; set;} = null!;
   public DbSet<Treatment> Treatments {get; set;}
   public DbSet<Referral> Referrals {get; set;}
   public DbSet<Appointment> Appointments {get; set;}

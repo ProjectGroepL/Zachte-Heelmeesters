@@ -18,6 +18,7 @@ import {Label} from '@/components/ui/label'
 import {toDate} from 'reka-ui/date'
 import 'vue-cal/dist/vuecal.css'
 import VueCal from 'vue-cal'
+import api from "@/lib/api.ts";
 
 // -------------------------------------------------------------------------------------
 // Basis: weekberekening
@@ -33,10 +34,6 @@ function getWeekStart(date: Date): Date {
 
 const todayJs = new Date()
 const weekStart = ref<Date>(getWeekStart(todayJs))
-
-const startHour = 0
-const endHour = 24
-
 
 // -------------------------------------------------------------------------------------
 // Calendar integratie (shadcn)
@@ -117,7 +114,7 @@ const vueCalEvents = computed(() =>
 // iCal dialog (popup) state + handlers
 // -------------------------------------------------------------------------------------
 
-const icalDialogOpen = ref(false)   // <-- nieuw
+const icalDialogOpen = ref(false)
 const icalUrl = ref('')
 const icalError = ref('')
 
@@ -138,10 +135,34 @@ function submitIcal() {
 
   // hier later je API-call
   console.log('iCal URL opslaan:', icalUrl.value)
-
-  // Alleen bij geldige input sluiten
+  saveIcalWithAuth(icalUrl.value).catch((err) => {
+    icalError.value = err.message || 'Er is een fout opgetreden bij het opslaan.'
+    return
+  })
+  
   icalDialogOpen.value = false
 }
+async function saveIcalWithAuth(url: string) {
+  const token = localStorage.getItem('access_token')
+  if (!token) throw new Error('No auth token available — user must be logged in')
+
+  try {
+    const res = await api.post('/SpecialistIcal', { url }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    })
+    return res.data
+  } catch (err: any) {
+    if (err.response) {
+      const server = err.response.data?.message ?? err.response.data
+      throw new Error(server ?? `Save failed: ${err.response.status}`)
+    }
+    throw err
+  }
+}
+
 </script>
 
 <template>
@@ -162,6 +183,8 @@ function submitIcal() {
       <VueCal
           class="rounded-md"
           default-view="week"
+          today-button
+          hide-view-selector
           :selected-date="calendarDate"
           :time-from="0 * 60"
           :time-to="24 * 60"

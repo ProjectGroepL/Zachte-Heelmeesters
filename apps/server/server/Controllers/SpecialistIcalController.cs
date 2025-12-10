@@ -9,9 +9,9 @@ using ZhmApi.Models;
 
 namespace ZhmApi.Controllers
 {
+    [Authorize(Roles = "Specialist")]
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Specialist")]
     public class SpecialistIcalController : ControllerBase
     {
         private readonly ApiContext _context;

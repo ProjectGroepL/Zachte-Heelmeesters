@@ -4,34 +4,28 @@ import type { Referral, ReferralRequest } from '@/types/referral'
 export function useReferral()
 {
     async function getReferrals(): Promise<Referral[]> {
-        const reponse = await api.get('/referrals')
-        const raw = reponse.data || []
+        const response = await api.get('/referrals/patient')
+        const raw = response.data || []
 
-        // Debug: show raw server payload so we can confirm field names and values
-        console.debug('[useReferral] raw /referrals response:', raw)
+        console.debug('[useReferral] raw /referrals/patient:', raw)
 
-        // Normalize server DTO (PascalCase) -> client expected camelCase
-        const mapped: Referral[] = (raw as any[]).map(r => ({
-            id: r.Id ?? r.id,
-            patientName: r.PatientName ?? r.patientName ?? r.patient ?? '',
-            treatmentName: r.TreatmentName ?? r.treatmentName ?? r.treatment ?? '',
-            createdAt: (r.CreatedAt ?? r.createdAt ?? r.created_at ?? '')?.toString(),
-            status: r.Status ?? r.status ?? 'open'
+        return raw.map((r: { id: any; treatmentDescription: any; createdAt: any; status: any }) => ({
+            id: r.id,
+            patientName: "",  // komt niet terug in dit endpoint
+            treatmentName: r.treatmentDescription,
+            createdAt: r.createdAt,
+            status: r.status
         }))
-
-        return mapped
     }
 
-    async function createReferral(data: ReferralRequest)
-    {
-        const response = await api.post('/referrals', data)
-        return response.data
+    async function createReferral(data: ReferralRequest) {
+        return await api.post('/referrals', data)
     }
 
     async function getReferral(id: number): Promise<Referral> {
-        const reponse = await api.get(`/referrals/${id}`)
-        return reponse.data
+        const response = await api.get(`/referrals/${id}`)
+        return response.data
     }
 
-    return { getReferrals, createReferral, getReferral}
+    return { getReferrals, createReferral, getReferral }
 }

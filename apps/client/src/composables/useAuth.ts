@@ -189,6 +189,30 @@ export const useAuth = () => {
     }
   }
 
+    const hasRole = (roleName: string) => {
+    const user = getStoredUser()
+    if (!user) return false
+
+    // Case 1: user.role = Role[]
+    if (Array.isArray(user.role)) {
+      return user.role.some(
+        (r: any) => r?.name?.toLowerCase() === roleName.toLowerCase()
+      )
+    }
+
+    // Case 2: user.role = { name: string }
+    if (user.role && (user.role as any).name) {
+      return (user.role as any).name.toLowerCase() === roleName.toLowerCase()
+    }
+
+    // Case 3: legacy string
+    if (typeof (user as any).role === "string") {
+      return (user as any).role.toLowerCase() === roleName.toLowerCase()
+    }
+
+    return false
+  }
+
   const isAuthenticated = (): boolean => {
     const token = localStorage.getItem('access_token')
     return !!token
@@ -214,6 +238,7 @@ export const useAuth = () => {
     refreshToken,
     isAuthenticated,
     getUser,
-    getStoredUser
+    getStoredUser,
+    hasRole
   }
 }

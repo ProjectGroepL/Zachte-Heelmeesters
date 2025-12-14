@@ -2,12 +2,12 @@
 import { ref, onMounted } from 'vue'
 import { useReferral } from "@/composables/userReferral";
 
-const { getReferrals } = useReferral()
+const { getReferrals, getDoctorReferrals } = useReferral()
 const referrals = ref<any[]>([])
 
 onMounted(async () => {
   try {
-    const result = await getReferrals()
+    const result = await getDoctorReferrals()
     console.debug('[referrals/index] mapped referrals:', result)
     referrals.value = result
   }

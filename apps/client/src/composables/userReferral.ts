@@ -1,10 +1,12 @@
 import api from "@/lib/api"
 import type { Referral, ReferralRequest } from '@/types/referral'
+import { useQuery } from '@/composables/useApi'
 
 export function useReferral()
 {
+
     async function getReferrals(): Promise<Referral[]> {
-        const reponse = await api.get('/referrals')
+        const reponse = await api.get('/referrals/patient')
         const raw = reponse.data || []
 
         // Debug: show raw server payload so we can confirm field names and values

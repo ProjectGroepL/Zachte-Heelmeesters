@@ -49,6 +49,9 @@ const submit = async () => {
 
   if (result !== undefined) {
     successMessage.value = "Afspraak aangemaakt!";
+      setTimeout(() => {
+    successMessage.value = null;
+  }, 2000);
     selectedReferralId.value = null;
     appointmentDate.value = "";
     appointmentTime.value = "";
@@ -79,7 +82,7 @@ const submit = async () => {
     </div>
 
     <!-- Formulier -->
-    <div v-else>
+    <div>
       <label for="referral" class="block mb-2">
         Kies een doorverwijzing:
       </label>

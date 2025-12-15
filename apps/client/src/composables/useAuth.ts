@@ -25,6 +25,11 @@ export const useAuth = () => {
         // Store both tokens for immediate login after registration
         localStorage.setItem('access_token', response.data.token)
         localStorage.setItem('refresh_token', response.data.refreshToken)
+        
+        // Store user info
+        if (response.data.user) {
+          localStorage.setItem('user_info', JSON.stringify(response.data.user))
+        }
       }
 
       return {
@@ -59,6 +64,11 @@ export const useAuth = () => {
         // Store both tokens for normal login
         localStorage.setItem('access_token', response.data.token)
         localStorage.setItem('refresh_token', response.data.refreshToken)
+        
+        // Store user info for quick access without JWT decoding
+        if (response.data.user) {
+          localStorage.setItem('user_info', JSON.stringify(response.data.user))
+        }
       }
 
       return {
@@ -83,6 +93,11 @@ export const useAuth = () => {
         // Store tokens after successful 2FA verification
         localStorage.setItem('access_token', response.data.token)
         localStorage.setItem('refresh_token', response.data.refreshToken)
+        
+        // Store user info
+        if (response.data.user) {
+          localStorage.setItem('user_info', JSON.stringify(response.data.user))
+        }
       }
 
       return {
@@ -151,6 +166,7 @@ export const useAuth = () => {
     // Remove tokens from localStorage
     localStorage.removeItem('access_token')
     localStorage.removeItem('refresh_token')
+    localStorage.removeItem('user_info')
 
     // Redirect to login page
     router.replace('/auth/login')
@@ -173,10 +189,45 @@ export const useAuth = () => {
     }
   }
 
+    const hasRole = (roleName: string) => {
+    const user = getStoredUser()
+    if (!user) return false
+
+    // Case 1: user.role = Role[]
+    if (Array.isArray(user.role)) {
+      return user.role.some(
+        (r: any) => r?.name?.toLowerCase() === roleName.toLowerCase()
+      )
+    }
+
+    // Case 2: user.role = { name: string }
+    if (user.role && (user.role as any).name) {
+      return (user.role as any).name.toLowerCase() === roleName.toLowerCase()
+    }
+
+    // Case 3: legacy string
+    if (typeof (user as any).role === "string") {
+      return (user as any).role.toLowerCase() === roleName.toLowerCase()
+    }
+
+    return false
+  }
+
   const isAuthenticated = (): boolean => {
     const token = localStorage.getItem('access_token')
     return !!token
   }
+
+  // Get user info from localStorage (stored during login) or fallback to JWT
+  const getStoredUser = () => {
+  const stored = localStorage.getItem('user_info')
+  if (!stored) return null
+  try {
+    return JSON.parse(stored)
+  } catch {
+    return null
+  }
+}
 
   return {
     register,
@@ -186,6 +237,8 @@ export const useAuth = () => {
     logout,
     refreshToken,
     isAuthenticated,
-    getUser
+    getUser,
+    getStoredUser,
+    hasRole
   }
 }

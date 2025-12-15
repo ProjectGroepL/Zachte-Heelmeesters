@@ -59,6 +59,8 @@ namespace ZhmApi.Controllers
 
             await _context.SaveChangesAsync();
 
+			await _calendarSyncService.SyncFromIcalAsync(dto.UserId);
+
             return Ok(new { message = "iCal link saved", url = existing.Url });
         }
     }

@@ -155,6 +155,11 @@ if (builder.Environment.IsDevelopment())
     builder.Services.AddScoped<IEmailSender, ConsoleEmailSender>();
 }
 
+// ical service
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<ISpecialistCalendarSyncService, SpecialistCalendarSyncService>();
+
+
 var app = builder.Build();
 
 // Configure forwarded headers for proxy support

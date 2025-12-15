@@ -671,6 +671,18 @@
           }
         }
       },
+      "Ical.Net/5.1.4": {
+        "type": "package",
+        "dependencies": {
+          "NodaTime": "3.2.2"
+        },
+        "compile": {
+          "lib/net8.0/Ical.Net.dll": {}
+        },
+        "runtime": {
+          "lib/net8.0/Ical.Net.dll": {}
+        }
+      },
       "MailKit/4.14.1": {
         "type": "package",
         "dependencies": {
@@ -2180,6 +2192,19 @@
         "runtime": {
           "lib/net6.0/Newtonsoft.Json.dll": {
             "related": ".xml"
+          }
+        }
+      },
+      "NodaTime/3.2.2": {
+        "type": "package",
+        "compile": {
+          "lib/net8.0/NodaTime.dll": {
+            "related": ".pdb;.xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/NodaTime.dll": {
+            "related": ".pdb;.xml"
           }
         }
       },
@@ -5036,6 +5061,24 @@
         "lib/netstandard1.0/zh-Hant/Humanizer.resources.dll",
         "lib/netstandard2.0/zh-Hant/Humanizer.resources.dll",
         "logo.png"
+      ]
+    },
+    "Ical.Net/5.1.4": {
+      "sha512": "h876ci2skodjc/hSUWoW0kRFxNWSE3MRB7QCiCsjWsmx8cEpjvjusiLbi6liwzWNxONxnywTCFsdXwf4jC05Pg==",
+      "type": "package",
+      "path": "ical.net/5.1.4",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "assets/icon.png",
+        "assets/logo.png",
+        "assets/readme.md",
+        "ical.net.5.1.4.nupkg.sha512",
+        "ical.net.nuspec",
+        "lib/net6.0/Ical.Net.dll",
+        "lib/net8.0/Ical.Net.dll",
+        "lib/netstandard2.0/Ical.Net.dll",
+        "lib/netstandard2.1/Ical.Net.dll"
       ]
     },
     "MailKit/4.14.1": {
@@ -8187,6 +8230,27 @@
         "newtonsoft.json.13.0.3.nupkg.sha512",
         "newtonsoft.json.nuspec",
         "packageIcon.png"
+      ]
+    },
+    "NodaTime/3.2.2": {
+      "sha512": "dmju5W0UYC3QP/UJM0juKAZkH0HSDMp0gH91A0+mT9M0kgyM2Jm67hUZPl/WRQLq8Lijjqmdk8kyAViWFWM7dA==",
+      "type": "package",
+      "path": "nodatime/3.2.2",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "lib/net6.0/NodaTime.dll",
+        "lib/net6.0/NodaTime.pdb",
+        "lib/net6.0/NodaTime.xml",
+        "lib/net8.0/NodaTime.dll",
+        "lib/net8.0/NodaTime.pdb",
+        "lib/net8.0/NodaTime.xml",
+        "lib/netstandard2.0/NodaTime.dll",
+        "lib/netstandard2.0/NodaTime.pdb",
+        "lib/netstandard2.0/NodaTime.xml",
+        "nodatime.3.2.2.nupkg.sha512",
+        "nodatime.nuspec"
       ]
     },
     "NuGet.Common/6.11.0": {
@@ -12766,6 +12830,7 @@
   "projectFileDependencyGroups": {
     "net8.0": [
       "DotNetEnv >= 3.1.1",
+      "Ical.Net >= 5.1.4",
       "MailKit >= 4.14.1",
       "Microsoft.AspNetCore.Authentication.JwtBearer >= 8.0.22",
       "Microsoft.AspNetCore.Identity.EntityFrameworkCore >= 8.0.22",
@@ -12783,23 +12848,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\LuukO\\.nuget\\packages\\": {},
+    "C:\\Users\\niekh\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\ZhmApi.csproj",
+      "projectUniqueName": "C:\\Users\\niekh\\ProgrammingProjects\\I\\Projects\\Zachte-Heelmeesters\\apps\\server\\server\\ZhmApi.csproj",
       "projectName": "ZhmApi",
-      "projectPath": "E:\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\ZhmApi.csproj",
-      "packagesPath": "C:\\Users\\LuukO\\.nuget\\packages\\",
-      "outputPath": "E:\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\obj\\",
+      "projectPath": "C:\\Users\\niekh\\ProgrammingProjects\\I\\Projects\\Zachte-Heelmeesters\\apps\\server\\server\\ZhmApi.csproj",
+      "packagesPath": "C:\\Users\\niekh\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\niekh\\ProgrammingProjects\\I\\Projects\\Zachte-Heelmeesters\\apps\\server\\server\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\LuukO\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\niekh\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -12835,6 +12900,10 @@
           "DotNetEnv": {
             "target": "Package",
             "version": "[3.1.1, )"
+          },
+          "Ical.Net": {
+            "target": "Package",
+            "version": "[5.1.4, )"
           },
           "MailKit": {
             "target": "Package",
@@ -12916,7 +12985,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

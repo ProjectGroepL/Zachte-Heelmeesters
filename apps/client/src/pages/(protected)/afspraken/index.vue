@@ -45,6 +45,7 @@ const fetchAppointments = async () => {
     } finally {
         loading.value = false
     }
+    
 }
 
 

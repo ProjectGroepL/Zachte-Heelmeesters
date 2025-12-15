@@ -1,11 +1,15 @@
 import type { Referral } from '@/types/referral'
 
-export function mapReferrals(raw: any[]): Referral[]{
-    return (raw || []).map(r => ({
-    id: r.Id ?? r.id,
-    patientName: r.PatientName ?? r.patientName ?? '',
-    treatmentName: r.TreatmentName ?? r.treatmentName ?? '',
-    createdAt: (r.CreatedAt ?? r.createdAt)?.toString(),
-    status: r.Status ?? r.status ?? 'open'
+export function mapReferrals(raw: any): Referral[] {
+  if (!raw) return []
+
+  const list = Array.isArray(raw) ? raw : []
+
+  return list.map(r => ({
+    id: r.id,
+    treatmentName: r.treatmentDescription, // 🔥 HIER ZAT DE KLOPPER
+    patientName: '', // zit niet in deze DTO
+    createdAt: r.createdAt,
+    status: r.status
   }))
 }

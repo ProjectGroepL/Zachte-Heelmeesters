@@ -8,6 +8,7 @@ import { mapReferrals } from '@/composables/mapReferrals'
 ====================== */
 export function usePatientReferrals() {
   return useQuery<Referral[]>('/referrals/patient', {
+    immediate: true,
     transform: mapReferrals
   })
 }

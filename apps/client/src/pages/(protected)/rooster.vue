@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, ref, watch} from 'vue'
+import {computed, ref, watch, onMounted} from 'vue'
 import {Calendar} from '@/components/ui/calendar'
 import {Button} from '@/components/ui/button'
 import {Separator} from '@/components/ui/separator'
@@ -118,6 +118,15 @@ const icalDialogOpen = ref(false)
 const icalUrl = ref('')
 const icalError = ref('')
 
+onMounted(() => {
+  try {
+    const stored = localStorage.getItem('ical_url')
+    if (stored) icalUrl.value = stored
+  } catch {
+    // ignore storage errors (e.g. private mode)
+  }
+})
+
 function submitIcal() {
   icalError.value = ''
 
@@ -138,6 +147,12 @@ function submitIcal() {
     icalError.value = err.message || 'Er is een fout opgetreden bij het opslaan.'
     return
   })
+
+  try {
+    localStorage.setItem('ical_url', icalUrl.value)
+  } catch {
+    // ingore the errors
+  }
   
   icalDialogOpen.value = false
 }

@@ -8,14 +8,11 @@ public class ApiContext : IdentityDbContext<User, Role, int>
 {
   public ApiContext(DbContextOptions<ApiContext> options) : base(options) { }
 
-  // public DbSet<User> Users { get; set; } = null!;
-  // public DbSet<Role> Roles { get; set; } = null!;
   // DbSets are inherited from IdentityDbContext
 
   public DbSet<Token> Tokens { get; set; } = null!;
   public DbSet<TwoFactorCode> TwoFactorCodes { get; set; } = null!;
-  public DbSet<Afspraak> Afspraken { get; set; } = null!;
-  public DbSet<PriveAfspraak> PriveAfspraken { get; set; } = null!;
+  public DbSet<PrivateAppointment> PriveAfspraken { get; set; } = null!;
   public DbSet<SpecialistIcal> SpecialistIcals { get; set; } = null!;
   public DbSet<DoctorPatients> DoctorPatients {get; set;} = null!;
   public DbSet<Treatment> Treatments {get; set;}
@@ -84,27 +81,10 @@ public class ApiContext : IdentityDbContext<User, Role, int>
 
     modelBuilder.Entity<TwoFactorCode>()
         .HasIndex(tfc => tfc.ExpiresAt);
-
-    // Afspraak 
-    modelBuilder.Entity<Afspraak>(entity =>
-    {
-        entity.HasKey(a => a.Id);
-
-        entity.HasOne(a => a.Specialist)
-            .WithMany()
-            .HasForeignKey(a => a.SpecialistId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        entity.HasOne(a => a.Patient)
-            .WithMany()
-            .HasForeignKey(a => a.PatientId)
-            .OnDelete(DeleteBehavior.Restrict);
-        
-        // TODO: add Behandelingen
-    });
     
-    // PriveAfspraak
-    modelBuilder.Entity<PriveAfspraak>(entity =>
+    
+    // PrivateAppointment
+    modelBuilder.Entity<PrivateAppointment>(entity =>
     {
         entity.HasKey(p => p.Uid);
 

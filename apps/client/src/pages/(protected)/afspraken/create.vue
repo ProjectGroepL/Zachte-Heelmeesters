@@ -1,143 +1,156 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import api from '@/lib/api'
-
-// DTO interface for TypeScript
-interface ReferralDto {
-    id: number
-    treatmentDescription: string
-    instructions?: string
-    status: string
-    notes?: string
-    createdAt: string
-}
-
-// reactive state
-const referrals = ref<ReferralDto[]>([])
-const selectedReferralId = ref<number | null>(null)
-const loading = ref(true)
-const error = ref<string | null>(null)
-const appointmentDate = ref<string>('') // YYYY-MM-DD
-const appointmentTime = ref<string>('') // HH:MM
-const successMessage = ref<string | null>(null)
-
-// computed property for selected referral instead of number
-const selectedReferral = computed(() => {
-    return referrals.value.find(r => r.id === selectedReferralId.value) || null
+import { ref, computed, onMounted } from "vue";
+import { usePatientReferrals } from "@/composables/useReferral";
+import { useCreateAppointment } from '@/composables/useCreateAppointment';
+import type { AppointmentDto } from '@/types/appointment'
+import { watch } from 'vue'
+const {
+  data: referrals,
+  loading,
+  error,
+  execute: fetchReferrals
+} = usePatientReferrals();
+watch(referrals, (newVal) => {
+  console.log('REFERRALS BINNEN:', newVal)
 })
+const {
+  mutate: createAppointment,
+  loading: creating,
+  error: createError
+} = useCreateAppointment();
+const appointments = ref<AppointmentDto[]>([])
+const selectedReferralId = ref<number | null>(null);
+const appointmentDate = ref("");
+const appointmentTime = ref("");
+const successMessage = ref<string | null>(null);
 
-// fetch function
-const fetchReferrals = async () => {
-    loading.value = true
-    error.value = null
+/**
+ * Null-safe referrals
+ */
+const safeReferrals = computed(() => referrals.value ?? []);
 
-    try {
-        const res = await api.get('/referrals/patient')
-        referrals.value = res.data
-    } catch (err: any) {
-        console.error('Fout bij ophalen van referrals:', err)
-        error.value = 'Er is een fout opgetreden bij het laden van de referrals.'
-    } finally {
-        loading.value = false
-    }
-}
+/**
+ * Geselecteerde referral als object
+ */
+const selectedReferral = computed(() =>
+  safeReferrals.value.find(r => r.id === selectedReferralId.value) ?? null
+);
 
-// Submit function
-const createAppointment = async () => {
-    if (!selectedReferralId.value || !appointmentDate.value || !appointmentTime.value) {
-        alert('Selecteer een doorverwijzing, datum en tijd')
-        return
-    }
+const submit = async () => {
+  if (!selectedReferralId.value || !appointmentDate.value || !appointmentTime.value) {
+    return;
+  }
 
-    loading.value = true
-    error.value = null
+  const result = await createAppointment({
+    referralId: selectedReferralId.value,
+    date: appointmentDate.value,
+    time: appointmentTime.value
+  });
 
-    try {
-        const token = localStorage.getItem('access_token')
-        if (!token) throw new Error('Niet ingelogd')
+  if (result !== undefined) {
+    successMessage.value = "Afspraak aangemaakt!";
+      setTimeout(() => {
+    successMessage.value = null;
+  }, 2000);
+    selectedReferralId.value = null;
+    appointmentDate.value = "";
+    appointmentTime.value = "";
+    fetchReferrals(); // refresh select
+  }
+};
 
-        const payload = {
-            referralId: selectedReferralId.value,
-            date: appointmentDate.value,
-            time: appointmentTime.value
-        }
-
-        await api.post('/appointments', payload, {
-            headers: { Authorization: `Bearer ${token}` }
-        })
-
-        successMessage.value = 'Afspraak aangemaakt!'
-        setTimeout(() => {
-            successMessage.value = null
-        }, 3000) // Disappear after 3 seconds
-
-        // reset form and fetch referrals again to refresh the select box
-        selectedReferralId.value = null
-        appointmentDate.value = ''
-        appointmentTime.value = ''
-        fetchReferrals()
-    } catch (err: any) {
-        console.error(err)
-        error.value = 'Kon de afspraak niet aanmaken'
-    } finally {
-        loading.value = false
-    }
-}
-
-// call fetch on mount
-onMounted(fetchReferrals)
 </script>
 
 <template>
-    <div class="p-6">
-        <h1 class="text-2xl font-bold mb-4">Nieuwe afspraak</h1>
+  <div class="p-6">
+    <h1 class="text-2xl font-bold mb-4">Nieuwe afspraak</h1>
 
-        <!-- Status reports -->
-        <div v-if="loading" class="text-gray-500">Doorverwijzingen laden...</div>
-        <div v-else-if="error" class="text-red-500">{{ error }}</div>
-
-        <div v-if="successMessage" class="bg-green-200 text-green-800 p-2 rounded mb-4">
-            {{ successMessage }}
-        </div>
-
-
-        <!-- Formulier -->
-        <div v-else>
-            <label for="referral" class="block mb-2">Kies een doorverwijzing:</label>
-
-            <div v-if="referrals.length > 0">
-                <select v-model="selectedReferralId" id="referral" class="border p-2 rounded w-full">
-                    <option value="" disabled selected>Selecteer een doorverwijzing</option>
-                    <option v-for="ref in referrals" :key="ref.id" :value="ref.id">
-                        {{ ref.treatmentDescription }} - {{ ref.status }}
-                    </option>
-                </select>
-            </div>
-
-            <div v-else class="text-red-500">
-                Er zijn geen actieve doorverwijzingen beschikbaar.
-            </div>
-
-
-            <!-- Datum en tijd selectie -->
-            <div v-if="selectedReferralId" class="mt-4 space-y-2">
-                <p>Je hebt doorverwijzing {{ selectedReferral?.treatmentDescription }} geselecteerd.</p>
-
-                <label class="block">Datum:</label>
-                <input type="date" v-model="appointmentDate"
-                    :min="selectedReferral ? new Date(selectedReferral.createdAt).toISOString().split('T')[0] : ''"
-                    class="border p-2 rounded w-full" required />
-
-
-                <label class="block">Tijd:</label>
-                <input type="time" v-model="appointmentTime" class="border p-2 rounded w-full" required />
-
-                <button @click="createAppointment"
-                    class="bg-black text-white px-4 py-2 rounded mt-2 w-full hover:bg-blue-600">
-                    Maak afspraak
-                </button>
-
-            </div>
-        </div>
+    <!-- Status -->
+    <div v-if="loading" class="text-gray-500">
+      Doorverwijzingen laden...
     </div>
+
+    <div v-else-if="error" class="text-red-500">
+      {{ error }}
+    </div>
+
+    <div
+      v-if="successMessage"
+      class="bg-green-200 text-green-800 p-2 rounded mb-4"
+    >
+      {{ successMessage }}
+    </div>
+
+    <!-- Formulier -->
+    <div>
+      <label for="referral" class="block mb-2">
+        Kies een doorverwijzing:
+      </label>
+
+      <!-- Referral select -->
+      <div v-if="safeReferrals.length > 0">
+        <select
+          v-model="selectedReferralId"
+          id="referral"
+          class="border p-2 rounded w-full"
+        >
+          <option :value="null" disabled>
+            Selecteer een doorverwijzing
+          </option>
+
+          <option
+            v-for="ref in safeReferrals"
+            :key="ref.id"
+            :value="ref.id"
+            >
+            {{ ref.treatmentName }} - {{ ref.status }}
+            </option>
+        </select>
+      </div>
+
+      <div v-else class="text-red-500">
+        Er zijn geen actieve doorverwijzingen beschikbaar.
+      </div>
+
+      <!-- Datum & tijd -->
+      <div v-if="selectedReferral" class="mt-4 space-y-2">
+        <p>
+          Je hebt doorverwijzing
+          <strong>{{ selectedReferral.treatmentName }}</strong>
+          geselecteerd.
+        </p>
+
+        <label class="block">Datum:</label>
+        <input
+          type="date"
+          v-model="appointmentDate"
+          :min="new Date(selectedReferral.createdAt).toISOString().split('T')[0]"
+          class="border p-2 rounded w-full"
+          required
+        />
+
+        <label class="block">Tijd:</label>
+        <input
+          type="time"
+          v-model="appointmentTime"
+          class="border p-2 rounded w-full"
+          required
+        />
+
+        <button
+        @click="submit"
+        :disabled="creating || !appointmentDate || !appointmentTime"
+        class="bg-black text-white px-4 py-2 rounded mt-2 w-full
+                hover:bg-blue-600 disabled:opacity-50"
+        >
+        {{ creating ? 'Bezig met opslaan...' : 'Maak afspraak' }}
+        </button>
+
+        <p v-if="createError" class="text-red-500 mt-2">
+          Kon de afspraak niet aanmaken.
+        </p>
+      </div>
+    </div>
+  </div>
 </template>
+

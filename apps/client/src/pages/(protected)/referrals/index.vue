@@ -18,7 +18,7 @@ const {
     <div v-if="loading">Laden...</div>
     <div v-else-if="error">Fout bij laden</div>
 
-    <div v-else-if="!referrals?.length" class="p-4 text-muted">
+    <div v-else-if="!referrals?.length" class="p-4">
       Geen doorverwijzingen gevonden.
     </div>
 

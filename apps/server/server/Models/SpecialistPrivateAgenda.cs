@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ZhmApi.Models
 {
-    public class PrivateAppointment
+    public class SpecialistPrivateAgenda
     {
         public String Uid { get; set; } = null!;
         

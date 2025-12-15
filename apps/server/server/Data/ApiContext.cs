@@ -12,7 +12,7 @@ public class ApiContext : IdentityDbContext<User, Role, int>
 
   public DbSet<Token> Tokens { get; set; } = null!;
   public DbSet<TwoFactorCode> TwoFactorCodes { get; set; } = null!;
-  public DbSet<PrivateAppointment> PriveAfspraken { get; set; } = null!;
+  public DbSet<SpecialistPrivateAgenda> SpecialistPrivateAgendas { get; set; } = null!;
   public DbSet<SpecialistIcal> SpecialistIcals { get; set; } = null!;
   public DbSet<DoctorPatients> DoctorPatients {get; set;} = null!;
   public DbSet<Treatment> Treatments {get; set;}
@@ -83,8 +83,8 @@ public class ApiContext : IdentityDbContext<User, Role, int>
         .HasIndex(tfc => tfc.ExpiresAt);
     
     
-    // PrivateAppointment
-    modelBuilder.Entity<PrivateAppointment>(entity =>
+    // SpecialistPrivateAgenda
+    modelBuilder.Entity<SpecialistPrivateAgenda>(entity =>
     {
         entity.HasKey(p => p.Uid);
 

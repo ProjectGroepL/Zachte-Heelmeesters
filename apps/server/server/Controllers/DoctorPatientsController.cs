@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using ZhmApi.Data;
 using ZhmApi.Models;
 
@@ -17,38 +18,6 @@ namespace ZhmApi.Controllers
         public DoctorPatientsController(ApiContext db)
         {
             _db = db;
-        }
-
-        [HttpPost]
-        [Authorize(Roles = "Huisarts,Specialist")]
-        public async Task<IActionResult> AddPatientToDoctor(int patientId)
-        {
-            // Read user id claim robustly
-            var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                          ?? User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-
-            if (!int.TryParse(idClaim, out var doctorId))
-            {
-                return Unauthorized("Invalid token claims");
-            }
-
-            // Check if relationship already exists
-            bool exists = await _db.DoctorPatients
-                .AnyAsync(dp => dp.DoctorId == doctorId && dp.PatientId == patientId);
-
-            if (exists)
-                return Conflict("Patient is al gekoppeld.");
-
-            var relation = new DoctorPatients
-            {
-                DoctorId = doctorId,
-                PatientId = patientId
-            };
-
-            _db.DoctorPatients.Add(relation);
-            await _db.SaveChangesAsync();
-
-            return Ok("Patient succesvol gekoppeld aan huisarts/specialist!");
         }
 
         [HttpGet]
@@ -72,8 +41,9 @@ namespace ZhmApi.Controllers
                     .Select(dp => new
                     {
                         dp.PatientId,
+                        Email = dp.Patient != null ? dp.Patient.Email : "(onbekend)",
                         FullName = dp.Patient != null
-                            ? (dp.Patient.FirstName + " " + dp.Patient.LastName)
+                            ? $"{dp.Patient.FirstName} {(string.IsNullOrEmpty(dp.Patient.MiddleName) ? "" : dp.Patient.MiddleName + " ")}{dp.Patient.LastName}".Trim()
                             : "(onbekend)"
                     })
                     .ToListAsync();

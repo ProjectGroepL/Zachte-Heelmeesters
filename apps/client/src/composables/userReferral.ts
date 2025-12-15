@@ -1,12 +1,9 @@
 import api from "@/lib/api"
 import type { Referral, ReferralRequest } from '@/types/referral'
+import { useQuery } from '@/composables/useApi'
 
 export function useReferral()
 {
-    async function getDoctorReferrals(): Promise<Referral[]> {
-        const response = await api.get('/referrals')
-        return response.data
-    }
 
     async function getReferrals(): Promise<Referral[]> {
         const reponse = await api.get('/referrals/patient')
@@ -38,5 +35,5 @@ export function useReferral()
         return reponse.data
     }
 
-    return { getReferrals, createReferral, getReferral, getDoctorReferrals}
+    return { getReferrals, createReferral, getReferral}
 }

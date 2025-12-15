@@ -1,62 +1,56 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { useAuth } from '@/composables/useAuth';
-import { useReferral } from '@/composables/userReferral';
-import { useAppointment } from '@/composables/useAppointments';
-import type { Referral } from '@/types/referral';
+import { ref, computed } from 'vue'
+import { useAuth } from '@/composables/useAuth'
+import { usePatientReferrals } from '@/composables/useReferral'
+import { useAppointment } from '@/composables/useAppointments'
 
-const { getStoredUser, hasRole } = useAuth();
-const { getReferrals } = useReferral();
+const { getStoredUser, hasRole } = useAuth()
+
+// 🔹 queries
+const {
+  data: referrals,
+  loading: referralsLoading,
+  error: referralsError
+} = usePatientReferrals()
+
 const {
   fetchAppointments,
   nextAppointment,
   loading: appointmentsLoading,
   error: appointmentsError,
   appointments
-} = useAppointment();
+} = useAppointment()
 
-const userName = ref('');
-const referrals = ref<Referral[]>([]);
-const loadingDashboard = ref(false);
-const dashboardError = ref<string | null>(null);
+// 🔹 local UI state
 const appointmentExpanded = ref(false)
-const user = getStoredUser();
-const expandedReferralId = ref<number | null>(null);
+const expandedReferralId = ref<number | null>(null)
 
-const toggleReferral = (id: number) => {
-  expandedReferralId.value = expandedReferralId.value === id ? null : id;
-};
-// Rol-checks
+// 🔹 user
+const user = getStoredUser()
+
+const userName = computed(() => {
+  if (!user) return 'Gebruiker'
+  if (user.firstName && user.lastName) {
+    return `${user.firstName} ${user.lastName}`
+  }
+  return user.firstName ?? 'Gebruiker'
+})
+
+// 🔹 role
 const isPatient = computed(() => hasRole('Patient'))
 
+const toggleReferral = (id: number) => {
+  expandedReferralId.value =
+    expandedReferralId.value === id ? null : id
+}
+
+// 🔹 veilige computed voor template
+const safeReferrals = computed(() => referrals.value ?? [])
+
+// 🔹 reload page function
 const reloadPage = () => {
-  window.location.reload();
-};
-
-onMounted(async () => {
-  console.log("🚀 Dashboard mounted()");
-  loadingDashboard.value = true;
-  dashboardError.value = null;
-
-  try {
-    if (user?.firstName && user?.lastName) {
-      userName.value = `${user.firstName} ${user.lastName}`;
-      console.log("➡ User:", user);
-    } else {
-      userName.value = user?.firstName || "Gebruiker";
-    }
-
-    const result = await getReferrals();
-    console.log("➡ Referrals received:", result);
-    await fetchAppointments();
-    referrals.value = result;
-    console.log("➡ Stored referrals:", referrals.value)
-  } catch (e) {
-    dashboardError.value = "Dashboard kan niet geladen worden.";
-  } finally {
-    loadingDashboard.value = false;
-  }
-});
+  window.location.reload()
+}
 </script>
 
 <template>
@@ -68,12 +62,12 @@ onMounted(async () => {
 
     <!-- ❌ Foutmelding -->
     <div 
-      v-if="dashboardError" 
+      v-if="referralsError" 
       class="p-4 bg-red-100 text-red-700 rounded-xl"
       role="alert"
       aria-live="assertive"
     >
-      {{ dashboardError }}
+      {{ referralsError }}
 
       <button 
         class="mt-2 px-4 py-2 bg-red-600 text-white rounded"
@@ -86,7 +80,7 @@ onMounted(async () => {
 
     <!-- ⏳ Loading -->
     <div 
-      v-else-if="loadingDashboard"
+      v-else-if="referralsLoading"
       role="status"
       aria-live="polite"
     >
@@ -210,7 +204,7 @@ onMounted(async () => {
 
             <!-- Kaart per verwijzing -->
             <div
-              v-for="ref in referrals"
+              v-for="ref in safeReferrals"
               :key="ref.id"
               @click="toggleReferral(ref.id)"
               class="p-6 bg-white rounded-2xl shadow hover:shadow-xl transition cursor-pointer"
@@ -244,7 +238,7 @@ onMounted(async () => {
 
             <!-- Geen verwijzingen -->
             <div 
-              v-if="referrals.length === 0" 
+              v-if="safeReferrals.length === 0"
               class="col-span-full p-8 text-center bg-gray-50 border border-gray-200 rounded-2xl text-gray-500"
             >
               Geen doorverwijzingen.

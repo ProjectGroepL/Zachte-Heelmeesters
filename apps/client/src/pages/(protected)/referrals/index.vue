@@ -1,28 +1,27 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useReferral } from "@/composables/userReferral";
+import { useDocterReferrals } from '@/composables/useDoctorReferral'
 
-const { getReferrals, getDoctorReferrals } = useReferral()
-const referrals = ref<any[]>([])
+const {
+  data: referrals,
+  loading,
+  error
+} = useDocterReferrals()
 
-onMounted(async () => {
-  try {
-    const result = await getDoctorReferrals()
-    console.debug('[referrals/index] mapped referrals:', result)
-    referrals.value = result
-  }
-  catch (err) {
-    console.error('Failed to load referrals', err)
-    referrals.value = []
-  }
-})
+
 </script>
 
 <template>
   <div class="p-6">
     <h2 class="text-xl font-bold mb-4">Doorverwijzingen</h2>
 
-    <div v-if="!referrals.length" class="p-4 text-muted">Geen doorverwijzingen gevonden.</div>
+    <div v-if="loading">Laden...</div>
+    <div v-else-if="error">Fout bij laden</div>
+
+    <div v-else-if="!referrals?.length" class="p-4 text-muted">
+      Geen doorverwijzingen gevonden.
+    </div>
+
     <table v-else class="w-full border">
       <thead>
         <tr class="bg-gray-100">

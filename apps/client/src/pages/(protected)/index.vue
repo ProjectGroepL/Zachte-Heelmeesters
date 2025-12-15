@@ -251,7 +251,7 @@ const reloadPage = () => {
 
       <!-- Medewerkers -->
       <template v-else>
-        <div class="mt-6 text-center text-gray-500">
+        <div class="mt-6 text-center text-gray-500" aria-label="Dashboard-medewerker-overzicht">
           Dit is het dashboard voor medewerkers.
         </div>
       </template>

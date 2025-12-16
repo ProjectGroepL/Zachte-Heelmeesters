@@ -110,7 +110,7 @@ const reloadPage = () => {
       <!-- Alleen Patiënten -->
       <template v-if="isPatient">
 
-        <!-- 📅 AFSRPRAKEN IN GRID (3 op een rij) -->
+        <!-- AFSRPRAKEN IN GRID (3 op een rij) -->
         <section class="w-full max-w-6xl px-4" aria-label="Afspraken-overzicht">
 
           <h2 class="text-2xl font-bold text-blue-600 mb-4">

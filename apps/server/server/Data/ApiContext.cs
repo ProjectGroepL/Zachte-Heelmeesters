@@ -16,6 +16,7 @@ public class ApiContext : IdentityDbContext<User, Role, int>
   public DbSet<Treatment> Treatments {get; set;}
   public DbSet<Referral> Referrals {get; set;}
   public DbSet<Appointment> Appointments {get; set;}
+  public DbSet<AuditTrail> AuditTrails { get; set; }
 
 
   #region UpdatedAt timestamp handling
@@ -120,6 +121,22 @@ public class ApiContext : IdentityDbContext<User, Role, int>
 
     modelBuilder.Entity<Referral>()
     .ToTable(tb => tb.HasTrigger("TR_Referrals_Expire"));
+
+  // enforce required fields, add sensible limits and prevent bad data
+    modelBuilder.Entity<AuditTrail>(entity =>
+    {
+        entity.HasKey(a => a.Id);
+
+        entity.Property(a => a.Action)
+              .IsRequired()
+              .HasMaxLength(100);
+
+        entity.Property(a => a.IpAddress)
+              .HasMaxLength(45); // supports IPv6
+
+        entity.Property(a => a.Timestamp)
+              .IsRequired();
+    });
 
         
     // Seed initial data

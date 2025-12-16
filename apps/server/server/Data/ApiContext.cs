@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using OpenQA.Selenium.BiDi.Script;
 using ZhmApi.Models;
 
 namespace ZhmApi.Data;
@@ -16,8 +17,12 @@ public class ApiContext : IdentityDbContext<User, Role, int>
   public DbSet<Treatment> Treatments {get; set;}
   public DbSet<Referral> Referrals {get; set;}
   public DbSet<Appointment> Appointments {get; set;}
-
-
+  public DbSet<MedicalDocument> MedicalDocuments {get; set;}
+  //this is already made a table so i couldnt delete the extra s so i guess we have to do with what we got
+  public DbSet<AccessRequest> AccesssRequests {get; set;}
+  public DbSet<Notification> Notifications {get; set;}
+  
+ 
   #region UpdatedAt timestamp handling
   public override int SaveChanges()
   {
@@ -113,10 +118,21 @@ public class ApiContext : IdentityDbContext<User, Role, int>
         .HasForeignKey(r => r.TreatmentId)
         .OnDelete(DeleteBehavior.NoAction);
 
-    modelBuilder.Entity<Referral>()
-    .ToTable(tb => tb.HasTrigger("TR_Referrals_Expire"));
+      modelBuilder.Entity<Referral>()
+      .ToTable(tb => tb.HasTrigger("TR_Referrals_Expire"));
+      //accesrequest specification on what to do when it gets deleted
+      modelBuilder.Entity<AccessRequest>()
+      .HasOne(ac => ac.Patient)
+      .WithMany()
+      .HasForeignKey(ac => ac.PatientId)
+      .OnDelete(DeleteBehavior.NoAction);
 
-        
+      modelBuilder.Entity<AccessRequest>()
+      .HasOne(ac => ac.Specialist )
+      .WithMany()
+      .HasForeignKey(ac => ac.SpecialistId)
+      .OnDelete(DeleteBehavior.NoAction);  
+
     // Seed initial data
     SeedData(modelBuilder);
   }

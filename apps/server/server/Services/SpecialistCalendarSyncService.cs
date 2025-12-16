@@ -31,10 +31,10 @@ namespace ZhmApi.Services
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.UserId == userId);
 
-            if (specialistIcal == null || string.IsNullOrWhiteSpace(specialistIcal.IcalUrl))
+            if (specialistIcal == null || string.IsNullOrWhiteSpace(specialistIcal.Url))
                 return;
 
-            var icsContent = await _httpClient.GetStringAsync(specialistIcal.IcalUrl);
+            var icsContent = await _httpClient.GetStringAsync(specialistIcal.Url);
 
             var calendar = Calendar.Load(icsContent);
 
@@ -42,28 +42,29 @@ namespace ZhmApi.Services
                 .Where(a => a.UserId == userId);
             _context.SpecialistPrivateAgendas.RemoveRange(existing);
 
-            var events = calendar.Events ?? new List<CalendarEvent>();
+            var eventsCollection = calendar.Events;
+            var events = eventsCollection != null
+                ? eventsCollection.ToList()
+                : new List<CalendarEvent>();
 
             foreach (var ev in events)
             {
-                var start = ev.DtStart?.AsSystemLocal;
-                var end = ev.DtEnd?.AsSystemLocal;
+                var start = ev.DtStart?.Value;
+                var end = ev.DtEnd?.Value;
 
                 if (start == null || end == null)
                     continue;
-                
-                // var debug = $"ICAL EVENT: UID={(ev.UID ?? "<null>")}, Start={start.Value:O}, End={end.Value:O}, Summary={(ev.Summary ?? "<null>")}, Location={(ev.Location ?? "<null>")}";
+
+                // var debug = $"ICAL EVENT: UID={(ev.Uid ?? "<null>")}, Start={start.Value:O}, End={end.Value:O}, Summary={(ev.Summary ?? "<null>")}, Location={(ev.Location ?? "<null>")}";
                 // System.Diagnostics.Debug.WriteLine(debug);
-                
+
                 var entity = new SpecialistPrivateAgenda
                 {
-                    Uid = ev.UID,           // adapt if your PK is different
+                    Uid = ev.Uid,
+                    Start = start.Value,
+                    End = end.Value,
                     UserId = userId,
-                    StartTime = start.Value,        // adapt field names
-                    EndTime = end.Value,
-                    Title = ev.Summary,
-                    Description = ev.Description,
-                    Location = ev.Location
+                    UpdatedAt = DateTime.UtcNow
                 };
                 
                 _context.SpecialistPrivateAgendas.Add(entity);

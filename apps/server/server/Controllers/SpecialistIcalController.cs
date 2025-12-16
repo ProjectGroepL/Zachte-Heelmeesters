@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using ZhmApi.Data;
 using ZhmApi.Dtos;
 using ZhmApi.Models;
+using ZhmApi.Services;
 
 namespace ZhmApi.Controllers
 {
@@ -15,10 +16,14 @@ namespace ZhmApi.Controllers
     public class SpecialistIcalController : ControllerBase
     {
         private readonly ApiContext _context;
+ 		private readonly ISpecialistCalendarSyncService _calendarSyncService;
 
-        public SpecialistIcalController(ApiContext context)
+        public SpecialistIcalController(
+			ApiContext context,
+			ISpecialistCalendarSyncService calendarSyncService)
         {
             _context = context;
+			_calendarSyncService = calendarSyncService;
         }
 
         [HttpPost]
@@ -59,7 +64,7 @@ namespace ZhmApi.Controllers
 
             await _context.SaveChangesAsync();
 
-			await _calendarSyncService.SyncFromIcalAsync(dto.UserId);
+			await _calendarSyncService.SyncFromIcalAsync(userId);
 
             return Ok(new { message = "iCal link saved", url = existing.Url });
         }

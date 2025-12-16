@@ -72,5 +72,13 @@ namespace ZhmApi.Services
 
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<AccessRequest>> GetRequestsForSpecialist(int specialistId)
+        {
+            return await _context.AccesssRequests
+                .Where(r => r.SpecialistId == specialistId)
+                .OrderByDescending(r => r.RequestedAt)
+                .ToListAsync();
+        }
     }
 }

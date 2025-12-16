@@ -10,7 +10,7 @@ namespace ZhmApi.Controllers
 {
     [Authorize(Roles = "Specialist")]
     [ApiController]
-    [Route("api/specialist/access-request")]
+    [Route("api/specialist/access-requests")]
     public class SpecialistAccessController : ControllerBase
     {
         private readonly AccessRequestService _service; 

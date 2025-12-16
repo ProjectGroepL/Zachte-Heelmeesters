@@ -119,24 +119,26 @@ const submit = async () => {
           <strong>{{ selectedReferral.treatmentName }}</strong>
           geselecteerd.
         </p>
+        <fieldset>
+        <legend class="font-semibold">Datum en tijd</legend>
+          <label class="date">Datum:</label>
+          <input
+            type="date"
+            v-model="appointmentDate"
+            :min="new Date(selectedReferral.createdAt).toISOString().split('T')[0]"
+            class="border p-2 rounded w-full"
+            required
+          />
 
-        <label class="block">Datum:</label>
-        <input
-          type="date"
-          v-model="appointmentDate"
-          :min="new Date(selectedReferral.createdAt).toISOString().split('T')[0]"
-          class="border p-2 rounded w-full"
-          required
-        />
-
-        <label class="block">Tijd:</label>
-        <input
-          type="time"
-          v-model="appointmentTime"
-          class="border p-2 rounded w-full"
-          required
-        />
-
+          <label class="time">Tijd:</label>
+          <input
+            type="time"
+            v-model="appointmentTime"
+            class="border p-2 rounded w-full"
+            required
+          />
+        </fieldset>
+        
         <button
         @click="submit"
         :disabled="creating || !appointmentDate || !appointmentTime"

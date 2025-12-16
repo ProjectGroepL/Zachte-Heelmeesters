@@ -123,7 +123,9 @@ const data = {
       </div>
        <!-- Doctor -->
       <NavDoctor v-if="hasRole('Huisarts')" />
-      <NavAdmin :items="data.projects" />
+      <NavPatient v-if="hasRole('Patient')" />
+      <NavAdmin v-if="hasRole('Administratie')" :items="data.projects" />
+      <NavSpecialist v-if="hasRole('Specialist')" />
     </SidebarContent>
     <SidebarFooter>
       <NavUser :user="data.user" />

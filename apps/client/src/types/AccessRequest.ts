@@ -21,5 +21,5 @@ export interface CreateAccessRequest {
 }
 
 export interface DecideAccessRequest {
-    approved: Boolean 
+    approved: boolean 
 }

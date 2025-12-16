@@ -51,7 +51,8 @@ const submitReferral = async () => {
     <div v-else-if="error">Fout bij laden patiënten</div>
 
     <template v-else>
-      <select v-model="patientId" class="border p-2 rounded w-full">
+      <label for="patient">Patiënt</label>
+      <select id="patient" v-model="patientId" class="border p-2 rounded w-full">
         <option
           v-for="p in patients"
           :key="p.patientId"
@@ -61,14 +62,18 @@ const submitReferral = async () => {
         </option>
       </select>
 
+      <label for="treatment">Behandeling ID</label>
       <input
         v-model="treatmentId"
+        id="treatment"
         type="number"
         placeholder="Behandeling ID"
         class="border p-2 rounded w-full"
       />
 
+      <label for="notes">Opmerkingen</label>
       <textarea
+        id="notes"
         v-model="notes"
         placeholder="Opmerkingen (optioneel)"
         class="border p-2 rounded w-full h-24"

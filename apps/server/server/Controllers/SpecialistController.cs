@@ -47,7 +47,14 @@ namespace ZhmApi.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        
+        [Authorize(Roles = "Specialist")]
+        [HttpGet("my")]
+        public async Task<ActionResult<IEnumerable<AccessRequestDto>>> GetMyRequests()
+        {
+            var specialistId = User.GetUserId();
+            var requests = await _service.GetRequestsForSpecialist(specialistId);
+            return Ok(requests);
+        }
         
     }
 }

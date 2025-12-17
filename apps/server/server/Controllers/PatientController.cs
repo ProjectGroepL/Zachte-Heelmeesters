@@ -17,6 +17,30 @@ namespace ZhmApi.Controllers
         {
             _service = service;
         }
+
+        [HttpGet("my")]
+        public async Task<ActionResult<IEnumerable<AccessRequestDto>>> GetMyRequests()
+        {
+            // 1. Haal de ID van de ingelogde PATIENT op
+            var patientId = User.GetUserId();
+
+            // 2. BELANGRIJK: Gebruik GetRequestsForPatient (niet Specialist!)
+            var requests = await _service.GetRequestsForPatient(patientId);
+
+            // 3. Map naar DTO
+            var dtos = requests.Select(r => new AccessRequestDto
+            {
+                Id = r.Id,
+                SpecialistId = r.SpecialistId,
+                SpecialistName = r.Specialist?.UserName ?? "Onbekende Specialist", 
+                PatientId = r.PatientId,
+                Reason = r.Reason,
+                Status = r.Status, // Dit is de Enum
+                RequestedAt = r.RequestedAt
+            });
+
+            return Ok(dtos);
+        }
         [HttpPost("{id}/decision")]
         public async Task<IActionResult> Decide(
             int id,

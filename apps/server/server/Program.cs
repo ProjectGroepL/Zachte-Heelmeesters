@@ -147,6 +147,10 @@ builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Emai
 
 // register referralservice
 builder.Services.AddScoped<IReferralService, ReferralService>();
+builder.Services.AddScoped<MedicalDocumentService>(); // Die stond er waarschijnlijk al
+builder.Services.AddScoped<AccessRequestService>();
+
+
 
 // Register email sender based on environment
 if (builder.Environment.IsDevelopment())

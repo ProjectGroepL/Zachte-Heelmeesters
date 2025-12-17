@@ -25,6 +25,7 @@ namespace ZhmApi.Services
             {
                 SpecialistId = specialistId,
                 PatientId = patientId,
+                Reason = reason,
                 Status = AccessRequestStatus.Pending
             };
 
@@ -77,6 +78,15 @@ namespace ZhmApi.Services
         {
             return await _context.AccesssRequests
                 .Where(r => r.SpecialistId == specialistId)
+                .OrderByDescending(r => r.RequestedAt)
+                .ToListAsync();
+        }
+
+        public async Task<List<AccessRequest>> GetRequestsForPatient(int patientId)
+        {
+            return await _context.AccesssRequests
+                .Include(r => r.Specialist) 
+                .Where(r => r.PatientId == patientId && r.Status == AccessRequestStatus.Pending)
                 .OrderByDescending(r => r.RequestedAt)
                 .ToListAsync();
         }

@@ -197,6 +197,14 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Apply database migrations
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ApiContext>();
+    context.Database.Migrate();
+}
+
 // new roles and users so that we can login more easily
 using (var scope = app.Services.CreateScope())
 {

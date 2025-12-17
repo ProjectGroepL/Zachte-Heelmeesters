@@ -29,7 +29,7 @@ services:
         condition: service_healthy
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - Data Source=localhost,${DB_PORT};Persist Security Info=False;User ID=sa;Password=${DB_SA_PASSWORD};Pooling=False;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True
+      - Data Source=localhost,${DB_PORT};Initial Catalog=zhm;Persist Security Info=False;User ID=sa;Password=${DB_SA_PASSWORD};Pooling=False;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True
     # Do not publish backend directly; proxy will route /api to this service
   client:
     build:

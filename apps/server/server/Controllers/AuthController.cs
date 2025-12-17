@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using ZhmApi.Data;
 using ZhmApi.Dtos;
 using ZhmApi.Models;
 using ZhmApi.Services;
@@ -18,19 +19,22 @@ namespace ZhmApi.Controllers
         private readonly IJwtService _jwtService;
         private readonly ITokenService _tokenService;
         private readonly TwoFactorService _twoFactorService;
+        private readonly ApiContext _context;
 
         public AuthController(
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             IJwtService jwtService,
             ITokenService tokenService,
-            TwoFactorService twoFactorService)
+            TwoFactorService twoFactorService,
+            ApiContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _jwtService = jwtService;
             _tokenService = tokenService;
             _twoFactorService = twoFactorService;
+            _context = context;
         }
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
@@ -45,6 +49,19 @@ namespace ZhmApi.Controllers
             if (existingUser != null)
             {
                 return BadRequest(new { message = "User with this email already exists" });
+            }
+
+            // Check if General Practitioner exists and is of correct role
+            var gp = await _userManager.FindByIdAsync(registerDto.GeneralPractitionerId.ToString());
+            if (gp == null)
+            {
+                return BadRequest(new { message = "General Practitioner does not exist or is invalid" });
+            }
+
+            var gpRoles = await _userManager.GetRolesAsync(gp);
+            if (!gpRoles.Contains("Huisarts"))
+            {
+                return BadRequest(new { message = "General Practitioner does not exist or is invalid" });
             }
 
             // Create new user
@@ -62,7 +79,7 @@ namespace ZhmApi.Controllers
                 ZipCode = registerDto.ZipCode,
                 City = registerDto.City,
                 Country = registerDto.Country,
-                EmailConfirmed = false // Will be set to true after email verification
+                EmailConfirmed = false
             };
 
             var result = await _userManager.CreateAsync(user, registerDto.Password);
@@ -73,6 +90,15 @@ namespace ZhmApi.Controllers
 
             // Add user to default role
             await _userManager.AddToRoleAsync(user, "Patient");
+
+            // Assign general practitioner
+            var gpLink = new DoctorPatients
+            {
+                PatientId = user.Id,
+                DoctorId = registerDto.GeneralPractitionerId
+            };
+
+            _context.DoctorPatients.Add(gpLink);
 
             // Generate tokens
             var token = _jwtService.GenerateToken(user.Id);
@@ -105,6 +131,8 @@ namespace ZhmApi.Controllers
                 RefreshToken = refreshTokenEntity.Value,
                 User = userDto
             };
+
+            _context.SaveChanges();
 
             return Ok(response);
         }
@@ -356,7 +384,7 @@ namespace ZhmApi.Controllers
             return Ok(response);
         }
 
-        
+
 
         [HttpPost("resend-2fa")]
         public async Task<IActionResult> ResendTwoFactor([FromBody] ResendDto dto)

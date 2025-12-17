@@ -94,6 +94,11 @@ public class ApiContext : IdentityDbContext<User, Role, int>
         .WithMany()
         .HasForeignKey(dp => dp.PatientId)
         .OnDelete(DeleteBehavior.Restrict);
+
+    // Ensure each patient can only have one doctor
+    modelBuilder.Entity<DoctorPatients>()
+        .HasIndex(dp => dp.PatientId)
+        .IsUnique();
       // made sure that cascade wasnt being set on two of the tables
       modelBuilder.Entity<Referral>()
         .HasOne(r => r.Patient)

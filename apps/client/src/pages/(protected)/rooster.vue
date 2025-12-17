@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {computed, ref, watch, onMounted} from 'vue'
+import {useAuth} from '@/composables/useAuth'
 import {Calendar} from '@/components/ui/calendar'
 import {Button} from '@/components/ui/button'
 import {Separator} from '@/components/ui/separator'
@@ -19,6 +20,13 @@ import {toDate} from 'reka-ui/date'
 import 'vue-cal/dist/vuecal.css'
 import VueCal from 'vue-cal'
 import api from "@/lib/api.ts";
+import {
+  type SpecialistPrivateAgendaItem,
+  useSpecialistPrivateAgendaById
+} from "@/composables/useSpecialistPrivateAgenda.ts";
+
+const { getStoredUser } = useAuth()
+const user = getStoredUser()
 
 // -------------------------------------------------------------------------------------
 // Basis: weekberekening
@@ -52,53 +60,34 @@ watch(calendarDate, (val) => {
 // -------------------------------------------------------------------------------------
 
 type Appointment = {
-  id: number
+  id: string
   title: string
   start: Date
   end: Date
 }
 
-// helper om datum in huidige week te maken (offset=0 → maandag)
-function createWeekDate(dayOffset: number, hour: number, minute = 0): Date {
-  const base = new Date(weekStart.value)
-  base.setDate(base.getDate() + dayOffset)
-  base.setHours(hour, minute, 0, 0)
-  return base
-}
+const appointments = ref<Appointment[]>([])
 
-// dummy afspraken in huidige week
-const appointments = ref<Appointment[]>([
-  {
-    id: 1,
-    title: 'Intake – Patiënt A',
-    start: createWeekDate(0, 9), // ma 09:00
-    end: createWeekDate(0, 11), // ma 11:00 (2 uur blok)
-  },
-  {
-    id: 2,
-    title: 'Controle – Patiënt B',
-    start: createWeekDate(1, 10), // di 10:00
-    end: createWeekDate(1, 11), // di 11:00
-  },
-  {
-    id: 3,
-    title: 'Behandeling – Patiënt C',
-    start: createWeekDate(2, 13, 30), // wo 13:30
-    end: createWeekDate(2, 15), // wo 15:00 (1,5 uur)
-  },
-  {
-    id: 4,
-    title: 'Nabespreking – Patiënt D',
-    start: createWeekDate(3, 9), // do 09:00
-    end: createWeekDate(3, 10), // do 10:00
-  },
-  {
-    id: 5,
-    title: 'Consult – Patiënt E',
-    start: createWeekDate(4, 16), // vr 16:00
-    end: createWeekDate(4, 18), // vr 18:00 (loopt tot einde dag)
-  },
-])
+const {
+  data: privateAgendaData,
+  error,
+} = useSpecialistPrivateAgendaById(user?.id || '')
+
+
+// Wanneer de backend-data binnenkomt → omzetten naar appointments
+watch(
+    () => privateAgendaData.value,
+    (items) => {
+      if (!items) return
+      appointments.value = items.map((item: SpecialistPrivateAgendaItem) => ({
+        id: item.uid,
+        title: "Privé afspraak",
+        start: new Date(item.start),
+        end: new Date(item.end),
+      }))
+    },
+    { immediate: true },
+)
 
 const vueCalEvents = computed(() =>
     appointments.value.map((appt) => ({
@@ -151,7 +140,7 @@ function submitIcal() {
   try {
     localStorage.setItem('ical_url', icalUrl.value)
   } catch {
-    // ingore the errors
+    // ingore errors
   }
   
   icalDialogOpen.value = false

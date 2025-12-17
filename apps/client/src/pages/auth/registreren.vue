@@ -17,7 +17,7 @@ import { useAuth } from "@/composables/useAuth"
 import { useRouter } from "vue-router"
 import { z } from "zod"
 import { useQuery } from "@/composables/useApi"
-import { type GpName } from "@/types/GeneralPractitioner"
+import { type GpName } from "@/types/GeneralPractitioner.d"
 
 const router = useRouter()
 const { register, isAuthenticated } = useAuth()

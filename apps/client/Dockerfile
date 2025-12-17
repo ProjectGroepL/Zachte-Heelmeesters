@@ -1,25 +1,35 @@
-# Stage 1: build the app
-FROM node:20-alpine AS build
+# Build stage
+FROM node:22-alpine AS builder
+
+# Set working directory
 WORKDIR /app
 
-# Copy root package files for dependency installation
+# Copy package files for better caching
 COPY package*.json ./
-COPY turbo.json ./
 
-# Copy workspace package files
-COPY apps/client/package*.json ./apps/client/
+# Install dependencies
+RUN npm install
 
-# Install all dependencies using npm workspaces
-RUN npm ci
-
-# Copy all source code
+# Copy source code
 COPY . .
 
-# Build the client app using Turborepo
-RUN npx turbo run build --filter=@zhm/client
+# Build the application
+RUN npm run build
 
-# Stage 2: serve with nginx
-FROM nginx:stable-alpine
-COPY --from=build /app/apps/client/dist /usr/share/nginx/html
+# Production stage
+FROM node:22-alpine
+
+# Install a simple static file server
+RUN npm install -g serve
+
+# Set working directory
+WORKDIR /app
+
+# Copy built app from builder stage
+COPY --from=builder /app/dist ./dist
+
+# Expose port 80
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+
+# Serve the static files
+CMD ["serve", "-s", "dist", "-l", "80"]

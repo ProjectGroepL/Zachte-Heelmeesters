@@ -52,8 +52,15 @@ cd Zachte-Heelmeesters
 ```
 
 ### 2. Install dependencies
+**Install npm packages**
 ```bash
 npm install
+```
+
+**Install nuget packages**
+```bash
+cd /apps/server
+npm run prepare
 ```
 
 ### 3. Start the development environment
@@ -107,7 +114,11 @@ npm run dev -w @zhm/server
 │   └── server/           # ASP.NET Core backend
 │       └── server/
 │           ├── Controllers/  # API controllers
+│           ├── Data/         # Database context and data access
+│           ├── Dtos/         # Data Transfer Objects
+│           ├── Models/       # Domain models and entities
 │           └── Properties/   # Launch settings
+
 ├── infra/
 │   ├── dev/              # Development environment
 │   │   ├── docker-compose.yml  # Local development database
@@ -194,7 +205,7 @@ This will start:
 
 ### Database Connection
 - **Host:** localhost
-- **Port:** 1433
+- **Port:** Configured in `infra/dev/.env`
 - **Username:** sa
 - **Password:** Configured in `infra/dev/.env`
 

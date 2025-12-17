@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "prepare": "dotnet restore server.sln",
-    "dev": "dotnet run --launch-profile https --project server/server.csproj",
-    "build": "dotnet publish server/server.csproj -c Release --no-restore -o dist"
+    "dev": "dotnet run --launch-profile https --project server/ZhmApi.csproj",
+    "build": "dotnet publish server/ZhmApi.csproj -c Release --no-restore -o dist"
   }
 }

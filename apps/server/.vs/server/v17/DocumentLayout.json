@@ -1,12 +1,139 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\LuukO\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{120FE3F4-9750-4DF0-9098-15CACA3D8A12}|server\\ZhmApi.csproj|c:\\users\\luuko\\development\\school\\projects\\zachteheelmeesters\\apps\\server\\server\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{120FE3F4-9750-4DF0-9098-15CACA3D8A12}|server\\ZhmApi.csproj|solutionrelative:server\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{120FE3F4-9750-4DF0-9098-15CACA3D8A12}|server\\ZhmApi.csproj|c:\\users\\luuko\\development\\school\\projects\\zachteheelmeesters\\apps\\server\\server\\controllers\\healthcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{120FE3F4-9750-4DF0-9098-15CACA3D8A12}|server\\ZhmApi.csproj|solutionrelative:server\\controllers\\healthcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{120FE3F4-9750-4DF0-9098-15CACA3D8A12}|server\\ZhmApi.csproj|c:\\users\\luuko\\development\\school\\projects\\zachteheelmeesters\\apps\\server\\server\\data\\apicontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{120FE3F4-9750-4DF0-9098-15CACA3D8A12}|server\\ZhmApi.csproj|solutionrelative:server\\data\\apicontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{120FE3F4-9750-4DF0-9098-15CACA3D8A12}|server\\ZhmApi.csproj|c:\\users\\luuko\\development\\school\\projects\\zachteheelmeesters\\apps\\server\\server\\zhmapi.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{120FE3F4-9750-4DF0-9098-15CACA3D8A12}|server\\ZhmApi.csproj|solutionrelative:server\\zhmapi.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{120FE3F4-9750-4DF0-9098-15CACA3D8A12}|server\\ZhmApi.csproj|c:\\users\\luuko\\development\\school\\projects\\zachteheelmeesters\\apps\\server\\server\\models\\role.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{120FE3F4-9750-4DF0-9098-15CACA3D8A12}|server\\ZhmApi.csproj|solutionrelative:server\\models\\role.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{120FE3F4-9750-4DF0-9098-15CACA3D8A12}|server\\ZhmApi.csproj|c:\\users\\luuko\\development\\school\\projects\\zachteheelmeesters\\apps\\server\\server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{120FE3F4-9750-4DF0-9098-15CACA3D8A12}|server\\ZhmApi.csproj|solutionrelative:server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{120FE3F4-9750-4DF0-9098-15CACA3D8A12}|server\\ZhmApi.csproj|c:\\users\\luuko\\development\\school\\projects\\zachteheelmeesters\\apps\\server\\server\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{120FE3F4-9750-4DF0-9098-15CACA3D8A12}|server\\ZhmApi.csproj|solutionrelative:server\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "C:\\Users\\LuukO\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "server\\Controllers\\AuthController.cs",
+              "ToolTip": "C:\\Users\\LuukO\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "server\\Controllers\\AuthController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAKAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-26T17:46:11.736Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "HealthController.cs",
+              "DocumentMoniker": "C:\\Users\\LuukO\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\Controllers\\HealthController.cs",
+              "RelativeDocumentMoniker": "server\\Controllers\\HealthController.cs",
+              "ToolTip": "C:\\Users\\LuukO\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\Controllers\\HealthController.cs",
+              "RelativeToolTip": "server\\Controllers\\HealthController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-24T17:29:12.074Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ZhmApi.csproj",
+              "DocumentMoniker": "C:\\Users\\LuukO\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\ZhmApi.csproj",
+              "RelativeDocumentMoniker": "server\\ZhmApi.csproj",
+              "ToolTip": "C:\\Users\\LuukO\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\ZhmApi.csproj",
+              "RelativeToolTip": "server\\ZhmApi.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-11-24T17:25:08.791Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\LuukO\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\Program.cs",
+              "RelativeDocumentMoniker": "server\\Program.cs",
+              "ToolTip": "C:\\Users\\LuukO\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\Program.cs",
+              "RelativeToolTip": "server\\Program.cs",
+              "ViewState": "AgIAAGwAAAAAAAAAAABhwAoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-24T15:24:19.706Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ApiContext.cs",
+              "DocumentMoniker": "C:\\Users\\LuukO\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\Data\\ApiContext.cs",
+              "RelativeDocumentMoniker": "server\\Data\\ApiContext.cs",
+              "ToolTip": "C:\\Users\\LuukO\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\Data\\ApiContext.cs",
+              "RelativeToolTip": "server\\Data\\ApiContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACUAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-24T15:23:50.651Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Role.cs",
+              "DocumentMoniker": "C:\\Users\\LuukO\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\Models\\Role.cs",
+              "RelativeDocumentMoniker": "server\\Models\\Role.cs",
+              "ToolTip": "C:\\Users\\LuukO\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\Models\\Role.cs",
+              "RelativeToolTip": "server\\Models\\Role.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-24T11:56:31.13Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "User.cs",
+              "DocumentMoniker": "C:\\Users\\LuukO\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\Models\\User.cs",
+              "RelativeDocumentMoniker": "server\\Models\\User.cs",
+              "ToolTip": "C:\\Users\\LuukO\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\Models\\User.cs",
+              "RelativeToolTip": "server\\Models\\User.cs",
+              "ViewState": "AgIAAAcAAAAAAAAAAAAQwA4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-24T11:55:56.923Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }

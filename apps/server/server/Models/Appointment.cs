@@ -1,0 +1,15 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ZhmApi.Models
+{
+    public class Appointment
+    {
+        public int Id { get; set; }
+
+        public int ReferralId { get; set; }
+        [ForeignKey("ReferralId")]
+        public Referral Referral { get; set; }
+
+        public DateTime Date {get; set;}
+    }
+}

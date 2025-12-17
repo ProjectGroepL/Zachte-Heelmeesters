@@ -6,7 +6,7 @@ const patientId = ref<number | null>(null)
 const reason = ref('')
 
 const requestMutation = useRequestAccess()
-
+const showSuccess = ref(false)
 const submit = async () => {
   if (!patientId.value || !reason.value) return
 
@@ -16,9 +16,16 @@ const submit = async () => {
   })
 
   if (!requestMutation.error.value) {
+    showSuccess.value = true
     patientId.value = null
     reason.value = ''
+
+    setTimeout(() => {
+      showSuccess.value = false
+    }, 10000)
   }
+
+
 }
 </script>
 
@@ -27,6 +34,15 @@ const submit = async () => {
     <h1 id="request-title" class="text-2xl font-bold mb-4">
       Toegang aanvragen
     </h1>
+
+    <div 
+      v-if="showSuccess" 
+      class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-center shadow-sm"
+      role="alert"
+    >
+      <span class="mr-2">✅</span>
+      De aanvraag is succesvol verzonden naar de patiënt.
+    </div>
 
     <form @submit.prevent="submit" class="space-y-4">
       <div>

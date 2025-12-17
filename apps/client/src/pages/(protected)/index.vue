@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { useAuth } from '@/composables/useAuth'
 import { usePatientReferrals } from '@/composables/useReferral'
 import { useAppointment } from '@/composables/useAppointments'
+import type { AppointmentDto } from '@/types/appointment'
 
 const { getStoredUser, hasRole } = useAuth()
 
@@ -24,7 +25,28 @@ const {
 // 🔹 local UI state
 const appointmentExpanded = ref(false)
 const expandedReferralId = ref<number | null>(null)
+const expandedAppointmentId = ref<number | null>(null)
+const expandedAppointmentKey = ref<string | null>(null)
+const getAppointmentKey = (a: AppointmentDto) =>
+  `${a.referralId}-${a.date}`
 
+const toggleAppointmentByKey = (key: string) => {
+  expandedAppointmentKey.value =
+    expandedAppointmentKey.value === key ? null : key
+}
+
+
+  const toggleAppointment = () => {
+  appointmentExpanded.value = !appointmentExpanded.value
+}
+const toggleAppointmentById = (id: number) => {
+  expandedAppointmentId.value =
+    expandedAppointmentId.value === id ? null : id
+}
+const toggleReferral = (id: number) => {
+  expandedReferralId.value =
+    expandedReferralId.value === id ? null : id
+}
 // 🔹 user
 const user = getStoredUser()
 
@@ -38,11 +60,6 @@ const userName = computed(() => {
 
 // 🔹 role
 const isPatient = computed(() => hasRole('Patient'))
-
-const toggleReferral = (id: number) => {
-  expandedReferralId.value =
-    expandedReferralId.value === id ? null : id
-}
 
 // 🔹 veilige computed voor template
 const safeReferrals = computed(() => referrals.value ?? [])
@@ -120,9 +137,15 @@ const reloadPage = () => {
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
             <!-- Één afspraak-kaart -->
-            <div 
+            <div
               class="p-6 bg-white rounded-2xl shadow hover:shadow-xl transition cursor-pointer"
-              @click="appointmentExpanded = !appointmentExpanded"
+              role="button"
+              tabindex="0"
+              aria-controls="next-appointment-details"
+              :aria-expanded="appointmentExpanded"
+              @click="toggleAppointment"
+              @keydown.enter="toggleAppointment"
+              @keydown.space.prevent="toggleAppointment"
               :class="appointmentExpanded ? 'ring-2 ring-blue-400' : ''"
             >
               <h3 class="text-xl font-semibold text-blue-600">
@@ -148,31 +171,44 @@ const reloadPage = () => {
                   Datum: {{ new Date(nextAppointment.date).toLocaleString('nl-NL') }}
                 </p>
 
-                <!-- Uitklapbaar -->
-                <div 
+                <!-- Uitklapbare details -->
+                <div
                   v-if="appointmentExpanded"
+                  id="next-appointment-details"
+                  role="region"
+                  aria-label="Details van de afspraak"
                   class="mt-4 border-t pt-3 text-gray-700 space-y-2 text-sm"
                 >
                   <p class="font-bold text-blue-500">Instructies</p>
-                  <p>{{ nextAppointment.treatmentInstructions || "Geen instructies." }}</p>
+                  <p>
+                    {{ nextAppointment.treatmentInstructions || 'Geen instructies.' }}
+                  </p>
 
-                  <p class="text-xs italic text-gray-400">Klik opnieuw om te sluiten.</p>
+                  <p class="text-xs italic text-gray-400">
+                    Druk op Enter of Spatie om te sluiten.
+                  </p>
                 </div>
               </template>
 
-              <!-- Geen afspraak -->
               <template v-else>
                 <p class="text-gray-400 mt-2">
                   Geen geplande afspraken.
                 </p>
               </template>
-
             </div>
 
             <div
-              :key="a.referralId"
               v-for="a in appointments.filter(ap => ap.referralId !== nextAppointment?.referralId)"
-              class="p-6 bg-white rounded-2xl shadow hover:shadow-xl transition"
+              :key="getAppointmentKey(a)"
+              role="button"
+              tabindex="0"
+              :aria-expanded="expandedAppointmentKey === getAppointmentKey(a)"
+              :aria-controls="`appointment-${getAppointmentKey(a)}`"
+              @click="toggleAppointmentByKey(getAppointmentKey(a))"
+              @keydown.enter="toggleAppointmentByKey(getAppointmentKey(a))"
+              @keydown.space.prevent="toggleAppointmentByKey(getAppointmentKey(a))"
+              class="p-6 bg-white rounded-2xl shadow hover:shadow-xl transition cursor-pointer"
+              :class="expandedAppointmentKey === getAppointmentKey(a) ? 'ring-2 ring-blue-400' : ''"
             >
               <h3 class="text-xl font-semibold text-blue-600">
                 Afspraak
@@ -185,9 +221,19 @@ const reloadPage = () => {
               <p class="text-gray-500">
                 Datum: {{ new Date(a.date).toLocaleString('nl-NL') }}
               </p>
-            </div>
 
-          </div>
+              <div
+                v-if="expandedAppointmentKey === getAppointmentKey(a)"
+                :id="`appointment-${getAppointmentKey(a)}`"
+                role="region"
+                aria-label="Details van afspraak"
+                class="mt-4 border-t pt-3 text-sm text-gray-700 space-y-2"
+              >
+                <p class="font-semibold text-blue-500">Instructies</p>
+                <p>{{ a.treatmentInstructions || 'Geen instructies.' }}</p>
+              </div>
+            </div>
+            </div>
         </section>
 
         <!-- EXTRA RUIMTE -->
@@ -206,7 +252,13 @@ const reloadPage = () => {
             <div
               v-for="ref in safeReferrals"
               :key="ref.id"
+              role="button"
+              tabindex="0"
+              :aria-expanded="expandedReferralId === ref.id"
+              :aria-controls="`referral-${ref.id}`"
               @click="toggleReferral(ref.id)"
+              @keydown.enter="toggleReferral(ref.id)"
+              @keydown.space.prevent="toggleReferral(ref.id)"
               class="p-6 bg-white rounded-2xl shadow hover:shadow-xl transition cursor-pointer"
               :class="expandedReferralId === ref.id ? 'ring-2 ring-blue-400' : ''"
             >
@@ -222,17 +274,15 @@ const reloadPage = () => {
                 Status: {{ ref.status }}
               </p>
 
-              <!-- Uitklap -->
-              <div 
+              <div
                 v-if="expandedReferralId === ref.id"
+                :id="`referral-${ref.id}`"
+                role="region"
+                aria-label="Details van doorverwijzing"
                 class="mt-4 border-t pt-3 text-sm text-gray-700 space-y-2"
               >
                 <p class="font-semibold text-blue-500">Aangemaakt op</p>
-                <p>{{ new Date(ref.createdAt).toLocaleString("nl-NL") }}</p>
-
-                <p class="text-xs text-gray-400 italic">
-                  Klik opnieuw om te sluiten.
-                </p>
+                <p>{{ new Date(ref.createdAt).toLocaleString('nl-NL') }}</p>
               </div>
             </div>
 

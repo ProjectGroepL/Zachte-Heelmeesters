@@ -16,7 +16,7 @@ let interval: number | undefined
 onMounted(() => {
   interval = window.setInterval(() => {
     refetch()
-  }, 10_000) // every 10 seconds
+  }, 100_000) // every 10 seconds
 })
 
 onUnmounted(() => {

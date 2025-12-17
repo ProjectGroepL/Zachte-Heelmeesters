@@ -3,6 +3,10 @@ import {
   useMyMedicalDocuments,
   useUpdateMedicalDocumentStatus
 } from '@/composables/useMedicalDocuments'
+import { 
+  usePatientAccessRequests, 
+  useDecideAccessRequest 
+} from '@/composables/useAccessRequests'
 
 const { data, loading, execute } = useMyMedicalDocuments()
 const updateStatus = useUpdateMedicalDocumentStatus()

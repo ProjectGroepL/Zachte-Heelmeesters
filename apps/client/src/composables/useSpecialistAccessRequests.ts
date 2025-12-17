@@ -9,12 +9,12 @@ export interface CreateAccessRequestRequest {
 
 export function useRequestAccess() {
   return useMutation<void, CreateAccessRequestRequest>((data) =>
-    api.post('/specialist/access-request', data).then(res => res.data)
+    api.post('/specialist/access-requests', data).then(res => res.data)
   )
 }
 
 export function useSpecialistAccessRequests() {
   return useQuery<AccessRequest[]>(
-    '/specialist/access-request/my'
+    '/specialist/access-requests/my'
   )
 }

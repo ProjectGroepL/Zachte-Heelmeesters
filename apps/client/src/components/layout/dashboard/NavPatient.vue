@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ShieldCheck } from 'lucide-vue-next'
+import { FileText, ShieldCheck } from 'lucide-vue-next'
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -10,7 +10,8 @@ import {
 import { useRouter } from 'vue-router'
 
 const items = [
-  { title: 'Toegangsverzoeken', url: '/patient/access-requests', icon: ShieldCheck }
+  { title: 'Toegangsverzoeken', url: '/patient/requests', icon: ShieldCheck },
+  { title: 'Documenten', url: '/patient', icon: FileText }
 ]
 
 const { currentRoute } = useRouter()

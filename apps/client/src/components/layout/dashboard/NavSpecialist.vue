@@ -1,13 +1,25 @@
 <script setup lang="ts">
 import { FilePlus, ClipboardList } from 'lucide-vue-next'
+
+
 </script>
 
 <template>
   <nav aria-label="Specialist navigatie" class="px-2">
     <ul class="space-y-1">
       <li>
+          <RouterLink
+            to="/specialist"
+            class="flex items-center gap-2 px-3 py-2 rounded hover:bg-muted"
+
+          >
+            <FilePlus class="size-5" />
+            <span>index</span>
+          </RouterLink>
+        </li>
+      <li>
         <RouterLink
-          to="/specialist/access-request"
+          to="/specialist/SpecialistRequestAccess"
           class="flex items-center gap-2 px-3 py-2 rounded hover:bg-muted"
         >
           <FilePlus class="size-4" />
@@ -17,7 +29,7 @@ import { FilePlus, ClipboardList } from 'lucide-vue-next'
 
       <li>
         <RouterLink
-          to="/specialist/access-requests"
+          to="/specialist/SpecialistAccessRequests"
           class="flex items-center gap-2 px-3 py-2 rounded hover:bg-muted"
         >
           <ClipboardList class="size-4" />

@@ -26,7 +26,8 @@ import NavAdmin from '@/components/layout/dashboard/NavAdmin.vue'
 import Separator from '@/components/ui/separator/Separator.vue'
 import { useAuth } from '@/composables/useAuth'
 import { onMounted, ref } from 'vue'
-
+import NavPatient from '@/components/layout/dashboard/NavPatient.vue'
+import NavSpecialist from '@/components/layout/dashboard/NavSpecialist.vue'
 
 const props = withDefaults(defineProps<SidebarProps>(), {
   collapsible: "icon",

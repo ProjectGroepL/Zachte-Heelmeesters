@@ -4,6 +4,7 @@ import { usePatientReferrals } from "@/composables/useReferral";
 import { useCreateAppointment } from '@/composables/useCreateAppointment';
 import type { AppointmentDto } from '@/types/appointment'
 import { watch } from 'vue'
+import { Button } from "@/components/ui/button";
 const {
   data: referrals,
   loading,
@@ -139,14 +140,14 @@ const submit = async () => {
           />
         </fieldset>
         
-        <button
+        <Button
         @click="submit"
         :disabled="creating || !appointmentDate || !appointmentTime"
-        class="bg-black text-white px-4 py-2 rounded mt-2 w-full
-                hover:bg-blue-600 disabled:opacity-50"
+        class="mt-2 w-full"
+                
         >
         {{ creating ? 'Bezig met opslaan...' : 'Maak afspraak' }}
-        </button>
+        </Button>
 
         <p v-if="createError" class="text-red-500 mt-2">
           Kon de afspraak niet aanmaken.

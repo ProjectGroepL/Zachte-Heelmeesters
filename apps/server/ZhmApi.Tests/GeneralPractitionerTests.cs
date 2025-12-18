@@ -3,7 +3,8 @@ using Microsoft.EntityFrameworkCore;               // DbContextOptionsBuilder, I
 using Microsoft.AspNetCore.Mvc;                     // IActionResult, OkObjectResult
 using ZhmApi.Data;                                  // ApiContext, User, UserRole
 using ZhmApi.Controllers;                           // DoctorPatientsController
-using ZhmApi.Models;                                // User, UserRole
+using ZhmApi.Models;                                    // User, UserRole
+using ZhmApi.Dtos;                          
 using System.Threading.Tasks;                       // Task, async/await
 using System.Linq;                                  // eventueel voor ToList() en LINQ in asserts  
 using Microsoft.AspNetCore.Identity;
@@ -89,12 +90,11 @@ namespace ZhmApi.Tests
         [TestMethod]
         public async Task GetDoctors_ReturnsOnlyGPs()
         {
-            // Change name of the GET method that must be tested. This test is based of off my method before Luuk took over the task!
             var result = await _controller.GetDoctors() as OkObjectResult;
             Assert.IsNotNull(result);
 
             var doctors = (result.Value as IEnumerable<object>)
-                ?.Select(d => new DoctorDto
+                ?.Select(d => new DoctorDtoTest
                 {
                     id = (int)d.GetType().GetProperty("id")!.GetValue(d),
                     fullName = (string)d.GetType().GetProperty("fullName")!.GetValue(d)!
@@ -104,11 +104,5 @@ namespace ZhmApi.Tests
             Assert.AreEqual("Anna van Vliet", doctors[0].fullName.Trim());
         }
 
-    }
-
-    public class DoctorDto
-    {
-        public int id { get; set; }
-        public string fullName { get; set; } = string.Empty;
     }
 }

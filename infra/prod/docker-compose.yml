@@ -44,8 +44,8 @@ services:
     build:
       context: ../../apps/client
       dockerfile: Dockerfile
-    environment:
-      - VITE_API_URL=${VITE_API_URL}
+      args:
+        - VITE_API_URL=${VITE_API_URL}
     networks:
       - my-project-network
     depends_on:

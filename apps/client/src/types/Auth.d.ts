@@ -34,7 +34,8 @@ export interface RegisterData {
   zipCode: string
   city: string
   country: string
-  password: string
+  password: string,
+  generalPractitionerId: string
 }
 
 export interface RefreshTokenRequest {
@@ -80,6 +81,6 @@ export interface ApiResponse<T> {
 }
 
 export interface Role {
-  id: number 
+  id: number
   name: string
 }

@@ -116,7 +116,7 @@ const handleSubmit = async (e: Event) => {
     city: city.value,
     password: password.value,
     confirmPassword: confirmPassword.value,
-    selectedDoctor: selectedDoctor.value || ''
+    selectedDoctor: selectedDoctor.value || ""
   })
 
   if (!result.success) {
@@ -138,7 +138,8 @@ const handleSubmit = async (e: Event) => {
     houseNumberAddition: houseNumberAddition.value || undefined,
     street: street.value,
     city: city.value,
-    password: password.value
+    password: password.value,
+    generalPractitionerId: selectedDoctor.value || ""
   })
 
   if (response.success && response.data) {

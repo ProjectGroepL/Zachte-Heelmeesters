@@ -88,6 +88,9 @@ namespace ZhmApi.Controllers
                 return BadRequest(new { message = "Registration failed", errors = result.Errors });
             }
 
+            // Enable 2FA for new users by default
+            await _userManager.SetTwoFactorEnabledAsync(user, true);
+
             // Add user to default role
             await _userManager.AddToRoleAsync(user, "Patient");
 

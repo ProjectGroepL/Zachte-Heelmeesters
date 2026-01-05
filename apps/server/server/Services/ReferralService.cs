@@ -53,6 +53,8 @@ namespace ZhmApi.Services
         {
             return await _db.Referrals
                 .Where(r => r.PatientId == patientId)
+                .Include(r => r.Patient)
+                .Include(r => r.Treatment)
                 .Select(r => new ReferralResponse
                 {
                     Id = r.Id,

@@ -133,9 +133,32 @@ public class ApiContext : IdentityDbContext<User, Role, int>
       .HasForeignKey(ac => ac.SpecialistId)
       .OnDelete(DeleteBehavior.NoAction);  
 
-    // Seed initial data
-    SeedData(modelBuilder);
-  }
+      modelBuilder.Entity<AccessRequest>()
+      .HasOne(a => a.Appointment)
+      .WithMany()
+      .HasForeignKey(a => a.AppointmentId)
+      .OnDelete(DeleteBehavior.Cascade);
+
+      modelBuilder.Entity<MedicalDocument>()
+        .HasOne(md => md.Patient)
+        .WithMany()
+        .HasForeignKey(md => md.PatientId)
+        .OnDelete(DeleteBehavior.NoAction);
+
+    modelBuilder.Entity<MedicalDocument>()
+        .HasOne(md => md.Appointment)
+        .WithMany()
+        .HasForeignKey(md => md.AppointmentId)
+        .OnDelete(DeleteBehavior.NoAction);
+
+    modelBuilder.Entity<MedicalDocument>()
+        .HasOne(md => md.Treatment)
+        .WithMany()
+        .HasForeignKey(md => md.TreatmentId)
+        .OnDelete(DeleteBehavior.NoAction);
+        // Seed initial data
+        SeedData(modelBuilder);
+      }
 
   #region Seed Data
 

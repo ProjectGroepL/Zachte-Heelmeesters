@@ -2,6 +2,7 @@ using Azure.Core;
 using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Asn1;
 using ZhmApi.Data;
+using ZhmApi.Dtos;
 using ZhmApi.Models;
 
 namespace ZhmApi.Services
@@ -21,6 +22,15 @@ namespace ZhmApi.Services
             string reason
         )
         {
+            var exists = await _context.AccesssRequests.AnyAsync(r =>
+                r.SpecialistId == specialistId &&
+                r.PatientId == patientId &&
+                r.Status == AccessRequestStatus.Pending
+            );
+
+            if (exists)
+                throw new InvalidOperationException("Er bestaat al een open aanvraag voor deze patiënt.");
+                
             var request = new AccessRequest
             {
                 SpecialistId = specialistId,
@@ -74,11 +84,24 @@ namespace ZhmApi.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<AccessRequest>> GetRequestsForSpecialist(int specialistId)
+        public async Task<List<AccessRequestDto>> GetRequestsForSpecialist(int specialistId)
         {
             return await _context.AccesssRequests
                 .Where(r => r.SpecialistId == specialistId)
+                .Include(r => r.Patient)
+                .Include(r => r.Specialist)
                 .OrderByDescending(r => r.RequestedAt)
+                .Select(r => new AccessRequestDto
+                {
+                    Id = r.Id,
+                    SpecialistId = r.SpecialistId,
+                    SpecialistName = r.Specialist.FirstName + " " + r.Specialist.LastName,
+                    PatientId = r.PatientId,
+                    PatientName = r.Patient.FirstName + " " + r.Patient.LastName,
+                    Reason = r.Reason,
+                    Status = r.Status,
+                    RequestedAt = r.RequestedAt
+                })
                 .ToListAsync();
         }
 

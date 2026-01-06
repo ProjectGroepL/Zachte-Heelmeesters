@@ -210,6 +210,9 @@ namespace ZhmApi.Controllers
                 User = userDto
             };
 
+            // credentials are valid here, so the userID can be logged in the audit trail.
+            await LogLoginSuccess(user);
+
             return Ok(response);
         }
 
@@ -416,5 +419,22 @@ namespace ZhmApi.Controllers
                 _ => "An error occurred during verification"
             };
         }
+
+        // helper function to log userID on a succesfull login.
+        private async Task LogLoginSuccess(User user)
+        {
+            _context.AuditTrails.Add(new AuditTrail
+            {
+                UserId = user.Id,
+                Method = "LOGIN",
+                Path = "/api/auth/login",
+                StatusCode = 200,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
+                Timestamp = DateTimeOffset.UtcNow
+            });
+
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

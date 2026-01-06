@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue"
+import api from '@/lib/api'
+import { useRouter } from 'vue-router'
 import {
   BadgeCheck,
   Bell,
@@ -34,7 +36,8 @@ import { useAuth } from '@/composables/useAuth'
 import type { User } from '@/types/Auth'
 
 const { isMobile } = useSidebar()
-const { getUser, logout } = useAuth()
+const { getUser } = useAuth()
+const router = useRouter()
 
 const user = ref<User | null>(null)
 const isLoading = ref(true)
@@ -65,8 +68,17 @@ onMounted(async () => {
   }
 })
 
-const handleLogout = () => {
-  logout()
+async function handleLogout() {
+  try {
+    await api.post('/auth/logout')
+  } catch {
+    // ignore errors — logout must always succeed
+  } finally {
+    localStorage.removeItem('access_token')
+    localStorage.removeItem('refresh_token')
+    localStorage.removeItem('user_info')
+    router.push('/auth/login')
+  }
 }
 </script>
 

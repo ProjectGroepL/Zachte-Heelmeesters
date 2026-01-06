@@ -216,6 +216,29 @@ namespace ZhmApi.Controllers
             return Ok(response);
         }
 
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            _context.AuditTrails.Add(new AuditTrail
+            {
+                UserId = userId,
+                Method = "LOGOUT",
+                Path = "/api/auth/logout",
+                StatusCode = 200,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
+                Timestamp = DateTimeOffset.UtcNow
+            });
+
+            await _context.SaveChangesAsync();
+
+            // optional: invalidate refresh token here
+
+            return Ok();
+        }
+
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh([FromBody] RefreshTokenDto refreshTokenDto)
         {

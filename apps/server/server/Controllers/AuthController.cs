@@ -7,7 +7,7 @@ using ZhmApi.Data;
 using ZhmApi.Dtos;
 using ZhmApi.Models;
 using ZhmApi.Services;
-
+using ZhmApi.Extensions;
 namespace ZhmApi.Controllers
 {
     [ApiController]
@@ -220,16 +220,25 @@ namespace ZhmApi.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var userId = int.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)!.Value
+            );
 
             _context.AuditTrails.Add(new AuditTrail
             {
                 UserId = userId,
                 Method = "LOGOUT",
                 Path = "/api/auth/logout",
-                StatusCode = 200,
+                StatusCode = StatusCodes.Status200OK,
+                Timestamp = DateTimeOffset.UtcNow,
+
                 IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
-                Timestamp = DateTimeOffset.UtcNow
+
+                UserAgent = HttpContext.Request.Headers["User-Agent"]
+                    .ToString()
+                    .Truncate(512),
+
+                Details = "User logged out"
             });
 
             await _context.SaveChangesAsync();
@@ -238,6 +247,7 @@ namespace ZhmApi.Controllers
 
             return Ok();
         }
+
 
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh([FromBody] RefreshTokenDto refreshTokenDto)
@@ -446,16 +456,24 @@ namespace ZhmApi.Controllers
         // helper function to log userID on a succesfull login.
         private async Task LogLoginSuccess(User user)
         {
-            _context.AuditTrails.Add(new AuditTrail
+            var audit = new AuditTrail
             {
                 UserId = user.Id,
                 Method = "LOGIN",
                 Path = "/api/auth/login",
-                StatusCode = 200,
-                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
-                Timestamp = DateTimeOffset.UtcNow
-            });
+                StatusCode = StatusCodes.Status200OK,
+                Timestamp = DateTimeOffset.UtcNow,
 
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
+
+                UserAgent = HttpContext.Request.Headers["User-Agent"]
+                        .ToString()
+                        .Truncate(512),
+
+                Details = "User logged in successfully"
+            };
+
+            _context.AuditTrails.Add(audit);
             await _context.SaveChangesAsync();
         }
 

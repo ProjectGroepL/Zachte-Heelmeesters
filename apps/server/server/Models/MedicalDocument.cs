@@ -15,11 +15,11 @@ namespace ZhmApi.Models
         public int PatientId {get; set;}
         public User Patient {get; set;} = null!;
 
-        public int TreatmentId {get; set;}
-        public Treatment Treatment {get; set;} = null!;
+        public int? TreatmentId {get; set;}
+        public Treatment? Treatment {get; set;} = null!;
 
-        public int AppointmentId {get; set;}
-        public Appointment Appointment {get; set;} = null!;
+        public int? AppointmentId {get; set;}
+        public Appointment? Appointment {get; set;} = null!;
         
         public string Title {get; set;} = null!;
         public string Content {get; set;} = string.Empty;

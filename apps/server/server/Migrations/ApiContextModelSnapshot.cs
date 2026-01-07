@@ -223,7 +223,7 @@ namespace ZhmApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AppointmentId")
+                    b.Property<int?>("AppointmentId")
                         .HasColumnType("int");
 
                     b.Property<string>("Content")
@@ -244,7 +244,7 @@ namespace ZhmApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TreatmentId")
+                    b.Property<int?>("TreatmentId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("createdAt")
@@ -375,7 +375,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "2cc95e7b-6365-4715-8812-6444a49a093d",
+                            ConcurrencyStamp = "12116d40-b568-4c8a-aac4-a8ee447ad1d0",
                             Description = "Patiënt die gebruik maakt van het systeem voor medische zorg en behandelingen",
                             Name = "Patient",
                             NormalizedName = "PATIENT"
@@ -383,7 +383,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "9a2874ed-9d0f-4484-9f9f-26e0959f9582",
+                            ConcurrencyStamp = "7beca601-cccd-440e-9a95-4f8588fe9752",
                             Description = "Medisch specialist die gespecialiseerde zorg verleent in een specifiek vakgebied",
                             Name = "Specialist",
                             NormalizedName = "SPECIALIST"
@@ -391,7 +391,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "63067c9d-9805-42a6-9bdc-faa4e1dfa653",
+                            ConcurrencyStamp = "a843c114-a8ef-4d16-b10f-f8e218c102e0",
                             Description = "Huisarts die eerste lijn zorg verleent en patiënten doorverwijst naar specialisten",
                             Name = "Huisarts",
                             NormalizedName = "HUISARTS"
@@ -399,7 +399,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 4,
-                            ConcurrencyStamp = "da367be5-295f-4073-95c9-ed4921e583c0",
+                            ConcurrencyStamp = "037d7f16-d4c3-4d5d-a164-c15aaa1320fc",
                             Description = "Medewerker van zorgverzekeraar die verantwoordelijk is voor vergoedingen en polisbeheer",
                             Name = "Zorgverzekeraar",
                             NormalizedName = "ZORGVERZEKERAAR"
@@ -407,7 +407,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 5,
-                            ConcurrencyStamp = "0d502e52-fe8b-4020-8278-c07e9b46d17d",
+                            ConcurrencyStamp = "df22427f-4b54-4aed-9fa6-7ecc4cd811c0",
                             Description = "Systeembeheerder met volledige toegang tot alle functionaliteiten en gebruikersbeheer",
                             Name = "Systeembeheerder",
                             NormalizedName = "SYSTEEMBEHEERDER"
@@ -415,7 +415,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 6,
-                            ConcurrencyStamp = "9a6501be-fdb4-45d1-bdc6-1163b8ce7b56",
+                            ConcurrencyStamp = "ddc3279a-d461-4f95-929e-0e85b0510ec7",
                             Description = "Administratief medewerker in ziekenhuis die ondersteuning biedt bij balieservice en patiëntenzorg",
                             Name = "Administratie",
                             NormalizedName = "ADMINISTRATIE"
@@ -474,6 +474,10 @@ namespace ZhmApi.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Instructions")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -751,8 +755,7 @@ namespace ZhmApi.Migrations
                     b.HasOne("ZhmApi.Models.Appointment", "Appointment")
                         .WithMany()
                         .HasForeignKey("AppointmentId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("ZhmApi.Models.User", "Patient")
                         .WithMany()
@@ -763,8 +766,7 @@ namespace ZhmApi.Migrations
                     b.HasOne("ZhmApi.Models.Treatment", "Treatment")
                         .WithMany()
                         .HasForeignKey("TreatmentId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Appointment");
 

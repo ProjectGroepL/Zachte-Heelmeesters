@@ -4,7 +4,7 @@ using ZhmApi.Dtos;
 using ZhmApi.Extensions;
 using ZhmApi.Services;
 
-[Authorize(Roles = "Specialist")]
+[Authorize(Roles = "Specialist,Huisarts")]
 [ApiController]
 [Route("api/specialist/patients")]
 public class SpecialistMedicalDocumentsController : ControllerBase

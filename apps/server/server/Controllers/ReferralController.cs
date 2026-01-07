@@ -53,6 +53,13 @@ namespace ZhmApi.Controllers
             var referral = await _referralService.GetReferralAsync(id);
             return referral == null? NotFound() : Ok(referral);
         }
+        [HttpGet("treatments")]
+        public async Task<IActionResult> GetTreatments()
+        {
+            return Ok(await _db.Treatments
+                .Select(t => new { t.Id, t.Name })
+                .ToListAsync());
+        }
 
         // GET /api/referrals -> returns referrals for current authenticated doctor
         [HttpGet]

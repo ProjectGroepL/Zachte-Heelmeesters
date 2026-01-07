@@ -146,15 +146,17 @@ public class ApiContext : IdentityDbContext<User, Role, int>
         .OnDelete(DeleteBehavior.NoAction);
 
     modelBuilder.Entity<MedicalDocument>()
-        .HasOne(md => md.Appointment)
-        .WithMany()
-        .HasForeignKey(md => md.AppointmentId)
-        .OnDelete(DeleteBehavior.NoAction);
+    .HasOne(md => md.Appointment)
+    .WithMany()
+    .HasForeignKey(md => md.AppointmentId)
+    .IsRequired(false) // ⭐ THIS IS THE KEY LINE
+    .OnDelete(DeleteBehavior.NoAction);
 
     modelBuilder.Entity<MedicalDocument>()
         .HasOne(md => md.Treatment)
         .WithMany()
         .HasForeignKey(md => md.TreatmentId)
+        .IsRequired(false)
         .OnDelete(DeleteBehavior.NoAction);
         // Seed initial data
         SeedData(modelBuilder);

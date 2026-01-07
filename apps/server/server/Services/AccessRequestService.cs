@@ -15,28 +15,35 @@ namespace ZhmApi.Services
             _context = context;
         } 
 
-        public async Task<AccessRequest> RequestAccess
-        (
-            int specialistId,
-            int patientId,
-            string reason
-        )
+        public async Task<AccessRequest> RequestAccess(int specialistId, int appointmentId, string reason)
         {
+            var appointment = await _context.Appointments
+                .Include(a => a.Referral)
+                .FirstOrDefaultAsync(a =>
+                    a.Id == appointmentId &&
+                    a.SpecialistId == specialistId
+                );
+
+            if (appointment == null)
+                throw new InvalidOperationException("Appointment not found");
+
             var exists = await _context.AccesssRequests.AnyAsync(r =>
-                r.SpecialistId == specialistId &&
-                r.PatientId == patientId &&
+                r.AppointmentId == appointmentId &&
                 r.Status == AccessRequestStatus.Pending
             );
 
             if (exists)
-                throw new InvalidOperationException("Er bestaat al een open aanvraag voor deze patiënt.");
-                
+                throw new InvalidOperationException("Access request already exists");
+
             var request = new AccessRequest
             {
+                AppointmentId = appointmentId,
                 SpecialistId = specialistId,
-                PatientId = patientId,
+                PatientId = appointment.Referral.PatientId,
+                TreatmentId = appointment.Referral.TreatmentId,
+                Status = AccessRequestStatus.Pending,
                 Reason = reason,
-                Status = AccessRequestStatus.Pending
+                RequestedAt = DateTime.UtcNow
             };
 
             _context.AccesssRequests.Add(request);
@@ -48,15 +55,20 @@ namespace ZhmApi.Services
         public async Task RevokeAccess(int requestId, int patientId)
         {
             var request = await _context.AccesssRequests
-            .FirstOrDefaultAsync(r => 
-            r.Id == requestId &&
-            r.PatientId == patientId &&
-            r.Status == AccessRequestStatus.Approved);
-            
+                .Include(r => r.Appointment)
+                .FirstOrDefaultAsync(r =>
+                    r.Id == requestId &&
+                    r.PatientId == patientId &&
+                    r.Status == AccessRequestStatus.Approved
+                );
+
             if (request == null)
-                throw new InvalidOperationException("No active premission"); 
-            
-            request.Status = AccessRequestStatus.Revoked; 
+                throw new InvalidOperationException("No active permission");
+
+            request.Status = AccessRequestStatus.Revoked;
+
+            request.Appointment.Status = AppointmentStatus.Cancelled;
+
             await _context.SaveChangesAsync();
         }
 
@@ -67,19 +79,30 @@ namespace ZhmApi.Services
         )
         {
             var request = await _context.AccesssRequests
-            .FirstOrDefaultAsync(r => 
-            r.Id == requestId &&
-            r.PatientId == patientId &&
-            r.Status == AccessRequestStatus.Pending);
+                .Include(r => r.Appointment)
+                .ThenInclude(a => a.Referral)
+                .FirstOrDefaultAsync(r =>
+                    r.Id == requestId &&
+                    r.PatientId == patientId &&
+                    r.Status == AccessRequestStatus.Pending
+                );
 
             if (request == null)
                 throw new InvalidOperationException("No pending request found");
 
+            // 1️⃣ Update request
             request.Status = approved
-            ? AccessRequestStatus.Approved
-            : AccessRequestStatus.Denied;
+                ? AccessRequestStatus.Approved
+                : AccessRequestStatus.Denied;
 
-            request.DecidedAt = DateTime.UtcNow; 
+            request.DecidedAt = DateTime.UtcNow;
+
+            // 2️⃣ Update EXACT appointment
+            request.Appointment.Status = approved
+                ? AppointmentStatus.Scheduled
+                : AppointmentStatus.Cancelled;
+            // 🔁 referral becomes reusable
+            request.Appointment.Referral.Status = "open";
 
             await _context.SaveChangesAsync();
         }
@@ -108,8 +131,12 @@ namespace ZhmApi.Services
         public async Task<List<AccessRequest>> GetRequestsForPatient(int patientId)
         {
             return await _context.AccesssRequests
-                .Include(r => r.Specialist) 
-                .Where(r => r.PatientId == patientId && r.Status == AccessRequestStatus.Pending)
+                .Include(r => r.Specialist)
+                .Where(r =>
+                    r.PatientId == patientId &&
+                    (r.Status == AccessRequestStatus.Pending ||
+                    r.Status == AccessRequestStatus.Approved)
+                )
                 .OrderByDescending(r => r.RequestedAt)
                 .ToListAsync();
         }

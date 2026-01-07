@@ -5,6 +5,8 @@ using ZhmApi.Dtos;
 using ZhmApi.Services;
 using ZhmApi.Extensions;
 using Microsoft.AspNetCore.Http.HttpResults;
+using ZhmApi.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace ZhmApi.Controllers
 {
@@ -13,41 +15,48 @@ namespace ZhmApi.Controllers
     [Route("api/specialist/access-requests")]
     public class SpecialistAccessController : ControllerBase
     {
-        private readonly AccessRequestService _service; 
+        private readonly AccessRequestService _service;
+        private readonly ApiContext _context;
 
-        public SpecialistAccessController(AccessRequestService service)
+        public SpecialistAccessController(
+            AccessRequestService service,
+            ApiContext context
+        )
         {
             _service = service;
+            _context = context;
         }
-        
+
         [HttpPost]
-        public async Task<ActionResult<AccessRequestDto>> RequestAccesss(
+        public async Task<IActionResult> RequestAccess(
             [FromBody] CreateAccessRequestDto dto
         )
         {
-            try{
             var specialistId = User.GetUserId();
 
-            var request = await _service.RequestAccess(
-                specialistId,
-                dto.PatientId,
-                dto.Reason
-            );
-
-            return Ok(new AccessRequestDto
+            try
             {
-                Id = request.Id,
-                SpecialistId = request.SpecialistId,
-                Status = request.Status,
-                RequestedAt = request.RequestedAt
-            });
+                var request = await _service.RequestAccess(
+                    specialistId,
+                    dto.AppointmentId,
+                    dto.Reason
+                );
+
+                return Ok(new AccessRequestDto
+                {
+                    Id = request.Id,
+                    SpecialistId = request.SpecialistId,
+                    PatientId = request.PatientId,
+                    Status = request.Status,
+                    RequestedAt = request.RequestedAt
+                });
             }
             catch (InvalidOperationException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
         }
-        [Authorize(Roles = "Specialist")]
+
         [HttpGet("my")]
         public async Task<ActionResult<IEnumerable<AccessRequestDto>>> GetMyRequests()
         {
@@ -55,6 +64,8 @@ namespace ZhmApi.Controllers
             var requests = await _service.GetRequestsForSpecialist(specialistId);
             return Ok(requests);
         }
+
         
     }
+
 }

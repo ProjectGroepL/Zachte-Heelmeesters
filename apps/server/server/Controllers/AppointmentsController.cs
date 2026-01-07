@@ -4,9 +4,11 @@ using ZhmApi.Models;
 using ZhmApi.Data;
 using ZhmApi.Dtos;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ZhmApi.Controllers
 {
+    [Authorize(Roles = "Patient")]
     [Route("api/[controller]")]
     [ApiController]
     public class AppointmentsController : ControllerBase
@@ -38,7 +40,9 @@ namespace ZhmApi.Controllers
             var appointment = new Appointment
             {
                 ReferralId = request.ReferralId,
-                Date = appointmentDateTime
+                SpecialistId = request.SpecialistId,
+                Date = appointmentDateTime,
+                Status = AppointmentStatus.PendingAccess
             };
 
             _context.Appointments.Add(appointment);
@@ -54,34 +58,35 @@ namespace ZhmApi.Controllers
 
         // GET: api/appointments
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AppointmentDto>>> GetAppointments([FromServices] ILogger<AppointmentsController> logger)
+        public async Task<IActionResult> GetAppointments()
         {
-            // Haal userId uit JWT claim van de ingelogde gebruiker
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!int.TryParse(userIdClaim, out int userId))
-                return Unauthorized("Niet ingelogd");
+                return Unauthorized();
 
-            // Raw entities ophalen (om te kunnen loggen)
             var appointmentsRaw = await _context.Appointments
                 .Include(a => a.Referral)
                     .ThenInclude(r => r.Patient)
-                .Include(a => a.Referral.Treatment)
+                .Include(a => a.Referral)
+                    .ThenInclude(r => r.Treatment)
                 .Where(a => a.Referral.PatientId == userId)
                 .ToListAsync();
 
-            // Map naar DTO met string formatting voor Date
             var appointments = appointmentsRaw.Select(a => new AppointmentDto
             {
                 ReferralId = a.ReferralId,
                 Notes = a.Referral.Notes,
-                Status = a.Referral.Status,
-                TreatmentDescription = a.Referral.Treatment.Description,
-                TreatmentInstructions = a.Referral.Treatment.Instructions,
-                PatientName = $"{a.Referral.Patient.FirstName} {a.Referral.Patient.MiddleName} {a.Referral.Patient.LastName}".Trim(),
+                Status = a.Status,
+                TreatmentDescription = a.Referral.Treatment?.Description ?? "Onbekende behandeling",
+                TreatmentInstructions = a.Referral.Treatment?.Instructions,
+                PatientName =
+                    $"{a.Referral.Patient.FirstName} {a.Referral.Patient.MiddleName} {a.Referral.Patient.LastName}"
+                    .Replace("  ", " ")
+                    .Trim(),
                 Date = a.Date.ToString("yyyy-MM-dd HH:mm")
-            }).ToList();
+            });
 
-            return Ok(new { UserId = userId, appointments });
+            return Ok(new { appointments });
         }
 
     }

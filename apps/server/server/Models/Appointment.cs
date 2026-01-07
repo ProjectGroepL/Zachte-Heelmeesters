@@ -4,11 +4,11 @@ namespace ZhmApi.Models
 {
     public enum AppointmentStatus
     {
-        Scheduled,
-        CancelledAccessDenied,
-        CancelledByPatient,
-        CancelledBySpecialist,
-        Completed
+        PendingAccess,          // appointment exists, waiting on access
+        Scheduled,              // access approved, operation allowed
+        AccessDenied,           // access denied, appointment blocked
+        Completed,
+        Cancelled
     }
     public class Appointment
     {

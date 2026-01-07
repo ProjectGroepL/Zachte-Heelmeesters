@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ZhmApi.Data;
+using ZhmApi.Dtos;
 using ZhmApi.Models;
 
 namespace ZhmApi.Services
@@ -48,22 +49,77 @@ namespace ZhmApi.Services
             int patientId
         )
         {
-            var hasAccess = await _context.AccesssRequests.AnyAsync(r =>
-                r.SpecialistId == specialistId &&
-                r.PatientId == patientId &&
-                r.Status == AccessRequestStatus.Approved
+            return await _context.MedicalDocuments
+                .Where(md =>
+                    md.PatientId == patientId &&
+                    md.Status == MedicalDocumentStatus.Final &&
+                    md.AppointmentId != null &&
+                    _context.AccesssRequests.Any(ar =>
+                        ar.SpecialistId == specialistId &&
+                        ar.PatientId == patientId &&
+                        ar.Status == AccessRequestStatus.Approved &&
+                        ar.AppointmentId == md.AppointmentId
+                    )
+                )
+                .ToListAsync();
+        }
+
+        public async Task<MedicalDocument> Create(
+            int doctorId,
+            CreateMedicalDocumentDto dto
+        )
+        {
+            var hasRelation = await _context.DoctorPatients.AnyAsync(dp =>
+                dp.DoctorId == doctorId &&
+                dp.PatientId == dto.PatientId
             );
 
-            if (!hasAccess)
-                throw new UnauthorizedAccessException();
+            if (!hasRelation)
+                throw new UnauthorizedAccessException("No doctor-patient relation");
 
+            var doc = new MedicalDocument
+            {
+                PatientId = dto.PatientId,
+                AppointmentId = dto.AppointmentId,
+                Title = dto.Title,
+                Content = dto.Content,
+                Status = MedicalDocumentStatus.Draft,
+                CreatedBy = doctorId.ToString(),
+                createdAt = DateTime.UtcNow
+            };
+
+            _context.MedicalDocuments.Add(doc);
+            await _context.SaveChangesAsync();
+
+            return doc;
+        }
+
+        public async Task<List<MedicalDocument>> GetForDoctor(int doctorId)
+        {
             return await _context.MedicalDocuments
-                .Where(d =>
-                    d.PatientId == patientId &&
-                    d.Status == MedicalDocumentStatus.Final
-                )
+                .Where(d => d.CreatedBy == doctorId.ToString())
                 .OrderByDescending(d => d.createdAt)
                 .ToListAsync();
+        }
+
+        // DOCTOR: update status
+        public async Task UpdateStatusByDoctor(
+            int documentId,
+            int doctorId,
+            MedicalDocumentStatus status
+        )
+        {
+            var doc = await _context.MedicalDocuments
+                .FirstOrDefaultAsync(d =>
+                    d.Id == documentId &&
+                    d.CreatedBy == doctorId.ToString()
+                );
+
+            if (doc == null)
+                throw new UnauthorizedAccessException();
+
+            doc.Status = status;
+            await _context.SaveChangesAsync();
         }
     }
 }

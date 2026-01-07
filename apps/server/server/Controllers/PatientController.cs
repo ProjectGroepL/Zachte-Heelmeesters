@@ -64,6 +64,22 @@ namespace ZhmApi.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPost("{id}/revoke")]
+        public async Task<IActionResult> Revoke(int id)
+        {
+            try
+            {
+                var patientId = User.GetUserId();
+
+                await _service.RevokeAccess(id, patientId);
+
+                return NoContent();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 
 }

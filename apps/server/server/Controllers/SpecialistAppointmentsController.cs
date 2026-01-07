@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ZhmApi.Data;
 using ZhmApi.Dtos;
+using ZhmApi.Models;
 
 [Authorize(Roles = "Specialist")]
 [ApiController]
@@ -33,7 +34,14 @@ public class SpecialistAppointmentsController : ControllerBase
                 .Include(a => a.Referral)
                     .ThenInclude(r => r.Patient)
                 .Include(a => a.Referral.Treatment)
-                .Where(a => a.SpecialistId == specialistId)
+                .Where(a =>
+                    a.SpecialistId == specialistId &&
+                    _context.AccesssRequests.Any(ar =>
+                        ar.AppointmentId == a.Id &&
+                        ar.SpecialistId == specialistId &&
+                        ar.Status == AccessRequestStatus.Approved
+                    )
+                )
                 .Select(a => new AppointmentDto
                 {
                     Id = a.Id,

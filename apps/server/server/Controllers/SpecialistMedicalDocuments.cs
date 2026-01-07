@@ -34,4 +34,26 @@ public class SpecialistMedicalDocumentsController : ControllerBase
             CreatedBy = d.CreatedBy
         }));
     }
+    [HttpGet("appointments/{appointmentId}/medical-documents")]
+    public async Task<ActionResult<IEnumerable<MedicalDocumentDto>>> GetDocsForAppointment(
+        int appointmentId
+    )
+    {
+        var specialistId = User.GetUserId();
+
+        var docs = await _service.GetForSpecialistByAppointment(
+            specialistId,
+            appointmentId
+        );
+
+        return Ok(docs.Select(d => new MedicalDocumentDto
+        {
+            Id = d.Id,
+            Title = d.Title,
+            Content = d.Content,
+            Status = d.Status,
+            CreatedAt = d.createdAt,
+            CreatedBy = d.CreatedBy
+        }));
+    }
 }

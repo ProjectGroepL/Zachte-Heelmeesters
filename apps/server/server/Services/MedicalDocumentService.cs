@@ -46,21 +46,29 @@ namespace ZhmApi.Services
         // SPECIALIST: only FINAL docs if access approved
         public async Task<List<MedicalDocument>> GetForSpecialist(
             int specialistId,
-            int patientId
+            int appointmentId
         )
         {
+            var request = await _context.AccesssRequests
+                .Include(r => r.Appointment)
+                    .ThenInclude(a => a.Referral)
+                .FirstOrDefaultAsync(r =>
+                    r.SpecialistId == specialistId &&
+                    r.AppointmentId == appointmentId &&
+                    r.Status == AccessRequestStatus.Approved
+                );
+
+            if (request == null)
+                return new List<MedicalDocument>();
+
+            var patientId = request.Appointment.Referral.PatientId;
+
             return await _context.MedicalDocuments
-                .Where(md =>
-                    md.PatientId == patientId &&
-                    md.Status == MedicalDocumentStatus.Final &&
-                    md.AppointmentId != null &&
-                    _context.AccesssRequests.Any(ar =>
-                        ar.SpecialistId == specialistId &&
-                        ar.PatientId == patientId &&
-                        ar.Status == AccessRequestStatus.Approved &&
-                        ar.AppointmentId == md.AppointmentId
-                    )
+                .Where(d =>
+                    d.PatientId == patientId &&
+                    d.Status == MedicalDocumentStatus.Final
                 )
+                .OrderByDescending(d => d.createdAt)
                 .ToListAsync();
         }
 
@@ -120,6 +128,34 @@ namespace ZhmApi.Services
 
             doc.Status = status;
             await _context.SaveChangesAsync();
+        }
+
+       public async Task<List<MedicalDocument>> GetForSpecialistByAppointment(
+            int specialistId,
+            int appointmentId
+        )
+        {
+            var request = await _context.AccesssRequests
+                .Include(r => r.Appointment)
+                    .ThenInclude(a => a.Referral)
+                .FirstOrDefaultAsync(r =>
+                    r.SpecialistId == specialistId &&
+                    r.AppointmentId == appointmentId &&
+                    r.Status == AccessRequestStatus.Approved
+                );
+
+            if (request == null)
+                return new List<MedicalDocument>();
+
+            var patientId = request.Appointment.Referral.PatientId;
+
+            return await _context.MedicalDocuments
+                .Where(d =>
+                    d.PatientId == patientId &&
+                    d.Status == MedicalDocumentStatus.Final
+                )
+                .OrderByDescending(d => d.createdAt)
+                .ToListAsync();
         }
     }
 }

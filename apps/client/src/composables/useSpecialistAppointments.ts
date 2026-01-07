@@ -1,14 +1,8 @@
 import { useQuery } from '@/composables/useApi'
-
-export interface SpecialistAppointment {
-  id: number
-  patientName: string
-  date: string
-  status: 'PendingAccess' | 'Scheduled' | 'AccessDenied' | 'Completed' | 'Cancelled'
-}
+import type { AppointmentDto } from '@/types/appointment'
 
 export function useSpecialistAppointments() {
-  return useQuery<SpecialistAppointment[]>(
+  return useQuery<AppointmentDto[]>(
     '/specialist/appointments/my'
   )
 }

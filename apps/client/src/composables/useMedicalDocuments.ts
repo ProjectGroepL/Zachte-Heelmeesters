@@ -50,3 +50,10 @@ export function useUpdateDoctorMedicalDocumentStatus() {
   )
 }
 
+export function useAppointmentMedicalDocuments(appointmentId: number) {
+  return useQuery<MedicalDocument[]>(
+    `/specialist/patients/appointments/${appointmentId}/medical-documents`,
+    { immediate: !!appointmentId }
+  )
+}
+

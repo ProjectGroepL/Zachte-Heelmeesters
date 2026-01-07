@@ -6,6 +6,7 @@ export type AppointmentStatus =
   | 'Cancelled'
 
 export interface AppointmentDto {
+  id: number
   referralId: number
   notes: string
   status: AppointmentStatus

@@ -122,7 +122,6 @@ const data = {
       <div v-if="!open" class="w-full px-2">
         <Separator />
       </div>
-       <!-- Doctor -->
       <NavDoctor v-if="hasRole('Huisarts')" />
       <NavPatient v-if="hasRole('Patient')" />
       <NavAdmin v-if="hasRole('Administratie')" :items="data.projects" />

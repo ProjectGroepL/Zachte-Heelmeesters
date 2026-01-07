@@ -32,6 +32,8 @@ declare module 'vue-router/auto-routes' {
       | '/(protected)/[...path]'
       | '/(protected)/afspraken/'
       | '/(protected)/afspraken/create'
+      | '/(protected)/huisarts/CreateMedicalDocument'
+      | '/(protected)/huisarts/MyMedicalDocuments'
       | '/(protected)/patient/'
       | '/(protected)/patient/requests'
       | '/(protected)/referrals/'
@@ -64,6 +66,20 @@ declare module 'vue-router/auto-routes' {
     '/(protected)/afspraken/create': RouteRecordInfo<
       '/(protected)/afspraken/create',
       '/afspraken/create',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/(protected)/huisarts/CreateMedicalDocument': RouteRecordInfo<
+      '/(protected)/huisarts/CreateMedicalDocument',
+      '/huisarts/CreateMedicalDocument',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/(protected)/huisarts/MyMedicalDocuments': RouteRecordInfo<
+      '/(protected)/huisarts/MyMedicalDocuments',
+      '/huisarts/MyMedicalDocuments',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -167,6 +183,8 @@ declare module 'vue-router/auto-routes' {
         | '/(protected)/[...path]'
         | '/(protected)/afspraken/'
         | '/(protected)/afspraken/create'
+        | '/(protected)/huisarts/CreateMedicalDocument'
+        | '/(protected)/huisarts/MyMedicalDocuments'
         | '/(protected)/patient/'
         | '/(protected)/patient/requests'
         | '/(protected)/referrals/'
@@ -198,6 +216,18 @@ declare module 'vue-router/auto-routes' {
     'src/pages/(protected)/afspraken/create.vue': {
       routes:
         | '/(protected)/afspraken/create'
+      views:
+        | never
+    }
+    'src/pages/(protected)/huisarts/CreateMedicalDocument.vue': {
+      routes:
+        | '/(protected)/huisarts/CreateMedicalDocument'
+      views:
+        | never
+    }
+    'src/pages/(protected)/huisarts/MyMedicalDocuments.vue': {
+      routes:
+        | '/(protected)/huisarts/MyMedicalDocuments'
       views:
         | never
     }

@@ -15,6 +15,8 @@ import { useRouter } from "vue-router"
 const items = [
   { title: "Doorverwijzingen", url: "/referrals", icon: Stethoscope },
   { title: "Nieuwe Doorverwijzing", url: "/referrals/new", icon: Plus },
+  { title: "Medisch document Maken", url: "/huisarts/CreateMedicalDocument", icon: Plus },
+  { title: "Medisch document Finalize", url: "/huisarts/MyMedicalDocuments", icon: Plus },
 ]
 
 const { currentRoute } = useRouter()

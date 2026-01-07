@@ -198,7 +198,12 @@ const reloadPage = () => {
             </div>
 
             <div
-              v-for="a in appointments.filter(ap => ap.referralId !== nextAppointment?.referralId)"
+              v-for="a in appointments
+                .filter(ap =>
+                  ap.referralId !== nextAppointment?.referralId &&
+                  ap.status !== 'AccessDenied' &&
+                  ap.status !== 'Cancelled'
+                )"
               :key="getAppointmentKey(a)"
               role="button"
               tabindex="0"
@@ -248,7 +253,7 @@ const reloadPage = () => {
 
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
-            <!-- Kaart per verwijzing -->
+            <!-- Kaart per verwijzing --> <!-- maakt een modal dat je er altijd invlijft misschien met modal strap.-->
             <div
               v-for="ref in safeReferrals"
               :key="ref.id"

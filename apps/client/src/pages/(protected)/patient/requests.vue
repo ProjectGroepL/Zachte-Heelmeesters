@@ -1,7 +1,9 @@
 <script setup lang="ts">
+    import { ref } from 'vue'
     import {
         usePatientAccessRequests,
-        useDecideAccessRequest
+        useDecideAccessRequest,
+        useRevokeAccessRequest
     } from "@/composables/useAccessRequests"
 
     const {
@@ -12,7 +14,27 @@
     } = usePatientAccessRequests();
 
     const decideMutation = useDecideAccessRequest();
+    const revokeMutation = useRevokeAccessRequest()
+    const revokeConfirmId = ref<number | null>(null)
 
+    const revoke = async (id: number) => {
+      await revokeMutation.mutate({ id })
+      if (!revokeMutation.error.value) {
+        await refetch()
+      }
+    }
+    const askRevoke = (id: number) => {
+      revokeConfirmId.value = id
+    }
+
+    const cancelRevoke = () => {
+      revokeConfirmId.value = null
+    }
+
+    const confirmRevoke = async (id: number) => {
+      await revoke(id)
+      revokeConfirmId.value = null
+    }
     const decide = async (id: number, approved: boolean) => {
         // We voeren de mutatie uit
         await decideMutation.mutate({ id, data: { approved } })
@@ -55,22 +77,69 @@
           </div>
 
           <div class="flex gap-3 mt-4">
+
+          <!-- Pending: approve / deny -->
+          <template v-if="r.status === 'Pending'">
             <button
-              class="flex-1 md:flex-none px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors disabled:opacity-50"
+              class="px-6 py-2 bg-green-600 text-white rounded-xl"
               @click="decide(r.id, true)"
-              :disabled="decideMutation.loading.value"
             >
-              {{ decideMutation.loading.value ? 'Verwerken...' : 'Goedkeuren' }}
+              Goedkeuren
             </button>
 
             <button
-              class="flex-1 md:flex-none px-6 py-2 bg-white border-2 border-red-200 text-red-600 hover:bg-red-50 font-semibold rounded-xl transition-colors disabled:opacity-50"
+              class="px-6 py-2 border-2 border-red-200 text-red-600 rounded-xl"
               @click="decide(r.id, false)"
-              :disabled="decideMutation.loading.value"
             >
               Weigeren
             </button>
-          </div>
+          </template>
+
+          <!-- Approved -->
+          <template v-else-if="r.status === 'Approved'">
+            <template v-if="revokeConfirmId === r.id">
+              <div class="bg-red-50 border border-red-200 p-3 rounded-xl">
+                <p class="text-sm text-red-800 mb-2">
+                  Door het intrekken van toegang kan de specialist deze afspraak niet uitvoeren.
+                  De afspraak wordt daarom geannuleerd
+                </p>
+
+                <div class="flex gap-2">
+                  <button
+                    class="px-4 py-1 bg-red-600 text-white rounded-lg"
+                    @click="confirmRevoke(r.id)"
+                  >
+                    Bevestigen
+                  </button>
+
+                  <button
+                    class="px-4 py-1 border rounded-lg"
+                    @click="cancelRevoke"
+                  >
+                    Annuleren
+                  </button>
+                </div>
+              </div>
+            </template>
+
+            <button
+              v-else
+              class="px-6 py-2 bg-red-600 text-white rounded-xl"
+              @click="askRevoke(r.id)"
+            >
+              Toegang intrekken
+            </button>
+          </template>
+
+          <!-- Denied / Revoked: info only -->
+          <template v-else>
+            <span class="text-sm text-gray-500 italic">
+              Geen acties mogelijk
+            </span>
+          </template>
+
+        </div>
+          
         </div>
       </li>
     </ul>

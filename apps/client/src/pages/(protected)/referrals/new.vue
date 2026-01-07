@@ -1,96 +1,166 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useDoctorPatients } from '@/composables/useDoctorPatients'
-import { useCreateReferral } from '@/composables/useReferral'
+import { useCreateReferral, useTreatments } from '@/composables/useReferral'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-// 🔹 QUERY: patiënten van dokter
-const { data: patients, loading, error } = useDoctorPatients()
+// Queries
+const { data: patients, loading: loadingPatients, error: patientsError } = useDoctorPatients()
+const { data: treatments, loading: loadingTreatments, error: treatmentsError } = useTreatments()
 
-// 🔹 MUTATION: referral aanmaken
+// Mutation
 const createReferral = useCreateReferral()
 
-// 🔹 form state
+// Form state
 const patientId = ref<number | null>(null)
-const treatmentId = ref<number | null>(1)
+const treatmentId = ref<number | null>(null)
 const notes = ref('')
 
-// 🔹 zodra patiënten geladen zijn → selecteer eerste
-watch(patients, (list) => {
-  if (!list || list.length === 0) return
+// Derived
+const hasPatients = computed(() => (patients.value?.length ?? 0) > 0)
+const hasTreatments = computed(() => (treatments.value?.length ?? 0) > 0)
 
-  if (patientId.value === null) {
-    patientId.value = list[0]!.patientId
-  }
-})
+const canSubmit = computed(() =>
+  patientId.value !== null &&
+  treatmentId.value !== null &&
+  !createReferral.loading.value
+)
 
-// 🔹 submit
+// Submit
 const submitReferral = async () => {
-  if (!patientId.value || !treatmentId.value) return
+  if (!canSubmit.value) return
 
-  const result = await createReferral.mutate({
-    patientId: patientId.value,
-    treatmentId: treatmentId.value,
-    notes: notes.value || undefined
+  await createReferral.mutate({
+    patientId: patientId.value!,
+    treatmentId: treatmentId.value!,
+    notes: notes.value.trim() || undefined
   })
 
-  if (result) {
+  if (!createReferral.error.value) {
     router.push('/referrals')
   }
 }
 </script>
 
-
 <template>
-  <div class="p-6 space-y-4">
-    <h2 class="text-xl font-semibold">Nieuwe doorverwijzing</h2>
+  <main class="p-6 max-w-xl mx-auto space-y-4" aria-labelledby="title">
+    <h1 id="title" class="text-xl font-semibold">
+      Nieuwe doorverwijzing
+    </h1>
 
-    <div v-if="loading">Patiënten laden...</div>
-    <div v-else-if="error">Fout bij laden patiënten</div>
+    <!-- Non-blocking load / error messages -->
+    <p v-if="loadingPatients || loadingTreatments" class="text-sm text-gray-500">
+      Gegevens laden…
+    </p>
 
-    <template v-else>
-      <label for="patient">Patiënt</label>
-      <select id="patient" v-model="patientId" class="border p-2 rounded w-full">
-        <option
-          v-for="p in patients"
-          :key="p.patientId"
-          :value="p.patientId"
+    <p v-if="patientsError || treatmentsError" role="alert" class="text-sm text-red-600">
+      Sommige gegevens konden niet worden geladen.
+    </p>
+
+    <form class="space-y-4" @submit.prevent="submitReferral">
+      <!-- Patient -->
+      <div>
+        <label for="patient" class="block font-medium">
+          Patiënt
+        </label>
+
+        <select
+          id="patient"
+          v-model="patientId"
+          class="border p-2 rounded w-full"
+          aria-describedby="patient-help"
+          required
         >
-          {{ p.patientId }} — {{ p.fullName }}
-        </option>
-      </select>
+          <option :value="null" disabled>
+            {{ hasPatients ? 'Selecteer patiënt' : 'Geen patiënten beschikbaar' }}
+          </option>
 
-      <label for="treatment">Behandeling ID</label>
-      <input
-        v-model="treatmentId"
-        id="treatment"
-        type="number"
-        placeholder="Behandeling ID"
-        class="border p-2 rounded w-full"
-      />
+          <option
+            v-for="p in patients ?? []"
+            :key="p.patientId"
+            :value="p.patientId"
+          >
+            {{ p.fullName }}
+          </option>
+        </select>
 
-      <label for="notes">Opmerkingen</label>
-      <textarea
-        id="notes"
-        v-model="notes"
-        placeholder="Opmerkingen (optioneel)"
-        class="border p-2 rounded w-full h-24"
-      />
+        <p
+          id="patient-help"
+          v-if="!hasPatients"
+          class="text-sm text-gray-600 mt-1"
+        >
+          Er zijn momenteel geen patiënten beschikbaar om te selecteren.
+        </p>
+      </div>
 
+      <!-- Treatment -->
+      <div>
+        <label for="treatment" class="block font-medium">
+          Behandeling
+        </label>
+
+        <select
+          id="treatment"
+          v-model="treatmentId"
+          class="border p-2 rounded w-full"
+          aria-describedby="treatment-help"
+          required
+        >
+          <option :value="null" disabled>
+            {{ hasTreatments ? 'Selecteer behandeling' : 'Geen behandelingen beschikbaar' }}
+          </option>
+
+          <option
+            v-for="t in treatments ?? []"
+            :key="t.id"
+            :value="t.id"
+          >
+            {{ t.name }}
+          </option>
+        </select>
+
+        <p
+          id="treatment-help"
+          v-if="!hasTreatments"
+          class="text-sm text-gray-600 mt-1"
+        >
+          Er zijn momenteel geen behandelingen beschikbaar.
+        </p>
+      </div>
+
+      <!-- Notes -->
+      <div>
+        <label for="notes" class="block font-medium">
+          Opmerkingen (optioneel)
+        </label>
+
+        <textarea
+          id="notes"
+          v-model="notes"
+          class="border p-2 rounded w-full h-24"
+          placeholder="Eventuele aanvullende informatie"
+        />
+      </div>
+
+      <!-- Submit -->
       <button
-        :disabled="createReferral.loading.value"
-        @click="submitReferral"
-        class="bg-blue-600 text-white px-4 py-2 rounded w-full"
+        type="submit"
+        :disabled="!canSubmit"
+        class="bg-blue-600 text-white px-4 py-2 rounded w-full disabled:opacity-50"
       >
-        {{ createReferral.loading.value ? 'Verzenden...' : 'Verzenden' }}
+        {{ createReferral.loading.value ? 'Verzenden…' : 'Verzenden' }}
       </button>
 
-      <div v-if="createReferral.error.value" class="text-red-600 text-sm">
-        Verwijzing aanmaken mislukt
-      </div>
-    </template>
-  </div>
+      <!-- Submit error -->
+      <p
+        v-if="createReferral.error.value"
+        role="alert"
+        class="text-sm text-red-600"
+      >
+        Doorverwijzing aanmaken mislukt.
+      </p>
+    </form>
+  </main>
 </template>
-

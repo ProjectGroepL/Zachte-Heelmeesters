@@ -3,7 +3,7 @@ import api from '@/lib/api'
 import type { AccessRequest } from "@/types/AccessRequest"
 
 export interface CreateAccessRequestRequest {
-  patientId: number
+  appointmentId: number
   reason: string
 }
 

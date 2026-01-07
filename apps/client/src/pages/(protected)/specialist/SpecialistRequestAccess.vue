@@ -1,31 +1,30 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useSpecialistAppointments } from '@/composables/useSpecialistAppointments'
 import { useRequestAccess } from '@/composables/useSpecialistAccessRequests'
 
-const patientId = ref<number | null>(null)
+const { data: appointments, loading, error } = useSpecialistAppointments()
+
+const selectedAppointmentId = ref<number | null>(null)
 const reason = ref('')
+const showSuccess = ref(false)
 
 const requestMutation = useRequestAccess()
-const showSuccess = ref(false)
+
 const submit = async () => {
-  if (!patientId.value || !reason.value) return
+  if (!selectedAppointmentId.value || !reason.value) return
 
   await requestMutation.mutate({
-    patientId: patientId.value,
+    appointmentId: selectedAppointmentId.value,
     reason: reason.value
   })
 
   if (!requestMutation.error.value) {
     showSuccess.value = true
-    patientId.value = null
+    selectedAppointmentId.value = null
     reason.value = ''
-
-    setTimeout(() => {
-      showSuccess.value = false
-    }, 10000)
+    setTimeout(() => (showSuccess.value = false), 8000)
   }
-
-
 }
 </script>
 
@@ -35,27 +34,41 @@ const submit = async () => {
       Toegang aanvragen
     </h1>
 
-    <div 
-      v-if="showSuccess" 
-      class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-center shadow-sm"
+    <div
+      v-if="showSuccess"
+      class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded"
       role="alert"
     >
-      <span class="mr-2">✅</span>
-      De aanvraag is succesvol verzonden naar de patiënt.
+      ✅ De aanvraag is succesvol verzonden.
     </div>
 
-    <form @submit.prevent="submit" class="space-y-4">
+    <p v-if="loading">Afspraken laden…</p>
+    <p v-else-if="error" class="text-red-600" role="alert">
+      Kon afspraken niet laden.
+    </p>
+
+    <form v-else @submit.prevent="submit" class="space-y-4">
       <div>
-        <label for="patient" class="block font-medium">
-          Patiënt ID
+        <label for="appointment" class="block font-medium">
+          Afspraak
         </label>
-        <input
-          id="patient"
-          type="number"
-          v-model="patientId"
+        <select
+          id="appointment"
+          v-model="selectedAppointmentId"
           class="border p-2 rounded w-full"
           required
-        />
+        >
+          <option disabled :value="null">Selecteer afspraak</option>
+          <option
+            v-for="a in appointments"
+            :key="a.id"
+            :value="a.id"
+            :disabled="a.status !== 'PendingAccess'"
+          >
+            {{ a.patientName }} – {{ new Date(a.date).toLocaleString('nl-NL') }}
+            ({{ a.status }})
+          </option>
+        </select>
       </div>
 
       <div>
@@ -78,12 +91,8 @@ const submit = async () => {
         {{ requestMutation.loading.value ? 'Versturen…' : 'Aanvraag versturen' }}
       </button>
 
-      <p
-        v-if="requestMutation.error.value"
-        role="alert"
-        class="text-red-600 text-sm"
-      >
-        Aanvraag mislukt.
+      <p v-if="requestMutation.error.value" class="text-red-600" role="alert">
+        {{ requestMutation.error.value }}
       </p>
     </form>
   </main>

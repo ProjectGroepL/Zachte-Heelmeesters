@@ -1,159 +1,120 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
-import { usePatientReferrals } from "@/composables/useReferral";
-import { useCreateAppointment } from '@/composables/useCreateAppointment';
-import type { AppointmentDto } from '@/types/appointment'
-import { watch } from 'vue'
-import { Button } from "@/components/ui/button";
-const {
-  data: referrals,
-  loading,
-  error,
-  execute: fetchReferrals
-} = usePatientReferrals();
-watch(referrals, (newVal) => {
-  console.log('REFERRALS BINNEN:', newVal)
-})
-const {
-  mutate: createAppointment,
-  loading: creating,
-  error: createError
-} = useCreateAppointment();
-const appointments = ref<AppointmentDto[]>([])
-const selectedReferralId = ref<number | null>(null);
-const appointmentDate = ref("");
-const appointmentTime = ref("");
-const successMessage = ref<string | null>(null);
+import { ref, computed } from 'vue'
+import { usePatientReferrals } from '@/composables/useReferral'
+import { useSpecialists } from '@/composables/useSpecialists.ts'
+import { useCreateAppointment } from '@/composables/useCreateAppointment'
 
-/**
- * Null-safe referrals
- */
-const safeReferrals = computed(() => referrals.value ?? []);
+const { data: referrals, loading: loadingReferrals, error: referralsError } = usePatientReferrals()
+const { data: specialists, loading: loadingSpecialists, error: specialistsError } = useSpecialists()
+const createAppointment = useCreateAppointment()
 
-/**
- * Geselecteerde referral als object
- */
-const selectedReferral = computed(() =>
-  safeReferrals.value.find(r => r.id === selectedReferralId.value) ?? null
-);
+const referralId = ref<number | null>(null)
+const specialistId = ref<number | null>(null)
+const date = ref('')
+const time = ref('')
+const success = ref(false)
+
+const canSubmit = computed(() =>
+  referralId.value &&
+  specialistId.value &&
+  date.value &&
+  time.value &&
+  !createAppointment.loading.value
+)
 
 const submit = async () => {
-  if (!selectedReferralId.value || !appointmentDate.value || !appointmentTime.value) {
-    return;
-  }
+  if (!canSubmit.value) return
 
-  const result = await createAppointment({
-    referralId: selectedReferralId.value,
-    date: appointmentDate.value,
-    time: appointmentTime.value
-  });
+  success.value = false
 
-  if (result !== undefined) {
-    successMessage.value = "Afspraak aangemaakt!";
-      setTimeout(() => {
-    successMessage.value = null;
-  }, 2000);
-    selectedReferralId.value = null;
-    appointmentDate.value = "";
-    appointmentTime.value = "";
-    fetchReferrals(); // refresh select
+  try {
+    await createAppointment.mutate({
+      referralId: referralId.value!,
+      specialistId: specialistId.value!,
+      date: date.value,
+      time: time.value
+    })
+
+    // ✅ succes
+    success.value = true
+
+    // (optioneel) formulier resetten
+    referralId.value = null
+    specialistId.value = null
+    date.value = ''
+    time.value = ''
+  } catch (e) {
+    // error wordt al door composable gezet
   }
-};
+}
 
 </script>
 
 <template>
-  <div class="p-6">
-    <h1 class="text-2xl font-bold mb-4">Nieuwe afspraak</h1>
+    <p
+    v-if="success"
+    class="text-sm text-green-600 bg-green-50 border border-green-200 p-2 rounded"
+  >
+    ✅ Afspraak is succesvol aangemaakt.
+  </p>
+  <main class="p-6 max-w-xl mx-auto space-y-4">
+    <h1 class="text-xl font-semibold">Nieuwe afspraak</h1>
 
-    <!-- Status -->
-    <div v-if="loading" class="text-gray-500">
-      Doorverwijzingen laden...
-    </div>
+    <p v-if="loadingReferrals || loadingSpecialists" class="text-sm text-gray-500">
+      Gegevens laden…
+    </p>
 
-    <div v-else-if="error" class="text-red-500">
-      {{ error }}
-    </div>
+    <p v-if="referralsError || specialistsError" class="text-sm text-red-600">
+      Sommige gegevens konden niet worden geladen.
+    </p>
 
-    <div
-      v-if="successMessage"
-      class="bg-green-200 text-green-800 p-2 rounded mb-4"
-    >
-      {{ successMessage }}
-    </div>
+    <form class="space-y-4" @submit.prevent="submit">
 
-    <!-- Formulier -->
-    <div>
-      <label for="referral" class="block mb-2">
-        Kies een doorverwijzing:
-      </label>
-
-      <!-- Referral select -->
-      <div v-if="safeReferrals.length > 0">
-        <select
-          v-model="selectedReferralId"
-          id="referral"
-          class="border p-2 rounded w-full"
-        >
-          <option :value="null" disabled>
-            Selecteer een doorverwijzing
+      <!-- Referral -->
+      <div>
+        <label class="block font-medium">Doorverwijzing</label>
+        <select v-model="referralId" class="border p-2 rounded w-full" required>
+          <option :value="null" disabled>Selecteer doorverwijzing</option>
+          <option v-for="r in referrals ?? []" :key="r.id" :value="r.id">
+            {{ r.treatmentName }}
           </option>
-
-          <option
-            v-for="ref in safeReferrals"
-            :key="ref.id"
-            :value="ref.id"
-            >
-            {{ ref.treatmentName }} - {{ ref.status }}
-            </option>
         </select>
       </div>
 
-      <div v-else class="text-red-500">
-        Er zijn geen actieve doorverwijzingen beschikbaar.
+      <!-- Specialist -->
+      <div>
+        <label class="block font-medium">Specialist</label>
+        <select v-model="specialistId" class="border p-2 rounded w-full" required>
+          <option :value="null" disabled>Selecteer specialist</option>
+          <option v-for="s in specialists ?? []" :key="s.id" :value="s.id">
+            {{ s.fullName }}
+          </option>
+        </select>
       </div>
 
-      <!-- Datum & tijd -->
-      <div v-if="selectedReferral" class="mt-4 space-y-2">
-        <p>
-          Je hebt doorverwijzing
-          <strong>{{ selectedReferral.treatmentName }}</strong>
-          geselecteerd.
-        </p>
-        <fieldset>
-        <legend class="font-semibold">Datum en tijd</legend>
-          <label class="date">Datum:</label>
-          <input
-            type="date"
-            v-model="appointmentDate"
-            :min="new Date(selectedReferral.createdAt).toISOString().split('T')[0]"
-            class="border p-2 rounded w-full"
-            required
-          />
-
-          <label class="time">Tijd:</label>
-          <input
-            type="time"
-            v-model="appointmentTime"
-            class="border p-2 rounded w-full"
-            required
-          />
-        </fieldset>
-        
-        <Button
-        @click="submit"
-        :disabled="creating || !appointmentDate || !appointmentTime"
-        class="mt-2 w-full"
-                
-        >
-        {{ creating ? 'Bezig met opslaan...' : 'Maak afspraak' }}
-        </Button>
-
-        <p v-if="createError" class="text-red-500 mt-2">
-          Kon de afspraak niet aanmaken.
-        </p>
+      <!-- Date & time -->
+      <div>
+        <label class="block font-medium">Datum</label>
+        <input type="date" v-model="date" class="border p-2 rounded w-full" required />
       </div>
-    </div>
-  </div>
+
+      <div>
+        <label class="block font-medium">Tijd</label>
+        <input type="time" v-model="time" class="border p-2 rounded w-full" required />
+      </div>
+
+      <button
+        type="submit"
+        :disabled="!canSubmit"
+        class="bg-blue-600 text-white px-4 py-2 rounded w-full disabled:opacity-50"
+      >
+        {{ createAppointment.loading.value ? 'Opslaan…' : 'Afspraak maken' }}
+      </button>
+
+      <p v-if="createAppointment.error.value" class="text-sm text-red-600">
+        Afspraak aanmaken mislukt.
+      </p>
+    </form>
+  </main>
 </template>
 

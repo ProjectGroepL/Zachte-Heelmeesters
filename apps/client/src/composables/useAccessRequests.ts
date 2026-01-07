@@ -27,3 +27,12 @@ export function useCreateAccessRequest(){
             .then(res => res.data)
     )
 }
+
+// POST revoke approved request
+export function useRevokeAccessRequest() {
+  return useMutation<void, { id: number }>(
+    ({ id }) =>
+      api.post(`/patient/access-requests/${id}/revoke`)
+        .then(res => res.data)
+  )
+}

@@ -5,6 +5,7 @@ export type AccessRequestStatus =
 | 'Revoked'
 
 export interface AccessRequest {
+    appointmentDate: string | number | Date
     id: number
     patientId: number 
     patientName: string
@@ -13,11 +14,12 @@ export interface AccessRequest {
     reason: string
     status: AccessRequestStatus
     requestedAt: string
+    date: string
 }
 
 export interface CreateAccessRequest {
-    patientId: number 
-    reason: string 
+  appointmentId: number
+  reason: string
 }
 
 export interface DecideAccessRequest {

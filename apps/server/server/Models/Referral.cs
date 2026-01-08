@@ -1,5 +1,10 @@
 namespace ZhmApi.Models 
 {
+    public enum ReferralStatus
+    {
+        Open,
+        AppointmentCreated
+    }
     public class Referral
     {
         public int Id {get; set;}
@@ -16,7 +21,7 @@ namespace ZhmApi.Models
         public string? Notes { get; set; }
 
         // Current referral status (e.g. open, accepted, closed)
-        public string Status { get; set; } = "open";
+        public ReferralStatus Status { get; set; } = ReferralStatus.Open;
 
         public DateTime CreatedAt {get; set; } = DateTime.UtcNow;
         public DateTime ValidUntil {get; set;}

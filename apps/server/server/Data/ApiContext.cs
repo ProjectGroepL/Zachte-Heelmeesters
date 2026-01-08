@@ -21,7 +21,8 @@ public class ApiContext : IdentityDbContext<User, Role, int>
   //this is already made a table so i couldnt delete the extra s so i guess we have to do with what we got
   public DbSet<AccessRequest> AccesssRequests {get; set;}
   public DbSet<Notification> Notifications {get; set;}
-  
+  public DbSet<AppointmentReport> AppointmentReports {get; set;}
+  public DbSet<AppointmentReportItem> ApontmentReportItems {get; set;}
  
   #region UpdatedAt timestamp handling
   public override int SaveChanges()
@@ -160,8 +161,19 @@ public class ApiContext : IdentityDbContext<User, Role, int>
         .OnDelete(DeleteBehavior.NoAction);
         // Seed initial data
         SeedData(modelBuilder);
+
+        // Zorgt dat EF de tabel met de extra 's' gebruikt voor de notificatie-link
+        modelBuilder.Entity<Notification>()
+            .HasOne(n => n.AccessRequest)
+            .WithMany()
+            .HasForeignKey(n => n.AccessRequestId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        // Forceer de tabelnaam zodat EF niet stiekem naar 'AccessRequests' (2 s-en) zoekt
+        modelBuilder.Entity<AccessRequest>().ToTable("AccesssRequests");
       }
 
+    
   #region Seed Data
 
   private void SeedData(ModelBuilder modelBuilder)

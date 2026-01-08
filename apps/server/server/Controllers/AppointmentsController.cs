@@ -48,7 +48,7 @@ namespace ZhmApi.Controllers
             _context.Appointments.Add(appointment);
 
             // ✅ Status aanpassen
-            referral.Status = "afspraak gemaakt";
+            referral.Status = ReferralStatus.AppointmentCreated;
 
             await _context.SaveChangesAsync();
 
@@ -86,6 +86,35 @@ namespace ZhmApi.Controllers
                 Date = a.Date.ToString("yyyy-MM-dd HH:mm")
             });
 
+            return Ok(new { appointments });
+        }
+
+        [HttpGet("completed")]
+        public async Task<IActionResult> GetCompletedAppointments()
+        {
+            // Haal de ingelogde patiënt-ID
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdClaim, out int userId))
+                return Unauthorized();
+
+            // Haal alleen completed appointments van deze patiënt
+            var appointments = await _context.Appointments
+            .Include(a => a.Referral)
+            .Include(a => a.Specialist)
+            // We filteren op de PatientId in de Referral
+            .Where(a => a.Referral.PatientId == userId && 
+                        a.Status == AppointmentStatus.Completed &&
+                        _context.AppointmentReports.Any(r => r.AppointmentId == a.Id)) 
+            .Select(a => new {
+                Id = a.Id,
+                Date = a.Date,
+                SpecialistName = a.Specialist != null ? $"Dr. {a.Specialist.LastName}" : "Onbekende specialist",
+                // Stuur de enum als string "Completed" zodat je frontend filter werkt
+                Status = a.Status.ToString() 
+            })
+            .ToListAsync();
+
+            // Stuur het nested object zoals jij het wilde
             return Ok(new { appointments });
         }
 

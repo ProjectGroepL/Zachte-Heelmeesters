@@ -32,6 +32,7 @@ namespace ZhmApi.Services
                 r.Status == AccessRequestStatus.Pending
             );
 
+
             if (exists)
                 throw new InvalidOperationException("Access request already exists");
 
@@ -46,7 +47,17 @@ namespace ZhmApi.Services
                 RequestedAt = DateTime.UtcNow
             };
 
-            _context.AccesssRequests.Add(request);
+             _context.AccesssRequests.Add(request);
+            await _context.SaveChangesAsync(); // request.Id NOW EXISTS
+
+            _context.Notifications.Add(new Notification
+            {
+                UserId = request.PatientId,
+                Type = NotificationType.AccessRequest,
+                Message = "A specialist has requested access to your medical file.",
+                AccessRequestId = request.Id
+            });
+
             await _context.SaveChangesAsync();
 
             return request;
@@ -56,6 +67,7 @@ namespace ZhmApi.Services
         {
             var request = await _context.AccesssRequests
                 .Include(r => r.Appointment)
+                    .ThenInclude(a => a.Referral) // 🔥 ESSENTIEEL
                 .FirstOrDefaultAsync(r =>
                     r.Id == requestId &&
                     r.PatientId == patientId &&
@@ -65,22 +77,23 @@ namespace ZhmApi.Services
             if (request == null)
                 throw new InvalidOperationException("No active permission");
 
+            // 1️⃣ revoke request
             request.Status = AccessRequestStatus.Revoked;
 
+            // 2️⃣ cancel appointment
             request.Appointment.Status = AppointmentStatus.Cancelled;
+
+            // 3️⃣ restore referral
+            request.Appointment.Referral.Status = ReferralStatus.Open;
 
             await _context.SaveChangesAsync();
         }
 
-        public async Task DecideRequest(
-            int requestId,
-            int patientId,
-            bool approved
-        )
+        public async Task DecideRequest(int requestId, int patientId, bool approved)
         {
             var request = await _context.AccesssRequests
                 .Include(r => r.Appointment)
-                .ThenInclude(a => a.Referral)
+                    .ThenInclude(a => a.Referral)
                 .FirstOrDefaultAsync(r =>
                     r.Id == requestId &&
                     r.PatientId == patientId &&
@@ -90,19 +103,26 @@ namespace ZhmApi.Services
             if (request == null)
                 throw new InvalidOperationException("No pending request found");
 
-            // 1️⃣ Update request
             request.Status = approved
                 ? AccessRequestStatus.Approved
                 : AccessRequestStatus.Denied;
 
             request.DecidedAt = DateTime.UtcNow;
 
-            // 2️⃣ Update EXACT appointment
             request.Appointment.Status = approved
                 ? AppointmentStatus.Scheduled
                 : AppointmentStatus.Cancelled;
-            // 🔁 referral becomes reusable
-            request.Appointment.Referral.Status = "open";
+
+            // 🔔 notify SPECIALIST
+            _context.Notifications.Add(new Notification
+            {
+                UserId = request.SpecialistId,
+                Type = NotificationType.AccessRequestDecision,
+                Message = approved
+                    ? "Your access request was approved."
+                    : "Your access request was denied.",
+                AccessRequestId = request.Id
+            });
 
             await _context.SaveChangesAsync();
         }

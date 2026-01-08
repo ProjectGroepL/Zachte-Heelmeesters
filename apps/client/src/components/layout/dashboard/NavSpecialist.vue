@@ -34,7 +34,16 @@ import { FilePlus, ClipboardList } from 'lucide-vue-next'
         >
           <ClipboardList class="size-4" />
           <span>Mijn aanvragen</span>
-        </RouterLink>
+        </RouterLink> 
+      </li>
+      <li>
+        <RouterLink
+          to="/specialist/CreateReportView"
+          class="flex items-center gap-2 px-3 py-2 rounded hover:bg-muted"
+        >
+          <ClipboardList class="size-4" />
+          <span>AppointmentReportForm</span>
+        </RouterLink> 
       </li>
     </ul>
   </nav>

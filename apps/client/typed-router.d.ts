@@ -35,10 +35,12 @@ declare module 'vue-router/auto-routes' {
       | '/(protected)/huisarts/CreateMedicalDocument'
       | '/(protected)/huisarts/MyMedicalDocuments'
       | '/(protected)/patient/'
+      | '/(protected)/patient/PatientReportSelectPage'
       | '/(protected)/patient/requests'
       | '/(protected)/referrals/'
       | '/(protected)/referrals/new'
       | '/(protected)/specialist/'
+      | '/(protected)/specialist/CreateReportView'
       | '/(protected)/specialist/SpecialistAccessRequests'
       | '/(protected)/specialist/SpecialistRequestAccess'
     >,
@@ -91,6 +93,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/(protected)/patient/PatientReportSelectPage': RouteRecordInfo<
+      '/(protected)/patient/PatientReportSelectPage',
+      '/patient/PatientReportSelectPage',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/(protected)/patient/requests': RouteRecordInfo<
       '/(protected)/patient/requests',
       '/patient/requests',
@@ -115,6 +124,13 @@ declare module 'vue-router/auto-routes' {
     '/(protected)/specialist/': RouteRecordInfo<
       '/(protected)/specialist/',
       '/specialist',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/(protected)/specialist/CreateReportView': RouteRecordInfo<
+      '/(protected)/specialist/CreateReportView',
+      '/specialist/CreateReportView',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -186,10 +202,12 @@ declare module 'vue-router/auto-routes' {
         | '/(protected)/huisarts/CreateMedicalDocument'
         | '/(protected)/huisarts/MyMedicalDocuments'
         | '/(protected)/patient/'
+        | '/(protected)/patient/PatientReportSelectPage'
         | '/(protected)/patient/requests'
         | '/(protected)/referrals/'
         | '/(protected)/referrals/new'
         | '/(protected)/specialist/'
+        | '/(protected)/specialist/CreateReportView'
         | '/(protected)/specialist/SpecialistAccessRequests'
         | '/(protected)/specialist/SpecialistRequestAccess'
       views:
@@ -237,6 +255,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/(protected)/patient/PatientReportSelectPage.vue': {
+      routes:
+        | '/(protected)/patient/PatientReportSelectPage'
+      views:
+        | never
+    }
     'src/pages/(protected)/patient/requests.vue': {
       routes:
         | '/(protected)/patient/requests'
@@ -258,6 +282,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/(protected)/specialist/index.vue': {
       routes:
         | '/(protected)/specialist/'
+      views:
+        | never
+    }
+    'src/pages/(protected)/specialist/CreateReportView.vue': {
+      routes:
+        | '/(protected)/specialist/CreateReportView'
       views:
         | never
     }

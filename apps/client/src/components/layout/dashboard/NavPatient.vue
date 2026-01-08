@@ -11,7 +11,8 @@ import { useRouter } from 'vue-router'
 
 const items = [
   { title: 'Toegangsverzoeken', url: '/patient/requests', icon: ShieldCheck },
-  { title: 'Documenten', url: '/patient', icon: FileText }
+  { title: 'Documenten', url: '/patient', icon: FileText },
+  { title: 'PatientReportSelectPage', url: '/Patient/PatientReportSelectPage', icon: FileText }
 ]
 
 const { currentRoute } = useRouter()

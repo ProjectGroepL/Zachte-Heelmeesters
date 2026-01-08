@@ -77,12 +77,17 @@ const adminItems = computed(() => {
       url: "/admin/activiteiten",
       icon: Activity,
     },
-    {
+  ]
+
+  // Only show Audit logs if user has role "Systeembeheerder"
+  if (hasRole("Systeembeheerder")) {
+    items.push({
       title: "Audit logs",
       url: "/audits",
       icon: ClipboardList,
-    }
-  ]
+    })
+  }
+
   return items
 })
 
@@ -144,7 +149,7 @@ const data = {
       <div v-if="!open" class="w-full px-2">
         <Separator />
       </div>
-       <!-- Doctor -->
+      <!-- Doctor -->
       <NavDoctor v-if="hasRole('Huisarts')" />
       <NavAdmin :items="adminItems" />
     </SidebarContent>

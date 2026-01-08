@@ -238,7 +238,7 @@ namespace ZhmApi.Controllers
                     .ToString()
                     .Truncate(512),
 
-                Details = "User logged out"
+                Details = "Gebruiker heeft uitgelogd"
             });
 
             await _context.SaveChangesAsync();
@@ -470,7 +470,7 @@ namespace ZhmApi.Controllers
                         .ToString()
                         .Truncate(512),
 
-                Details = "User logged in successfully"
+                Details = "Gebruiker heeft succesvol ingelogd"
             };
 
             _context.AuditTrails.Add(audit);

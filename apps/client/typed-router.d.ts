@@ -32,6 +32,7 @@ declare module 'vue-router/auto-routes' {
       | '/(protected)/[...path]'
       | '/(protected)/afspraken/'
       | '/(protected)/afspraken/create'
+      | '/(protected)/audits/'
       | '/(protected)/referrals/'
       | '/(protected)/referrals/new'
     >,
@@ -59,6 +60,13 @@ declare module 'vue-router/auto-routes' {
     '/(protected)/afspraken/create': RouteRecordInfo<
       '/(protected)/afspraken/create',
       '/afspraken/create',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/(protected)/audits/': RouteRecordInfo<
+      '/(protected)/audits/',
+      '/audits',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -127,6 +135,7 @@ declare module 'vue-router/auto-routes' {
         | '/(protected)/[...path]'
         | '/(protected)/afspraken/'
         | '/(protected)/afspraken/create'
+        | '/(protected)/audits/'
         | '/(protected)/referrals/'
         | '/(protected)/referrals/new'
       views:
@@ -153,6 +162,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/(protected)/afspraken/create.vue': {
       routes:
         | '/(protected)/afspraken/create'
+      views:
+        | never
+    }
+    'src/pages/(protected)/audits/index.vue': {
+      routes:
+        | '/(protected)/audits/'
       views:
         | never
     }

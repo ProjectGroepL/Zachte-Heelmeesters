@@ -26,6 +26,8 @@ import NavAdmin from '@/components/layout/dashboard/NavAdmin.vue'
 import Separator from '@/components/ui/separator/Separator.vue'
 import { useAuth } from '@/composables/useAuth'
 import { onMounted, ref } from 'vue'
+import { computed } from 'vue'
+import { ClipboardList } from "lucide-vue-next"
 
 
 const props = withDefaults(defineProps<SidebarProps>(), {
@@ -62,6 +64,32 @@ const hasRole = (roleName: string) => {
 
   return false
 }
+
+const adminItems = computed(() => {
+  const items = [
+    {
+      title: "Gebruikers",
+      url: "/admin/gebruikers",
+      icon: Users2,
+    },
+    {
+      title: "Activiteiten",
+      url: "/admin/activiteiten",
+      icon: Activity,
+    },
+  ]
+
+  // Only show Audit logs if user has role "Systeembeheerder"
+  if (hasRole("Systeembeheerder")) {
+    items.push({
+      title: "Audit logs",
+      url: "/audits",
+      icon: ClipboardList,
+    })
+  }
+
+  return items
+})
 
 // This is sample data.
 const data = {
@@ -121,9 +149,9 @@ const data = {
       <div v-if="!open" class="w-full px-2">
         <Separator />
       </div>
-       <!-- Doctor -->
+      <!-- Doctor -->
       <NavDoctor v-if="hasRole('Huisarts')" />
-      <NavAdmin :items="data.projects" />
+      <NavAdmin :items="adminItems" />
     </SidebarContent>
     <SidebarFooter>
       <NavUser :user="data.user" />

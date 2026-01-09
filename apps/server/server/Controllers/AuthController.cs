@@ -7,7 +7,7 @@ using ZhmApi.Data;
 using ZhmApi.Dtos;
 using ZhmApi.Models;
 using ZhmApi.Services;
-
+using ZhmApi.Extensions;
 namespace ZhmApi.Controllers
 {
     [ApiController]
@@ -213,8 +213,44 @@ namespace ZhmApi.Controllers
                 User = userDto
             };
 
+            // credentials are valid here, so the userID can be logged in the audit trail.
+            await LogLoginSuccess(user);
+
             return Ok(response);
         }
+
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            var userId = int.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)!.Value
+            );
+
+            _context.AuditTrails.Add(new AuditTrail
+            {
+                UserId = userId,
+                Method = "LOGOUT",
+                Path = "/api/auth/logout",
+                StatusCode = StatusCodes.Status200OK,
+                Timestamp = DateTimeOffset.UtcNow,
+
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
+
+                UserAgent = HttpContext.Request.Headers["User-Agent"]
+                    .ToString()
+                    .Truncate(512),
+
+                Details = "Gebruiker heeft uitgelogd"
+            });
+
+            await _context.SaveChangesAsync();
+
+            // optional: invalidate refresh token here
+
+            return Ok();
+        }
+
 
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh([FromBody] RefreshTokenDto refreshTokenDto)
@@ -419,5 +455,30 @@ namespace ZhmApi.Controllers
                 _ => "An error occurred during verification"
             };
         }
+
+        // helper function to log userID on a succesfull login.
+        private async Task LogLoginSuccess(User user)
+        {
+            var audit = new AuditTrail
+            {
+                UserId = user.Id,
+                Method = "LOGIN",
+                Path = "/api/auth/login",
+                StatusCode = StatusCodes.Status200OK,
+                Timestamp = DateTimeOffset.UtcNow,
+
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
+
+                UserAgent = HttpContext.Request.Headers["User-Agent"]
+                        .ToString()
+                        .Truncate(512),
+
+                Details = "Gebruiker heeft succesvol ingelogd"
+            };
+
+            _context.AuditTrails.Add(audit);
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

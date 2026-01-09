@@ -25,7 +25,7 @@ export const useAuth = () => {
         // Store both tokens for immediate login after registration
         localStorage.setItem('access_token', response.data.token)
         localStorage.setItem('refresh_token', response.data.refreshToken)
-        
+
         // Store user info
         if (response.data.user) {
           localStorage.setItem('user_info', JSON.stringify(response.data.user))
@@ -64,7 +64,7 @@ export const useAuth = () => {
         // Store both tokens for normal login
         localStorage.setItem('access_token', response.data.token)
         localStorage.setItem('refresh_token', response.data.refreshToken)
-        
+
         // Store user info for quick access without JWT decoding
         if (response.data.user) {
           localStorage.setItem('user_info', JSON.stringify(response.data.user))
@@ -93,7 +93,7 @@ export const useAuth = () => {
         // Store tokens after successful 2FA verification
         localStorage.setItem('access_token', response.data.token)
         localStorage.setItem('refresh_token', response.data.refreshToken)
-        
+
         // Store user info
         if (response.data.user) {
           localStorage.setItem('user_info', JSON.stringify(response.data.user))
@@ -160,17 +160,26 @@ export const useAuth = () => {
     }
   }
 
-  //TODO add server logout endpoint to invalidate refresh tokens
-  const logout = (): void => {
+  // Logs out on the server (for audit + refresh token invalidation)
+  // and always logs out locally
+  const logout = async (): Promise<void> => {
+    try {
+      // IMPORTANT: token must still exist here
+      await api.post('/auth/logout')
+    } catch (error) {
+      // Never block logout
+      console.warn('Server logout failed, continuing client logout', error)
+    } finally {
+      // Remove tokens from localStorage
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('refresh_token')
+      localStorage.removeItem('user_info')
 
-    // Remove tokens from localStorage
-    localStorage.removeItem('access_token')
-    localStorage.removeItem('refresh_token')
-    localStorage.removeItem('user_info')
-
-    // Redirect to login page
-    router.replace('/auth/login')
+      // Redirect to login page
+      router.replace('/auth/login')
+    }
   }
+
 
   const getUser = async (): Promise<ApiResponse<User>> => {
     try {
@@ -189,7 +198,7 @@ export const useAuth = () => {
     }
   }
 
-    const hasRole = (roleName: string) => {
+  const hasRole = (roleName: string) => {
     const user = getStoredUser()
     if (!user) return false
 
@@ -220,14 +229,14 @@ export const useAuth = () => {
 
   // Get user info from localStorage (stored during login) or fallback to JWT
   const getStoredUser = () => {
-  const stored = localStorage.getItem('user_info')
-  if (!stored) return null
-  try {
-    return JSON.parse(stored)
-  } catch {
-    return null
+    const stored = localStorage.getItem('user_info')
+    if (!stored) return null
+    try {
+      return JSON.parse(stored)
+    } catch {
+      return null
+    }
   }
-}
 
   return {
     register,

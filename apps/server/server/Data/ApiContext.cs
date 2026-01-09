@@ -126,8 +126,6 @@ public class ApiContext : IdentityDbContext<User, Role, int>
         .HasForeignKey(r => r.TreatmentId)
         .OnDelete(DeleteBehavior.NoAction);
 
-      modelBuilder.Entity<Referral>()
-      .ToTable(tb => tb.HasTrigger("TR_Referrals_Expire"));
       //accesrequest specification on what to do when it gets deleted
       modelBuilder.Entity<AccessRequest>()
       .HasOne(ac => ac.Patient)

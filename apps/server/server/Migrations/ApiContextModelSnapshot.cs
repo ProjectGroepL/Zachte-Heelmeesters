@@ -251,16 +251,16 @@ namespace ZhmApi.Migrations
                     b.HasIndex("AppointmentReportId");
 
                     b.ToTable("ApontmentReportItems");
-                    });
+                });
 
-
-              modelBuilder.Entity("ZhmApi.Models.AuditTrail", b =>
+            modelBuilder.Entity("ZhmApi.Models.AuditTrail", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<string>("Details")
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
@@ -299,7 +299,6 @@ namespace ZhmApi.Migrations
                         .HasDatabaseName("IX_AuditTrails_Timestamp");
 
                     b.ToTable("AuditTrails");
-
                 });
 
             modelBuilder.Entity("ZhmApi.Models.DoctorPatients", b =>
@@ -435,12 +434,7 @@ namespace ZhmApi.Migrations
 
                     b.HasIndex("TreatmentId");
 
-                    b.ToTable("Referrals", t =>
-                        {
-                            t.HasTrigger("TR_Referrals_Expire");
-                        });
-
-                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                    b.ToTable("Referrals");
                 });
 
             modelBuilder.Entity("ZhmApi.Models.Role", b =>
@@ -480,7 +474,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "db65e6df-8832-458f-bfd0-a5650821428d",
+                            ConcurrencyStamp = "feb7ce0f-ada8-4996-bec3-68c0d55c8ffb",
                             Description = "Patiënt die gebruik maakt van het systeem voor medische zorg en behandelingen",
                             Name = "Patient",
                             NormalizedName = "PATIENT"
@@ -488,7 +482,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "f8e9bdb5-4225-48c7-ab53-721aca24b926",
+                            ConcurrencyStamp = "ae133c37-1ce1-4f84-a507-6bc21e7ce012",
                             Description = "Medisch specialist die gespecialiseerde zorg verleent in een specifiek vakgebied",
                             Name = "Specialist",
                             NormalizedName = "SPECIALIST"
@@ -496,7 +490,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "e9eee252-c4ad-464a-89a8-d1d8940c6b37",
+                            ConcurrencyStamp = "73581610-932b-4826-82bf-517d4cfb3015",
                             Description = "Huisarts die eerste lijn zorg verleent en patiënten doorverwijst naar specialisten",
                             Name = "Huisarts",
                             NormalizedName = "HUISARTS"
@@ -504,7 +498,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 4,
-                            ConcurrencyStamp = "0a7bf568-565b-46b1-9744-f211648d79e9",
+                            ConcurrencyStamp = "3cebb487-5bdc-4e0e-a9a5-fb45d125f7dd",
                             Description = "Medewerker van zorgverzekeraar die verantwoordelijk is voor vergoedingen en polisbeheer",
                             Name = "Zorgverzekeraar",
                             NormalizedName = "ZORGVERZEKERAAR"
@@ -512,7 +506,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 5,
-                            ConcurrencyStamp = "31021bbc-badf-4458-b2a3-60fd9f819525",
+                            ConcurrencyStamp = "9852fd64-e287-42bd-a266-07780970120b",
                             Description = "Systeembeheerder met volledige toegang tot alle functionaliteiten en gebruikersbeheer",
                             Name = "Systeembeheerder",
                             NormalizedName = "SYSTEEMBEHEERDER"
@@ -520,7 +514,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 6,
-                            ConcurrencyStamp = "72791482-6915-44b7-97dd-be53897cb8e6",
+                            ConcurrencyStamp = "ff146f58-71b3-4a13-af0b-a15df1d9b0a5",
                             Description = "Administratief medewerker in ziekenhuis die ondersteuning biedt bij balieservice en patiëntenzorg",
                             Name = "Administratie",
                             NormalizedName = "ADMINISTRATIE"

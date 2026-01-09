@@ -143,8 +143,16 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 // Register 2FA services
 builder.Services.AddScoped<TwoFactorService>();
 
-// Register Email services
-builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+// Register Email services - configure from environment variables
+builder.Services.Configure<EmailSettings>(options =>
+{
+    options.Host = Environment.GetEnvironmentVariable("EMAIL_HOST") ?? "sandbox.smtp.mailtrap.io";
+    options.Port = int.Parse(Environment.GetEnvironmentVariable("EMAIL_PORT") ?? "587");
+    options.Username = Environment.GetEnvironmentVariable("EMAIL_USERNAME");
+    options.Password = Environment.GetEnvironmentVariable("EMAIL_PASSWORD");
+    options.SenderName = Environment.GetEnvironmentVariable("EMAIL_SENDER_NAME") ?? "Zachte Heelmeesters";
+    options.SenderEmail = Environment.GetEnvironmentVariable("EMAIL_SENDER_EMAIL") ?? "no-reply@zhm.local";
+});
 
 // register referralservice
 builder.Services.AddScoped<IReferralService, ReferralService>();
@@ -157,8 +165,12 @@ builder.Services.AddScoped<NotificationService>();
 // Register email sender based on environment
 if (builder.Environment.IsDevelopment())
 {
-    // builder.Services.AddScoped<IEmailSender, MailKitEmailSender>();
-    builder.Services.AddScoped<IEmailSender, ConsoleEmailSender>();
+    builder.Services.AddScoped<IEmailSender, MailKitEmailSender>();
+    // builder.Services.AddScoped<IEmailSender, ConsoleEmailSender>();
+}
+else
+{
+    builder.Services.AddScoped<IEmailSender, MailKitEmailSender>();
 }
 
 var app = builder.Build();
@@ -191,8 +203,16 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Apply database migrations
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ApiContext>();
+    context.Database.Migrate();
+}
+
 // new roles and users so that we can login more easily
-using(var scope = app.Services.CreateScope())
+using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();

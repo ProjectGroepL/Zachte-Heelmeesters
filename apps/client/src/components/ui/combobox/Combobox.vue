@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/popover'
 
 export interface ComboboxOption {
-  value: string
+  value: string | number
   label: string
   disabled?: boolean
 }

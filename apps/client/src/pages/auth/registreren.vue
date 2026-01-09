@@ -16,6 +16,8 @@ import { Combobox } from "@/components/ui/combobox"
 import { useAuth } from "@/composables/useAuth"
 import { useRouter } from "vue-router"
 import { z } from "zod"
+import { useQuery } from "@/composables/useApi"
+import { type GpName } from "@/types/GeneralPractitioner.d"
 
 const router = useRouter()
 const { register, isAuthenticated } = useAuth()
@@ -40,21 +42,24 @@ const confirmPassword = ref('')
 const formError = ref<string | null>(null)
 const errors = ref<Record<string, string[]>>({})
 
+const { data: gps, loading, error } = useQuery<GpName[]>("/DoctorPatients/general-practitioners")
+
+const gpOptions = computed(() => {
+  if (!gps.value) return []
+  return gps.value
+    .filter(gp => gp && gp.id !== undefined && gp.fullName)
+    .map((gp) => ({
+      label: gp.fullName.replace(/\s+/g, ' ').trim(), // Clean up extra spaces
+      value: gp.id.toString()
+    }))
+})
+
 // Redirect to home if already authenticated
 if (isAuthenticated()) {
   router.push('/')
 }
 
-// Mock data for doctors - replace with actual API call later
-const doctors = [
-  { value: "dr-janssen", label: "Dr. P. Janssen" },
-  { value: "dr-de-boer", label: "Dr. M. de Boer" },
-  { value: "dr-van-der-meer", label: "Dr. A. van der Meer" },
-  { value: "dr-bakker", label: "Dr. S. Bakker" },
-  { value: "dr-visser", label: "Dr. L. Visser" },
-]
-
-const selectedDoctor = ref("")
+const selectedDoctor = ref<string | undefined>()
 
 // Clear field errors when user starts typing
 const clearFieldError = (field: string) => {
@@ -80,7 +85,8 @@ const registerSchema = z.object({
   street: z.string().min(1, "Straatnaam is verplicht"),
   city: z.string().min(1, "Plaats is verplicht"),
   password: z.string().min(6, "Wachtwoord moet minimaal 6 karakters lang zijn"),
-  confirmPassword: z.string().min(1, "Bevestig je wachtwoord")
+  confirmPassword: z.string().min(1, "Bevestig je wachtwoord"),
+  selectedDoctor: z.string().min(1, "Huisarts is verplicht")
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Wachtwoorden komen niet overeen",
   path: ["confirmPassword"],
@@ -109,7 +115,8 @@ const handleSubmit = async (e: Event) => {
     street: street.value,
     city: city.value,
     password: password.value,
-    confirmPassword: confirmPassword.value
+    confirmPassword: confirmPassword.value,
+    selectedDoctor: selectedDoctor.value || ""
   })
 
   if (!result.success) {
@@ -131,7 +138,8 @@ const handleSubmit = async (e: Event) => {
     houseNumberAddition: houseNumberAddition.value || undefined,
     street: street.value,
     city: city.value,
-    password: password.value
+    password: password.value,
+    generalPractitionerId: selectedDoctor.value || ""
   })
 
   if (response.success && response.data) {
@@ -286,9 +294,11 @@ const props = defineProps<{
 
       <Field>
         <FieldLabel>Selecteer je huisarts</FieldLabel>
-        <Combobox v-model="selectedDoctor" :options="doctors" placeholder="Selecteer een huisarts..."
-          search-placeholder="Zoek een huisarts..." empty-message="Geen huisarts gevonden." />
-        <FieldDescription>
+        <Combobox v-model="selectedDoctor" :options="gpOptions" placeholder="Selecteer een huisarts..."
+          search-placeholder="Zoek een huisarts..." empty-message="Geen huisarts gevonden."
+          @update:model-value="clearFieldError('selectedDoctor')" :disabled="loading" />
+        <FieldError v-if="errors.selectedDoctor && errors.selectedDoctor[0]">{{ errors.selectedDoctor[0] }}</FieldError>
+        <FieldDescription v-else>
           Kies de huisarts waar u uw afspraken mee maakt.
         </FieldDescription>
       </Field>

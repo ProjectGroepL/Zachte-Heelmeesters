@@ -29,6 +29,9 @@ import { onMounted, ref } from 'vue'
 import NavPatient from '@/components/layout/dashboard/NavPatient.vue'
 import NavSpecialist from '@/components/layout/dashboard/NavSpecialist.vue'
 import NotificationBell from '@/components/NotificationBell.vue'
+import { computed } from 'vue'
+import { ClipboardList } from "lucide-vue-next"
+
 
 const props = withDefaults(defineProps<SidebarProps>(), {
   collapsible: "icon",
@@ -64,6 +67,32 @@ const hasRole = (roleName: string) => {
 
   return false
 }
+
+const adminItems = computed(() => {
+  const items = [
+    {
+      title: "Gebruikers",
+      url: "/admin/gebruikers",
+      icon: Users2,
+    },
+    {
+      title: "Activiteiten",
+      url: "/admin/activiteiten",
+      icon: Activity,
+    },
+  ]
+
+  // Only show Audit logs if user has role "Systeembeheerder"
+  if (hasRole("Systeembeheerder")) {
+    items.push({
+      title: "Audit logs",
+      url: "/audits",
+      icon: ClipboardList,
+    })
+  }
+
+  return items
+})
 
 // This is sample data.
 const data = {
@@ -125,10 +154,12 @@ const data = {
       <div v-if="!open" class="w-full px-2">
         <Separator />
       </div>
+
       <NavDoctor v-if="hasRole('Huisarts')" />
       <NavPatient v-if="hasRole('Patient')" />
-      <NavAdmin v-if="hasRole('Administratie')" :items="data.projects" />
+      <NavAdmin v-if="hasRole('Administratie')" :items="adminItems" />
       <NavSpecialist v-if="hasRole('Specialist')" />
+
     </SidebarContent>
 
     <SidebarFooter>

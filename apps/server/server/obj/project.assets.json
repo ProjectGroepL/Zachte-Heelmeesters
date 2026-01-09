@@ -12783,23 +12783,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\LuukO\\.nuget\\packages\\": {},
+    "C:\\Users\\Beheerder\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\LuukO\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\ZhmApi.csproj",
+      "projectUniqueName": "C:\\Applicaties\\Avans projecten\\Zachte-Heelmeesters\\apps\\server\\server\\ZhmApi.csproj",
       "projectName": "ZhmApi",
-      "projectPath": "C:\\Users\\LuukO\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\ZhmApi.csproj",
-      "packagesPath": "C:\\Users\\LuukO\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\LuukO\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\obj\\",
+      "projectPath": "C:\\Applicaties\\Avans projecten\\Zachte-Heelmeesters\\apps\\server\\server\\ZhmApi.csproj",
+      "packagesPath": "C:\\Users\\Beheerder\\.nuget\\packages\\",
+      "outputPath": "C:\\Applicaties\\Avans projecten\\Zachte-Heelmeesters\\apps\\server\\server\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\LuukO\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Beheerder\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],

@@ -4,23 +4,29 @@ import { useAuth } from '@/composables/useAuth'
 import { usePatientReferrals } from '@/composables/useReferral'
 import { useAppointment } from '@/composables/useAppointments'
 import type { AppointmentDto } from '@/types/appointment'
+import type {Referral} from '@/types/referral'
+import type { AxiosError } from 'axios'
+
 
 const { getStoredUser, hasRole } = useAuth()
 
-// 🔹 queries
-const {
-  data: referrals,
-  loading: referralsLoading,
-  error: referralsError
-} = usePatientReferrals()
+// 🔹 role
+const isPatient = computed(() => hasRole('Patient'))
 
-const {
-  fetchAppointments,
-  nextAppointment,
-  loading: appointmentsLoading,
-  error: appointmentsError,
-  appointments
-} = useAppointment()
+// Only initialize composables when patient
+const referralQuery = isPatient.value ? usePatientReferrals() : null
+const appointmentQuery = isPatient.value ? useAppointment() : null
+
+// 🔹 expose reactive data safely
+const referrals = computed(() => referralQuery?.data.value ?? [])
+const referralsLoading = computed(() => referralQuery?.loading.value ?? false)
+const referralsError = computed(() => referralQuery?.error.value ?? null)
+
+const appointments = computed(() => appointmentQuery?.appointments.value ?? [])
+const nextAppointment = computed(() => appointmentQuery?.nextAppointment.value ?? null)
+const appointmentsLoading = computed(() => appointmentQuery?.loading.value ?? false)
+const appointmentsError = computed(() => appointmentQuery?.error.value ?? null)
+
 
 // 🔹 local UI state
 const appointmentExpanded = ref(false)
@@ -60,6 +66,10 @@ const userName = computed(() => {
 
 // 🔹 role
 const isPatient = computed(() => hasRole('Patient'))
+const toggleReferral = (id: number) => {
+  expandedReferralId.value =
+    expandedReferralId.value === id ? null : id
+}
 
 // 🔹 veilige computed voor template
 const safeReferrals = computed(() => referrals.value ?? [])
@@ -71,36 +81,20 @@ const reloadPage = () => {
 </script>
 
 <template>
-  <div 
-    class="flex flex-col items-center space-y-4"
-    role="main"
-    aria-label="Dashboard overzicht"
-  >
+  <div class="flex flex-col items-center space-y-4" role="main" aria-label="Dashboard overzicht">
 
     <!-- ❌ Foutmelding -->
-    <div 
-      v-if="referralsError" 
-      class="p-4 bg-red-100 text-red-700 rounded-xl"
-      role="alert"
-      aria-live="assertive"
-    >
+    <div v-if="referralsError" class="p-4 bg-red-100 text-red-700 rounded-xl" role="alert" aria-live="assertive">
       {{ referralsError }}
 
-      <button 
-        class="mt-2 px-4 py-2 bg-red-600 text-white rounded"
-        @click="reloadPage()"
-        aria-label="Probeer dashboard opnieuw te laden"
-      >
+      <button class="mt-2 px-4 py-2 bg-red-600 text-white rounded" @click="reloadPage()"
+        aria-label="Probeer dashboard opnieuw te laden">
         Opnieuw proberen
       </button>
     </div>
 
     <!-- ⏳ Loading -->
-    <div 
-      v-else-if="referralsLoading"
-      role="status"
-      aria-live="polite"
-    >
+    <div v-else-if="referralsLoading" role="status" aria-live="polite">
       Dashboard wordt geladen...
     </div>
 
@@ -109,11 +103,7 @@ const reloadPage = () => {
 
       <!-- 🌟 WELKOMSBERICHT (GROOT EN VOLLEDIGE BREEDTE) -->
       <article aria-label="Welkomsbericht" class="w-full flex justify-center mt-6">
-        <div 
-          class="w-full max-w-4xl p-8 bg-white rounded-2xl shadow-lg"
-          role="region"
-          aria-labelledby="welcome-title"
-        >
+        <div class="w-full max-w-4xl p-8 bg-white rounded-2xl shadow-lg" role="region" aria-labelledby="welcome-title">
           <h2 id="welcome-title" class="text-3xl font-bold text-blue-600">
             Welkom terug,
           </h2>
@@ -246,7 +236,7 @@ const reloadPage = () => {
 
         <!-- 📄 DOORVERWIJZINGEN IN GRID -->
         <section class="w-full max-w-6xl px-4" aria-label="Doorverwijzingen-overzicht">
-          
+
           <h2 class="text-2xl font-bold text-blue-600 mb-4">
             Doorverwijzingen
           </h2>
@@ -265,8 +255,7 @@ const reloadPage = () => {
               @keydown.enter="toggleReferral(ref.id)"
               @keydown.space.prevent="toggleReferral(ref.id)"
               class="p-6 bg-white rounded-2xl shadow hover:shadow-xl transition cursor-pointer"
-              :class="expandedReferralId === ref.id ? 'ring-2 ring-blue-400' : ''"
-            >
+              :class="expandedReferralId === ref.id ? 'ring-2 ring-blue-400' : ''">
               <h3 class="text-xl font-semibold text-blue-600">
                 {{ ref.treatmentName }}
               </h3>
@@ -292,10 +281,8 @@ const reloadPage = () => {
             </div>
 
             <!-- Geen verwijzingen -->
-            <div 
-              v-if="safeReferrals.length === 0"
-              class="col-span-full p-8 text-center bg-gray-50 border border-gray-200 rounded-2xl text-gray-500"
-            >
+            <div v-if="safeReferrals.length === 0"
+              class="col-span-full p-8 text-center bg-gray-50 border border-gray-200 rounded-2xl text-gray-500">
               Geen doorverwijzingen.
             </div>
 
@@ -314,6 +301,3 @@ const reloadPage = () => {
     </div>
   </div>
 </template>
-
-
-

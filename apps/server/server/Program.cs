@@ -9,6 +9,7 @@ using Microsoft.OpenApi.Models;
 using ZhmApi.Data;
 using ZhmApi.Models;
 using ZhmApi.Services;
+using ZhmApi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -201,6 +202,9 @@ app.UseCors("AllowClient");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// use middleware for automatic logging of what needs to be logged
+app.UseMiddleware<AuditTrailMiddleware>();
 
 app.MapControllers();
 

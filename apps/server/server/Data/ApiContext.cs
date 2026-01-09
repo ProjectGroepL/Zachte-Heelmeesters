@@ -23,7 +23,9 @@ public class ApiContext : IdentityDbContext<User, Role, int>
   public DbSet<Notification> Notifications {get; set;}
   public DbSet<AppointmentReport> AppointmentReports {get; set;}
   public DbSet<AppointmentReportItem> ApontmentReportItems {get; set;}
+  public DbSet<AuditTrail> AuditTrails { get; set; }
  
+
   #region UpdatedAt timestamp handling
   public override int SaveChanges()
   {
@@ -86,8 +88,8 @@ public class ApiContext : IdentityDbContext<User, Role, int>
     modelBuilder.Entity<TwoFactorCode>()
         .HasIndex(tfc => tfc.ExpiresAt);
 
-        modelBuilder.Entity<DoctorPatients>()
-        .HasKey(dp => new { dp.DoctorId, dp.PatientId });
+    modelBuilder.Entity<DoctorPatients>()
+    .HasKey(dp => new { dp.DoctorId, dp.PatientId });
     //Many2Many relationdefinebyhand
     modelBuilder.Entity<DoctorPatients>()
         .HasOne(dp => dp.Doctor)
@@ -105,12 +107,12 @@ public class ApiContext : IdentityDbContext<User, Role, int>
     modelBuilder.Entity<DoctorPatients>()
         .HasIndex(dp => dp.PatientId)
         .IsUnique();
-      // made sure that cascade wasnt being set on two of the tables
-      modelBuilder.Entity<Referral>()
-        .HasOne(r => r.Patient)
-        .WithMany()
-        .HasForeignKey(r => r.PatientId)
-        .OnDelete(DeleteBehavior.NoAction);
+    // made sure that cascade wasnt being set on two of the tables
+    modelBuilder.Entity<Referral>()
+      .HasOne(r => r.Patient)
+      .WithMany()
+      .HasForeignKey(r => r.PatientId)
+      .OnDelete(DeleteBehavior.NoAction);
 
     modelBuilder.Entity<Referral>()
         .HasOne(r => r.Doctor)
@@ -177,6 +179,44 @@ public class ApiContext : IdentityDbContext<User, Role, int>
         // Forceer de tabelnaam zodat EF niet stiekem naar 'AccessRequests' (2 s-en) zoekt
         modelBuilder.Entity<AccessRequest>().ToTable("AccesssRequests");
       }
+    // enforce required fields, add sensible limits and prevent bad data
+    modelBuilder.Entity<AuditTrail>(entity =>
+ {
+    entity.HasKey(a => a.Id);
+
+    entity.Property(a => a.Method)
+          .IsRequired()
+          .HasMaxLength(10);   // GET, POST, PUT, DELETE
+
+    entity.Property(a => a.Path)
+          .IsRequired()
+          .HasMaxLength(500);  // /api/resource/123
+
+    entity.Property(a => a.IpAddress)
+          .IsRequired()
+          .HasMaxLength(45);   // IPv4 + IPv6
+
+    entity.Property(a => a.UserAgent)
+          .HasMaxLength(512);
+
+    entity.Property(a => a.StatusCode)
+          .IsRequired();
+
+    entity.Property(a => a.Timestamp)
+          .IsRequired();
+
+    entity.Property(a => a.Details)
+          .HasMaxLength(2000);
+
+    // Performance index for audit queries
+    entity.HasIndex(a => a.Timestamp)
+          .HasDatabaseName("IX_AuditTrails_Timestamp");
+ });
+
+
+    // Seed initial data
+    SeedData(modelBuilder);
+  }
 
     
   #region Seed Data

@@ -166,8 +166,7 @@ public class ApiContext : IdentityDbContext<User, Role, int>
         .HasForeignKey(md => md.TreatmentId)
         .IsRequired(false)
         .OnDelete(DeleteBehavior.NoAction);
-        // Seed initial data
-        SeedData(modelBuilder);
+
 
         // Zorgt dat EF de tabel met de extra 's' gebruikt voor de notificatie-link
         modelBuilder.Entity<Notification>()
@@ -178,7 +177,7 @@ public class ApiContext : IdentityDbContext<User, Role, int>
 
         // Forceer de tabelnaam zodat EF niet stiekem naar 'AccessRequests' (2 s-en) zoekt
         modelBuilder.Entity<AccessRequest>().ToTable("AccesssRequests");
-      }
+      
     // enforce required fields, add sensible limits and prevent bad data
     modelBuilder.Entity<AuditTrail>(entity =>
  {

@@ -251,6 +251,8 @@ namespace ZhmApi.Migrations
                     b.HasIndex("AppointmentReportId");
 
                     b.ToTable("ApontmentReportItems");
+                    });
+
 
               modelBuilder.Entity("ZhmApi.Models.AuditTrail", b =>
                 {

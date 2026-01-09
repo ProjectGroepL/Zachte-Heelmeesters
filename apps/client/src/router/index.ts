@@ -23,17 +23,17 @@ router.beforeEach(async (to, from, next) => { // <-- mark async here
 
   // --- Admin guard for /audits ---
   if (to.path === '/audits') {
-    const { isAuthenticated, getUser } = useAuth()
+    const { isAuthenticated, getStoredUser, hasRole } = useAuth()
 
     if (!isAuthenticated()) {
-      return next('/auth/login') // not logged in
+      return next('/auth/login')
     }
 
-    const res = await getUser() // ✅ now allowed
-    const user = res.success ? res.data : null
+    const user = getStoredUser()
 
-    if (!user || (user as any).roleId !== 5) {
-      return next('/') // redirect to home if not admin
+    // ✅ Role-name based check
+    if (!hasRole('Systeembeheerder')) {
+      return next('/')
     }
   }
 

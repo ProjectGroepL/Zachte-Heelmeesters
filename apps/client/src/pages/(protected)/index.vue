@@ -10,32 +10,22 @@ import type { AxiosError } from 'axios'
 
 const { getStoredUser, hasRole } = useAuth()
 
-// 🔹 queries
-const referrals = ref<Referral[] | null>(null)
-const referralsLoading = ref<boolean>(false)
-const referralsError = ref<AxiosError | null>(null)
+// 🔹 role
+const isPatient = computed(() => hasRole('Patient'))
 
-const appointments = ref<AppointmentDto[]>([])
-const nextAppointment = ref<AppointmentDto | null>(null)
-const appointmentsLoading = ref<boolean>(false)
-const appointmentsError = ref<AxiosError | null>(null)
+// Only initialize composables when patient
+const referralQuery = isPatient.value ? usePatientReferrals() : null
+const appointmentQuery = isPatient.value ? useAppointment() : null
 
+// 🔹 expose reactive data safely
+const referrals = computed(() => referralQuery?.data.value ?? [])
+const referralsLoading = computed(() => referralQuery?.loading.value ?? false)
+const referralsError = computed(() => referralQuery?.error.value ?? null)
 
-if (hasRole('Patient')) {
-  const referralQuery = usePatientReferrals()
-
-  referrals.value = referralQuery.data.value
-  referralsLoading.value = referralQuery.loading.value
-  referralsError.value = referralQuery.error.value
-
-  const appointmentQuery = useAppointment()
-
-  appointments.value = appointmentQuery.appointments.value
-  nextAppointment.value = appointmentQuery.nextAppointment.value
-  appointmentsLoading.value = appointmentQuery.loading.value
-  appointmentsError.value = appointmentQuery.error.value
-}
-
+const appointments = computed(() => appointmentQuery?.appointments.value ?? [])
+const nextAppointment = computed(() => appointmentQuery?.nextAppointment.value ?? null)
+const appointmentsLoading = computed(() => appointmentQuery?.loading.value ?? false)
+const appointmentsError = computed(() => appointmentQuery?.error.value ?? null)
 
 
 // 🔹 local UI state
@@ -52,9 +42,6 @@ const userName = computed(() => {
   }
   return user.firstName ?? 'Gebruiker'
 })
-
-// 🔹 role
-const isPatient = computed(() => hasRole('Patient'))
 
 const toggleReferral = (id: number) => {
   expandedReferralId.value =

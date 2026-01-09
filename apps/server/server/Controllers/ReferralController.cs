@@ -10,7 +10,7 @@ using System.Security.Claims;
 
 namespace ZhmApi.Controllers
 {
-    [Authorize(Roles = "Huisarts,Specialist,Patient")]
+    [Authorize(Roles = "Huisarts,Specialist,Patient,Systeembeheerder")]
     [ApiController]
     [Route("api/[controller]")]
     public class ReferralsController : ControllerBase

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using OpenQA.Selenium.BiDi.Script;
 using ZhmApi.Models;
 
 namespace ZhmApi.Data;
@@ -12,12 +13,18 @@ public class ApiContext : IdentityDbContext<User, Role, int>
 
   public DbSet<Token> Tokens { get; set; } = null!;
   public DbSet<TwoFactorCode> TwoFactorCodes { get; set; } = null!;
-  public DbSet<DoctorPatients> DoctorPatients { get; set; } = null!;
-  public DbSet<Treatment> Treatments { get; set; }
-  public DbSet<Referral> Referrals { get; set; }
-  public DbSet<Appointment> Appointments { get; set; }
+  public DbSet<DoctorPatients> DoctorPatients {get; set;}= null!;
+  public DbSet<Treatment> Treatments {get; set;}
+  public DbSet<Referral> Referrals {get; set;}
+  public DbSet<Appointment> Appointments {get; set;}
+  public DbSet<MedicalDocument> MedicalDocuments {get; set;}
+  //this is already made a table so i couldnt delete the extra s so i guess we have to do with what we got
+  public DbSet<AccessRequest> AccesssRequests {get; set;}
+  public DbSet<Notification> Notifications {get; set;}
+  public DbSet<AppointmentReport> AppointmentReports {get; set;}
+  public DbSet<AppointmentReportItem> ApontmentReportItems {get; set;}
   public DbSet<AuditTrail> AuditTrails { get; set; }
-
+ 
 
   #region UpdatedAt timestamp handling
   public override int SaveChanges()
@@ -119,9 +126,59 @@ public class ApiContext : IdentityDbContext<User, Role, int>
         .HasForeignKey(r => r.TreatmentId)
         .OnDelete(DeleteBehavior.NoAction);
 
-    modelBuilder.Entity<Referral>()
-    .ToTable(tb => tb.HasTrigger("TR_Referrals_Expire"));
+      modelBuilder.Entity<Referral>()
+      .ToTable(tb => tb.HasTrigger("TR_Referrals_Expire"));
+      //accesrequest specification on what to do when it gets deleted
+      modelBuilder.Entity<AccessRequest>()
+      .HasOne(ac => ac.Patient)
+      .WithMany()
+      .HasForeignKey(ac => ac.PatientId)
+      .OnDelete(DeleteBehavior.NoAction);
 
+      modelBuilder.Entity<AccessRequest>()
+      .HasOne(ac => ac.Specialist )
+      .WithMany()
+      .HasForeignKey(ac => ac.SpecialistId)
+      .OnDelete(DeleteBehavior.NoAction);  
+
+      modelBuilder.Entity<AccessRequest>()
+      .HasOne(a => a.Appointment)
+      .WithMany()
+      .HasForeignKey(a => a.AppointmentId)
+      .OnDelete(DeleteBehavior.Cascade);
+
+      modelBuilder.Entity<MedicalDocument>()
+        .HasOne(md => md.Patient)
+        .WithMany()
+        .HasForeignKey(md => md.PatientId)
+        .OnDelete(DeleteBehavior.NoAction);
+
+    modelBuilder.Entity<MedicalDocument>()
+    .HasOne(md => md.Appointment)
+    .WithMany()
+    .HasForeignKey(md => md.AppointmentId)
+    .IsRequired(false) // ⭐ THIS IS THE KEY LINE
+    .OnDelete(DeleteBehavior.NoAction);
+
+    modelBuilder.Entity<MedicalDocument>()
+        .HasOne(md => md.Treatment)
+        .WithMany()
+        .HasForeignKey(md => md.TreatmentId)
+        .IsRequired(false)
+        .OnDelete(DeleteBehavior.NoAction);
+        // Seed initial data
+        SeedData(modelBuilder);
+
+        // Zorgt dat EF de tabel met de extra 's' gebruikt voor de notificatie-link
+        modelBuilder.Entity<Notification>()
+            .HasOne(n => n.AccessRequest)
+            .WithMany()
+            .HasForeignKey(n => n.AccessRequestId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        // Forceer de tabelnaam zodat EF niet stiekem naar 'AccessRequests' (2 s-en) zoekt
+        modelBuilder.Entity<AccessRequest>().ToTable("AccesssRequests");
+      }
     // enforce required fields, add sensible limits and prevent bad data
     modelBuilder.Entity<AuditTrail>(entity =>
  {
@@ -161,6 +218,7 @@ public class ApiContext : IdentityDbContext<User, Role, int>
     SeedData(modelBuilder);
   }
 
+    
   #region Seed Data
 
   private void SeedData(ModelBuilder modelBuilder)

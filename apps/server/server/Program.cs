@@ -131,6 +131,7 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtAudience,
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
+        
     };
 });
 
@@ -156,6 +157,11 @@ builder.Services.Configure<EmailSettings>(options =>
 
 // register referralservice
 builder.Services.AddScoped<IReferralService, ReferralService>();
+builder.Services.AddScoped<MedicalDocumentService>(); // Die stond er waarschijnlijk al
+builder.Services.AddScoped<AccessRequestService>();
+
+builder.Services.AddScoped<AppointmentReportService>();
+builder.Services.AddScoped<NotificationService>();
 
 // Register email sender based on environment
 if (builder.Environment.IsDevelopment())

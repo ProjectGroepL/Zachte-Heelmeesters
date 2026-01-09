@@ -34,7 +34,7 @@ namespace ZhmApi.Services
                 PatientId = request.PatientId,
                 TreatmentId = request.TreatmentId,
                 Notes = request.Notes,
-                Status = string.IsNullOrWhiteSpace(request.Status) ? "open" : request.Status!
+                Status = ReferralStatus.Open
             };
 
             _db.Referrals.Add(referral);
@@ -53,13 +53,15 @@ namespace ZhmApi.Services
         {
             return await _db.Referrals
                 .Where(r => r.PatientId == patientId)
+                .Include(r => r.Patient)
+                .Include(r => r.Treatment)
                 .Select(r => new ReferralResponse
                 {
                     Id = r.Id,
                     PatientName = r.Patient.FirstName + " " + r.Patient.LastName,
                     TreatmentName = r.Treatment.Description,
                     CreatedAt = r.CreatedAt,
-                    Status = "open"
+                    Status = r.Status.ToString()
             })
             .ToListAsync();
         }
@@ -76,7 +78,7 @@ namespace ZhmApi.Services
                     PatientName = r.Patient.FirstName + " " + r.Patient.LastName,
                     TreatmentName = r.Treatment.Description,
                     CreatedAt = r.CreatedAt,
-                    Status = "open"
+                    Status = r.Status.ToString()
                 })
                 .ToListAsync();
         }

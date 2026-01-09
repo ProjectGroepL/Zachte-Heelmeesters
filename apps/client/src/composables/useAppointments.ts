@@ -37,17 +37,26 @@ export function useAppointment() {
    * Eerstvolgende afspraak (op datum gesorteerd)
    */
   const nextAppointment = computed<AppointmentDto | null>(() => {
-    if (!appointments.value.length) return null;
+      if (!appointments.value.length) return null;
 
-    return appointments.value
-      .slice()
-      .sort(
-        (a, b) =>
-          new Date(a.date).getTime() -
-          new Date(b.date).getTime()
-      )[0] ?? null;
-  });
+      const valid = appointments.value.filter(a =>
+        a.status !== 'Cancelled' &&
+        a.status !== 'AccessDenied'
+      );
 
+      if (!valid.length) return null;
+
+      const sorted = valid
+        .slice()
+        .sort(
+          (a, b) =>
+            new Date(a.date).getTime() -
+            new Date(b.date).getTime()
+        );
+
+      return sorted[0] || null;
+    });
+    
   return {
     appointments,
     nextAppointment,

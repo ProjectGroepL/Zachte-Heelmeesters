@@ -1,14 +1,10 @@
 import api from "@/lib/api";
 import { useMutation } from "@/composables/useApi";
+import type { AppointmentCreateDto } from '@/types/appointment'
 
-interface CreateAppointmentRequest {
-  referralId: number;
-  date: string; // YYYY-MM-DD
-  time: string; // HH:mm
-}
 
 export function useCreateAppointment() {
-  return useMutation<{ id: number }, CreateAppointmentRequest>(
+  return useMutation<{ id: number }, AppointmentCreateDto>(
     (data) => api.post("/appointments", data).then(res => res.data)
   );
 }

@@ -26,6 +26,9 @@ import NavAdmin from '@/components/layout/dashboard/NavAdmin.vue'
 import Separator from '@/components/ui/separator/Separator.vue'
 import { useAuth } from '@/composables/useAuth'
 import { onMounted, ref } from 'vue'
+import NavPatient from '@/components/layout/dashboard/NavPatient.vue'
+import NavSpecialist from '@/components/layout/dashboard/NavSpecialist.vue'
+import NotificationBell from '@/components/NotificationBell.vue'
 import { computed } from 'vue'
 import { ClipboardList } from "lucide-vue-next"
 
@@ -136,25 +139,35 @@ const data = {
     <SidebarHeader>
       <RouterLink to="/">
         <div :class="cn('flex items-center w-full', open && 'px-4 py-3 space-x-2 ')">
-          <div :class="cn('bg-primary text-primary-foreground! rounded-sm size-8 p-2', open && 'size-10')">
+          <div :class="cn('bg-primary text-primary-foreground rounded-sm size-8 p-2', open && 'size-10')">
             <Activity class="size-full" />
           </div>
-          <span v-if="open" class="text-lg text-primary font-bold leading-tight">Zachte
-            Heelmeesters</span>
+          <span v-if="open" class="text-lg text-primary font-bold leading-tight">
+            Zachte Heelmeesters
+          </span>
         </div>
       </RouterLink>
     </SidebarHeader>
+
     <SidebarContent>
       <NavMain :items="data.navMain" />
       <div v-if="!open" class="w-full px-2">
         <Separator />
       </div>
-      <!-- Doctor -->
+
       <NavDoctor v-if="hasRole('Huisarts')" />
-      <NavAdmin :items="adminItems" />
+      <NavPatient v-if="hasRole('Patient')" />
+      <NavAdmin v-if="hasRole('Administratie')" :items="adminItems" />
+      <NavSpecialist v-if="hasRole('Specialist')" />
+
     </SidebarContent>
+
     <SidebarFooter>
-      <NavUser :user="data.user" />
+      <div :class="cn('flex items-center gap-2 p-2', !open ? 'flex-col' : 'flex-row justify-between')">
+        <NotificationBell />
+        <NavUser v-if="user" :user="user" />
+        <NavUser v-else :user="data.user" />
+      </div>
     </SidebarFooter>
     <SidebarRail />
   </Sidebar>

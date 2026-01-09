@@ -64,7 +64,7 @@ namespace ZhmApi.Tests
             {
                 Id = 1,
                 PatientId = testUser.Id,
-                Status = "open",
+                Status = ReferralStatus.Open,
                 CreatedAt = DateTime.UtcNow,
                 Treatment = new Treatment
                 {

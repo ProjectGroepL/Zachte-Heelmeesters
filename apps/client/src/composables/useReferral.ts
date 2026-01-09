@@ -39,3 +39,6 @@ export function useCreateReferral() {
     (data) => api.post('/referrals', data).then(res => res.data)
   )
 }
+
+export const useTreatments = () =>
+  useQuery<{ id: number; name: string }[]>('/referrals/treatments')

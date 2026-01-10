@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ZhmApi.Controllers
 {
-    [Authorize(Roles = "Patient")]
+    [Authorize(Roles = "Patient,Specialist")]
     [Route("api/[controller]")]
     [ApiController]
     public class AppointmentsController : ControllerBase
@@ -74,6 +74,7 @@ namespace ZhmApi.Controllers
 
             var appointments = appointmentsRaw.Select(a => new AppointmentDto
             {
+                Id = a.Id,
                 ReferralId = a.ReferralId,
                 Notes = a.Referral.Notes,
                 Status = a.Status,

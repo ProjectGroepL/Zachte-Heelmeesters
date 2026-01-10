@@ -32,12 +32,12 @@ declare module 'vue-router/auto-routes' {
       | '/(protected)/[...path]'
       | '/(protected)/afspraken/'
       | '/(protected)/afspraken/create'
+      | '/(protected)/audits/'
       | '/(protected)/huisarts/CreateMedicalDocument'
       | '/(protected)/huisarts/MyMedicalDocuments'
       | '/(protected)/patient/'
       | '/(protected)/patient/PatientReportSelectPage'
       | '/(protected)/patient/requests'
-      | '/(protected)/audits/'
       | '/(protected)/referrals/'
       | '/(protected)/referrals/new'
       | '/(protected)/specialist/'
@@ -73,6 +73,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/(protected)/audits/': RouteRecordInfo<
+      '/(protected)/audits/',
+      '/audits',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/(protected)/huisarts/CreateMedicalDocument': RouteRecordInfo<
       '/(protected)/huisarts/CreateMedicalDocument',
       '/huisarts/CreateMedicalDocument',
@@ -104,9 +111,6 @@ declare module 'vue-router/auto-routes' {
     '/(protected)/patient/requests': RouteRecordInfo<
       '/(protected)/patient/requests',
       '/patient/requests',
-    '/(protected)/audits/': RouteRecordInfo<
-      '/(protected)/audits/',
-      '/audits',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -203,12 +207,12 @@ declare module 'vue-router/auto-routes' {
         | '/(protected)/[...path]'
         | '/(protected)/afspraken/'
         | '/(protected)/afspraken/create'
+        | '/(protected)/audits/'
         | '/(protected)/huisarts/CreateMedicalDocument'
         | '/(protected)/huisarts/MyMedicalDocuments'
         | '/(protected)/patient/'
         | '/(protected)/patient/PatientReportSelectPage'
         | '/(protected)/patient/requests'
-        | '/(protected)/audits/'
         | '/(protected)/referrals/'
         | '/(protected)/referrals/new'
         | '/(protected)/specialist/'
@@ -242,6 +246,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/(protected)/audits/index.vue': {
+      routes:
+        | '/(protected)/audits/'
+      views:
+        | never
+    }
     'src/pages/(protected)/huisarts/CreateMedicalDocument.vue': {
       routes:
         | '/(protected)/huisarts/CreateMedicalDocument'
@@ -269,9 +279,6 @@ declare module 'vue-router/auto-routes' {
     'src/pages/(protected)/patient/requests.vue': {
       routes:
         | '/(protected)/patient/requests'
-    'src/pages/(protected)/audits/index.vue': {
-      routes:
-        | '/(protected)/audits/'
       views:
         | never
     }

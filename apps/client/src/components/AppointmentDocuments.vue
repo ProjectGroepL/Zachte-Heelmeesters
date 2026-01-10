@@ -7,6 +7,8 @@ const props = defineProps<{
 
 const { data, loading } =
   useAppointmentMedicalDocuments(props.appointmentId)
+
+  
 </script>
 
 <template>

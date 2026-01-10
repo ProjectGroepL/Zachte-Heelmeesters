@@ -34,10 +34,6 @@ defineProps<{
   }[]
 }>()
 
-const item = [
-  { title: "Audits", url: "/audits", icon: Stethoscope },
-  ,
-]
 const { currentRoute } = useRouter()
 
 const isActive = (url: string) => currentRoute.value.path === url

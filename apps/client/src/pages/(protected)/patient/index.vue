@@ -7,9 +7,14 @@ import {
   usePatientAccessRequests, 
   useDecideAccessRequest 
 } from '@/composables/useAccessRequests'
+import { computed } from 'vue'
 
 const { data, loading, execute } = useMyMedicalDocuments()
 const updateStatus = useUpdateMedicalDocumentStatus()
+
+const visibleDocuments = computed(() =>
+  (data.value ?? []).filter(doc => doc.status !== 'Draft')
+)
 
 const changeStatus = async (id: number, status: 'Final' | 'Archived') => {
   await updateStatus.mutate({ id, status })
@@ -44,7 +49,7 @@ const changeStatus = async (id: number, status: 'Final' | 'Archived') => {
       class="space-y-4"
     >
       <article
-        v-for="doc in data"
+        v-for="doc in visibleDocuments"
         :key="doc.id"
         class="border rounded-xl p-4"
         role="region"

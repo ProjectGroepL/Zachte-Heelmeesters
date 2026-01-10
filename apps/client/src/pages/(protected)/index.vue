@@ -64,13 +64,6 @@ const userName = computed(() => {
   return user.firstName ?? 'Gebruiker'
 })
 
-// 🔹 role
-const isPatient = computed(() => hasRole('Patient'))
-const toggleReferral = (id: number) => {
-  expandedReferralId.value =
-    expandedReferralId.value === id ? null : id
-}
-
 // 🔹 veilige computed voor template
 const safeReferrals = computed(() => referrals.value ?? [])
 

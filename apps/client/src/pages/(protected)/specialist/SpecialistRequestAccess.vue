@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useSpecialistAppointments } from '@/composables/useSpecialistAppointments'
 import { useRequestAccess } from '@/composables/useSpecialistAccessRequests'
 
-const { data: appointments, loading, error } = useSpecialistAppointments()
+const { data, loading, error } = useSpecialistAppointments()
+
+const appointments = computed(() => data.value ?? [])
 
 const selectedAppointmentId = ref<number | null>(null)
 const reason = ref('')

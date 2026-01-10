@@ -157,7 +157,10 @@ const data = {
 
       <NavDoctor v-if="hasRole('Huisarts')" />
       <NavPatient v-if="hasRole('Patient')" />
-      <NavAdmin v-if="hasRole('Administratie')" :items="adminItems" />
+      <NavAdmin
+        v-if="hasRole('Administratie') || hasRole('Admin') || hasRole('Systeembeheerder')"
+        :items="adminItems"
+      />
       <NavSpecialist v-if="hasRole('Specialist')" />
 
     </SidebarContent>

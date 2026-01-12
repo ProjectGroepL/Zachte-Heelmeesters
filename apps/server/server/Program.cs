@@ -131,7 +131,7 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtAudience,
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
-        
+
     };
 });
 
@@ -187,13 +187,19 @@ if (app.Environment.IsDevelopment())
         c.RouteTemplate = "swagger/{documentName}/swagger.json";
     });
     app.UseSwaggerUI();
+}
+else
+{
+    app.UseSwagger(c =>
+    {
+        c.RouteTemplate = "/api/swagger/{documentName}/swagger.json";
+    });
 
-    //TODO: auto detect if using proxy, if so use this configuration instead
-    // app.UseSwaggerUI(c =>
-    // {
-    //     c.SwaggerEndpoint("/api/swagger/v1/swagger.json", "API V1");
-    //     c.RoutePrefix = "swagger";
-    // });
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/api/swagger/v1/swagger.json", "API V1");
+        c.RoutePrefix = "api/swagger";
+    });
 }
 
 app.UseHttpsRedirection();

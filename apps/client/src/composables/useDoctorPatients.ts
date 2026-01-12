@@ -18,3 +18,5 @@ export function useDoctorPatients() {
         .filter(p => p.patientId != null)
   })
 }
+
+

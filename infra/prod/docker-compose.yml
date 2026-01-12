@@ -14,6 +14,8 @@ services:
       retries: 10
     volumes:
       - mssql-data:/var/opt/mssql
+    networks:
+      - my-project-network
 
   server:
     build:

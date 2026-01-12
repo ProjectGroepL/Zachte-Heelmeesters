@@ -1,0 +1,20 @@
+import { useMutation, useQuery } from '@/composables/useApi'
+import api from '@/lib/api'
+import type { AccessRequest } from "@/types/AccessRequest"
+
+export interface CreateAccessRequestRequest {
+  appointmentId: number
+  reason: string
+}
+
+export function useRequestAccess() {
+  return useMutation<void, CreateAccessRequestRequest>((data) =>
+    api.post('/specialist/access-requests', data).then(res => res.data)
+  )
+}
+
+export function useSpecialistAccessRequests() {
+  return useQuery<AccessRequest[]>(
+    '/specialist/access-requests/my'
+  )
+}

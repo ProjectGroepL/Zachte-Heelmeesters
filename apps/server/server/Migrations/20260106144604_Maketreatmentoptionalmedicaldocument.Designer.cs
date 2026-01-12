@@ -12,8 +12,8 @@ using ZhmApi.Data;
 namespace ZhmApi.Migrations
 {
     [DbContext(typeof(ApiContext))]
-    [Migration("20251208093738_AddReferralTrigger")]
-    partial class AddReferralTrigger
+    [Migration("20260106144604_Maketreatmentoptionalmedicaldocument")]
+    partial class Maketreatmentoptionalmedicaldocument
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -128,6 +128,52 @@ namespace ZhmApi.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ZhmApi.Models.AccessRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AppointmentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("DecidedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PatientId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("RequestedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("SpecialistId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TreatmentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppointmentId");
+
+                    b.HasIndex("PatientId");
+
+                    b.HasIndex("SpecialistId");
+
+                    b.HasIndex("TreatmentId");
+
+                    b.ToTable("AccesssRequests");
+                });
+
             modelBuilder.Entity("ZhmApi.Models.Appointment", b =>
                 {
                     b.Property<int>("Id")
@@ -142,9 +188,17 @@ namespace ZhmApi.Migrations
                     b.Property<int>("ReferralId")
                         .HasColumnType("int");
 
+                    b.Property<int>("SpecialistId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ReferralId");
+
+                    b.HasIndex("SpecialistId");
 
                     b.ToTable("Appointments");
                 });
@@ -162,6 +216,83 @@ namespace ZhmApi.Migrations
                     b.HasIndex("PatientId");
 
                     b.ToTable("DoctorPatients");
+                });
+
+            modelBuilder.Entity("ZhmApi.Models.MedicalDocument", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AppointmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PatientId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("TreatmentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("createdAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppointmentId");
+
+                    b.HasIndex("PatientId");
+
+                    b.HasIndex("TreatmentId");
+
+                    b.ToTable("MedicalDocuments");
+                });
+
+            modelBuilder.Entity("ZhmApi.Models.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AccessRequestId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccessRequestId");
+
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("ZhmApi.Models.Referral", b =>
@@ -202,7 +333,12 @@ namespace ZhmApi.Migrations
 
                     b.HasIndex("TreatmentId");
 
-                    b.ToTable("Referrals");
+                    b.ToTable("Referrals", t =>
+                        {
+                            t.HasTrigger("TR_Referrals_Expire");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("ZhmApi.Models.Role", b =>
@@ -242,7 +378,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "bf85a925-4682-4c55-8773-a952e2837a08",
+                            ConcurrencyStamp = "12116d40-b568-4c8a-aac4-a8ee447ad1d0",
                             Description = "Patiënt die gebruik maakt van het systeem voor medische zorg en behandelingen",
                             Name = "Patient",
                             NormalizedName = "PATIENT"
@@ -250,7 +386,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "f433a10e-de23-4052-8c92-2bf224a846c6",
+                            ConcurrencyStamp = "7beca601-cccd-440e-9a95-4f8588fe9752",
                             Description = "Medisch specialist die gespecialiseerde zorg verleent in een specifiek vakgebied",
                             Name = "Specialist",
                             NormalizedName = "SPECIALIST"
@@ -258,7 +394,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "92dd4992-0170-4200-8fb8-4178e5c6f01a",
+                            ConcurrencyStamp = "a843c114-a8ef-4d16-b10f-f8e218c102e0",
                             Description = "Huisarts die eerste lijn zorg verleent en patiënten doorverwijst naar specialisten",
                             Name = "Huisarts",
                             NormalizedName = "HUISARTS"
@@ -266,7 +402,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 4,
-                            ConcurrencyStamp = "d52a7110-ce74-4e0f-a70a-4d81d645d705",
+                            ConcurrencyStamp = "037d7f16-d4c3-4d5d-a164-c15aaa1320fc",
                             Description = "Medewerker van zorgverzekeraar die verantwoordelijk is voor vergoedingen en polisbeheer",
                             Name = "Zorgverzekeraar",
                             NormalizedName = "ZORGVERZEKERAAR"
@@ -274,7 +410,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 5,
-                            ConcurrencyStamp = "b8940ba8-853e-43e6-aa8c-18b66c60f7c9",
+                            ConcurrencyStamp = "df22427f-4b54-4aed-9fa6-7ecc4cd811c0",
                             Description = "Systeembeheerder met volledige toegang tot alle functionaliteiten en gebruikersbeheer",
                             Name = "Systeembeheerder",
                             NormalizedName = "SYSTEEMBEHEERDER"
@@ -282,7 +418,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 6,
-                            ConcurrencyStamp = "8a39ee30-7aaa-4b9c-9878-dc8802087273",
+                            ConcurrencyStamp = "ddc3279a-d461-4f95-929e-0e85b0510ec7",
                             Description = "Administratief medewerker in ziekenhuis die ondersteuning biedt bij balieservice en patiëntenzorg",
                             Name = "Administratie",
                             NormalizedName = "ADMINISTRATIE"
@@ -341,6 +477,10 @@ namespace ZhmApi.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Instructions")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -540,6 +680,41 @@ namespace ZhmApi.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ZhmApi.Models.AccessRequest", b =>
+                {
+                    b.HasOne("ZhmApi.Models.Appointment", "Appointment")
+                        .WithMany()
+                        .HasForeignKey("AppointmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ZhmApi.Models.User", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("ZhmApi.Models.User", "Specialist")
+                        .WithMany()
+                        .HasForeignKey("SpecialistId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("ZhmApi.Models.Treatment", "Treatment")
+                        .WithMany()
+                        .HasForeignKey("TreatmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Appointment");
+
+                    b.Navigation("Patient");
+
+                    b.Navigation("Specialist");
+
+                    b.Navigation("Treatment");
+                });
+
             modelBuilder.Entity("ZhmApi.Models.Appointment", b =>
                 {
                     b.HasOne("ZhmApi.Models.Referral", "Referral")
@@ -548,7 +723,15 @@ namespace ZhmApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ZhmApi.Models.User", "Specialist")
+                        .WithMany()
+                        .HasForeignKey("SpecialistId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Referral");
+
+                    b.Navigation("Specialist");
                 });
 
             modelBuilder.Entity("ZhmApi.Models.DoctorPatients", b =>
@@ -568,6 +751,40 @@ namespace ZhmApi.Migrations
                     b.Navigation("Doctor");
 
                     b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("ZhmApi.Models.MedicalDocument", b =>
+                {
+                    b.HasOne("ZhmApi.Models.Appointment", "Appointment")
+                        .WithMany()
+                        .HasForeignKey("AppointmentId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("ZhmApi.Models.User", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("ZhmApi.Models.Treatment", "Treatment")
+                        .WithMany()
+                        .HasForeignKey("TreatmentId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("Appointment");
+
+                    b.Navigation("Patient");
+
+                    b.Navigation("Treatment");
+                });
+
+            modelBuilder.Entity("ZhmApi.Models.Notification", b =>
+                {
+                    b.HasOne("ZhmApi.Models.AccessRequest", "AccessRequest")
+                        .WithMany()
+                        .HasForeignKey("AccessRequestId");
+
+                    b.Navigation("AccessRequest");
                 });
 
             modelBuilder.Entity("ZhmApi.Models.Referral", b =>

@@ -1,0 +1,50 @@
+<script setup lang="ts">
+import { FilePlus, ClipboardList } from 'lucide-vue-next'
+
+
+</script>
+
+<template>
+  <nav aria-label="Specialist navigatie" class="px-2">
+    <ul class="space-y-1">
+      <li>
+          <RouterLink
+            to="/specialist"
+            class="flex items-center gap-2 px-3 py-2 rounded hover:bg-muted"
+
+          >
+            <FilePlus class="size-5" />
+            <span>index</span>
+          </RouterLink>
+        </li>
+      <li>
+        <RouterLink
+          to="/specialist/SpecialistRequestAccess"
+          class="flex items-center gap-2 px-3 py-2 rounded hover:bg-muted"
+        >
+          <FilePlus class="size-4" />
+          <span>Toegang aanvragen</span>
+        </RouterLink>
+      </li>
+
+      <li>
+        <RouterLink
+          to="/specialist/SpecialistAccessRequests"
+          class="flex items-center gap-2 px-3 py-2 rounded hover:bg-muted"
+        >
+          <ClipboardList class="size-4" />
+          <span>Mijn aanvragen</span>
+        </RouterLink> 
+      </li>
+      <li>
+        <RouterLink
+          to="/specialist/CreateReportView"
+          class="flex items-center gap-2 px-3 py-2 rounded hover:bg-muted"
+        >
+          <ClipboardList class="size-4" />
+          <span>AppointmentReportForm</span>
+        </RouterLink> 
+      </li>
+    </ul>
+  </nav>
+</template>

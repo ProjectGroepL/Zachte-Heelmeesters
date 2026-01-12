@@ -9,6 +9,7 @@ using Microsoft.OpenApi.Models;
 using ZhmApi.Data;
 using ZhmApi.Models;
 using ZhmApi.Services;
+using ZhmApi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -130,6 +131,7 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtAudience,
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
+
     };
 });
 
@@ -155,6 +157,11 @@ builder.Services.Configure<EmailSettings>(options =>
 
 // register referralservice
 builder.Services.AddScoped<IReferralService, ReferralService>();
+builder.Services.AddScoped<MedicalDocumentService>(); // Die stond er waarschijnlijk al
+builder.Services.AddScoped<AccessRequestService>();
+
+builder.Services.AddScoped<AppointmentReportService>();
+builder.Services.AddScoped<NotificationService>();
 
 // Register email sender based on environment
 if (builder.Environment.IsDevelopment())
@@ -180,13 +187,19 @@ if (app.Environment.IsDevelopment())
         c.RouteTemplate = "swagger/{documentName}/swagger.json";
     });
     app.UseSwaggerUI();
+}
+else
+{
+    app.UseSwagger(c =>
+    {
+        c.RouteTemplate = "/api/swagger/{documentName}/swagger.json";
+    });
 
-    //TODO: auto detect if using proxy, if so use this configuration instead
-    // app.UseSwaggerUI(c =>
-    // {
-    //     c.SwaggerEndpoint("/api/swagger/v1/swagger.json", "API V1");
-    //     c.RoutePrefix = "swagger";
-    // });
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/api/swagger/v1/swagger.json", "API V1");
+        c.RoutePrefix = "api/swagger";
+    });
 }
 
 app.UseHttpsRedirection();
@@ -195,6 +208,9 @@ app.UseCors("AllowClient");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// use middleware for automatic logging of what needs to be logged
+app.UseMiddleware<AuditTrailMiddleware>();
 
 app.MapControllers();
 

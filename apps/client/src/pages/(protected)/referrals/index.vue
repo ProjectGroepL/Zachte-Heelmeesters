@@ -22,12 +22,16 @@ const {
       Geen doorverwijzingen gevonden.
     </div>
 
-    <table v-else class="w-full border">
+    
+      <table  v-else class="w-full border">
+      <caption class="sr-only">
+        Overzicht van doorverwijzingen
+      </caption>
       <thead>
-        <tr class="bg-gray-100">
-          <th class="p-2">Patiënt</th>
-          <th class="p-2">Behandeling</th>
-          <th class="p-2">Aangemaakt op</th>
+        <tr>
+          <th scope="col">Patiënt</th>
+          <th scope="col">Behandeling</th>
+          <th scope="col">Aangemaakt op</th>
         </tr>
       </thead>
 

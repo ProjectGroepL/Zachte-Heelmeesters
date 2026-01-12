@@ -10,7 +10,7 @@ using System.Security.Claims;
 
 namespace ZhmApi.Controllers
 {
-    [Authorize(Roles = "Huisarts,Specialist,Patient")]
+    [Authorize(Roles = "Huisarts,Specialist,Patient,Systeembeheerder")]
     [ApiController]
     [Route("api/[controller]")]
     public class ReferralsController : ControllerBase
@@ -52,6 +52,13 @@ namespace ZhmApi.Controllers
         {
             var referral = await _referralService.GetReferralAsync(id);
             return referral == null? NotFound() : Ok(referral);
+        }
+        [HttpGet("treatments")]
+        public async Task<IActionResult> GetTreatments()
+        {
+            return Ok(await _db.Treatments
+                .Select(t => new { t.Id, t.Name })
+                .ToListAsync());
         }
 
         // GET /api/referrals -> returns referrals for current authenticated doctor
@@ -108,7 +115,7 @@ namespace ZhmApi.Controllers
             // Selecteer de referrals van deze gebruiker
             var referrals = await _db.Referrals
                 .Include(r => r.Treatment)
-                .Where(r => r.PatientId == userId && r.Status == "open" && r.ValidUntil >= DateTime.UtcNow)
+                .Where(r => r.PatientId == userId && r.Status == ReferralStatus.Open && r.ValidUntil >= DateTime.UtcNow)
                 .Select(r => new ReferralDto
                 {
                     Id = r.Id,

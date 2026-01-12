@@ -1,3 +1,5 @@
+using ZhmApi.Models;
+
 namespace ZhmApi.Dtos
 {
     public class ReferralDto
@@ -5,7 +7,7 @@ namespace ZhmApi.Dtos
         public int Id { get; set; }
         public string TreatmentDescription { get; set; } = null!;
         public string? Instructions { get; set; }
-        public string Status { get; set; } = null!;
+        public ReferralStatus Status { get; set; }
         public string? Notes { get; set; }
 
         public DateTime CreatedAt {get; set;}

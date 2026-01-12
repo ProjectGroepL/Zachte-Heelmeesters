@@ -1,0 +1,81 @@
+services:
+  mssql:
+    container_name: zhm-mssql
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "${DB_PORT}:1433"
+    environment:
+      SA_PASSWORD: "${DB_SA_PASSWORD}"
+      ACCEPT_EULA: "Y"
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "echo > /dev/tcp/localhost/1433" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - mssql-data:/var/opt/mssql
+    networks:
+      - my-project-network
+
+  server:
+    build:
+      context: ../../apps/server
+      dockerfile: Dockerfile
+    depends_on:
+      mssql:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Data Source=zhm-mssql,1433;Persist Security Info=False;User ID=sa;Password=${DB_SA_PASSWORD};Pooling=False;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Initial Catalog=ZhmAcceptenceDatabase
+      - JWT_KEY=${JWT_KEY}
+      - JWT_ISSUER=${JWT_ISSUER}
+      - JWT_AUDIENCE=${JWT_AUDIENCE}
+      - REFRESH_TOKEN_EXPIRATION_DAYS=${REFRESH_TOKEN_EXPIRATION_DAYS}
+      - TWO_FACTOR_SECRET=${TWO_FACTOR_SECRET}
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_PORT=${EMAIL_PORT}
+      - EMAIL_USERNAME=${EMAIL_USERNAME}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - EMAIL_SENDER_NAME=${EMAIL_SENDER_NAME}
+      - EMAIL_SENDER_EMAIL=${EMAIL_SENDER_EMAIL}
+      - CORS_ORIGINS=${CORS_ORIGINS}
+    restart: unless-stopped
+    networks:
+      - my-project-network
+  client:
+    build:
+      context: ../../apps/client
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=${VITE_API_URL}
+    networks:
+      - my-project-network
+    depends_on:
+      - server
+    restart: unless-stopped
+  proxy:
+    image: nginx:stable-alpine
+    container_name: ${Team_name}
+    environment:
+      - VIRTUAL_HOST=acc.${Team_name}.atd.avans.nl
+      - VIRTUAL_PORT=80
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      server:
+        condition: service_started
+      client:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - my-project-network
+      - proxy
+volumes:
+  mssql-data:
+    driver: local
+networks:
+  my-project-network:
+    name: ${Team_name}-network
+    external: true
+  proxy:
+    external: true

@@ -84,7 +84,11 @@ const registerSchema = z.object({
   houseNumberAddition: z.string().optional(),
   street: z.string().min(1, "Straatnaam is verplicht"),
   city: z.string().min(1, "Plaats is verplicht"),
-  password: z.string().min(6, "Wachtwoord moet minimaal 6 karakters lang zijn"),
+  password: z.string()
+    .min(6, "Wachtwoord moet minimaal 6 karakters lang zijn")
+    .regex(/[0-9]/, "Wachtwoord moet minimaal één cijfer bevatten")
+    .regex(/[a-z]/, "Wachtwoord moet minimaal één kleine letter bevatten")
+    .regex(/[A-Z]/, "Wachtwoord moet minimaal één hoofdletter bevatten"),
   confirmPassword: z.string().min(1, "Bevestig je wachtwoord"),
   selectedDoctor: z.string().min(1, "Huisarts is verplicht")
 }).refine((data) => data.password === data.confirmPassword, {
@@ -313,8 +317,14 @@ const props = defineProps<{
         </FieldLabel>
         <Input id="password" type="password" required v-model="password" @input="clearFieldError('password')" />
         <FieldError v-if="errors.password && errors.password[0]">{{ errors.password[0] }}</FieldError>
-        <FieldDescription v-else>
-          Moet minimaal 6 karakters lang zijn.
+        <FieldDescription v-else class="space-y-1">
+          <span class="block">Wachtwoord moet bevatten:</span>
+          <ul class="list-disc list-inside space-y-0.5 ml-2">
+            <li>Minimaal 6 karakters</li>
+            <li>Minimaal één hoofdletter</li>
+            <li>Minimaal één kleine letter</li>
+            <li>Minimaal één cijfer</li>
+          </ul>
         </FieldDescription>
       </Field>
       <Field>

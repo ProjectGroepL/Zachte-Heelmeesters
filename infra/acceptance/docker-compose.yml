@@ -1,9 +1,9 @@
 services:
   mssql:
-    container_name: zhm-mssql
+    container_name: zhm-acc-mssql
     image: mcr.microsoft.com/mssql/server:2022-latest
     ports:
-      - "${DB_PORT}:1433"
+      - "${DB_ACC_PORT}:1433"
     environment:
       SA_PASSWORD: "${DB_SA_PASSWORD}"
       ACCEPT_EULA: "Y"
@@ -13,7 +13,7 @@ services:
       timeout: 5s
       retries: 10
     volumes:
-      - mssql-data:/var/opt/mssql
+      - mssql-acc-data:/var/opt/mssql
     networks:
       - my-project-network
 
@@ -26,7 +26,7 @@ services:
         condition: service_healthy
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__DefaultConnection=Data Source=zhm-mssql,1433;Persist Security Info=False;User ID=sa;Password=${DB_SA_PASSWORD};Pooling=False;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Initial Catalog=ZhmAcceptenceDatabase
+      - ConnectionStrings__DefaultConnection=Data Source=zhm-acc-mssql,1433;Persist Security Info=False;User ID=sa;Password=${DB_SA_PASSWORD};Pooling=False;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Initial Catalog=ZhmAcceptenceDatabase
       - JWT_KEY=${JWT_KEY}
       - JWT_ISSUER=${JWT_ISSUER}
       - JWT_AUDIENCE=${JWT_AUDIENCE}
@@ -55,7 +55,7 @@ services:
     restart: unless-stopped
   proxy:
     image: nginx:stable-alpine
-    container_name: ${Team_name}
+    container_name: acc-${Team_name}
     environment:
       - VIRTUAL_HOST=acc.${Team_name}.atd.avans.nl
       - VIRTUAL_PORT=80
@@ -71,11 +71,11 @@ services:
       - my-project-network
       - proxy
 volumes:
-  mssql-data:
+  mssql-acc-data:
     driver: local
 networks:
   my-project-network:
-    name: ${Team_name}-network
+    name: acc-${Team_name}-network
     external: true
   proxy:
     external: true

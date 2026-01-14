@@ -103,21 +103,45 @@ namespace ZhmApi.Controllers
             .Include(a => a.Referral)
             .Include(a => a.Specialist)
             // We filteren op de PatientId in de Referral
-            .Where(a => a.Referral.PatientId == userId && 
+            .Where(a => a.Referral.PatientId == userId &&
                         a.Status == AppointmentStatus.Completed &&
-                        _context.AppointmentReports.Any(r => r.AppointmentId == a.Id)) 
-            .Select(a => new {
+                        _context.AppointmentReports.Any(r => r.AppointmentId == a.Id))
+            .Select(a => new
+            {
                 Id = a.Id,
                 Date = a.Date,
                 SpecialistName = a.Specialist != null ? $"Dr. {a.Specialist.LastName}" : "Onbekende specialist",
                 // Stuur de enum als string "Completed" zodat je frontend filter werkt
-                Status = a.Status.ToString() 
+                Status = a.Status.ToString()
             })
             .ToListAsync();
 
             // Stuur het nested object zoals jij het wilde
             return Ok(new { appointments });
         }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<AppointmentDto>> GetAppointment(int id)
+        {
+            var appointment = await _context.Appointments
+                .Where(a => a.Id == id)
+                .Select(a => new AppointmentDto
+                {
+                    Id = a.Id,
+                    ReferralId = a.ReferralId,
+                    Notes = a.Notes,
+                    Status = a.Status,
+                    TreatmentDescription = a.TreatmentDescription,
+                    TreatmentInstructions = a.TreatmentInstructions,
+                    PatientName = a.Patient.FirstName + " " + a.Patient.LastName,
+                    Date = a.Date
+                })
+                .FirstOrDefaultAsync();
+
+            if (appointment == null) return NotFound();
+            return Ok(appointment);
+        }
+
 
     }
 }

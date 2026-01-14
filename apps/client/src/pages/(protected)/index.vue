@@ -4,7 +4,7 @@ import { useAuth } from '@/composables/useAuth'
 import { usePatientReferrals } from '@/composables/useReferral'
 import { useAppointment } from '@/composables/useAppointments'
 import type { AppointmentDto } from '@/types/appointment'
-import type {Referral} from '@/types/referral'
+import type { Referral } from '@/types/referral'
 import type { AxiosError } from 'axios'
 
 
@@ -42,7 +42,7 @@ const toggleAppointmentByKey = (key: string) => {
 }
 
 
-  const toggleAppointment = () => {
+const toggleAppointment = () => {
   appointmentExpanded.value = !appointmentExpanded.value
 }
 const toggleAppointmentById = (id: number) => {
@@ -120,17 +120,10 @@ const reloadPage = () => {
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
             <!-- Één afspraak-kaart -->
-            <div
-              class="p-6 bg-white rounded-2xl shadow hover:shadow-xl transition cursor-pointer"
-              role="button"
-              tabindex="0"
-              aria-controls="next-appointment-details"
-              :aria-expanded="appointmentExpanded"
-              @click="toggleAppointment"
-              @keydown.enter="toggleAppointment"
-              @keydown.space.prevent="toggleAppointment"
-              :class="appointmentExpanded ? 'ring-2 ring-blue-400' : ''"
-            >
+            <div class="p-6 bg-white rounded-2xl shadow hover:shadow-xl transition cursor-pointer" role="button"
+              tabindex="0" aria-controls="next-appointment-details" :aria-expanded="appointmentExpanded"
+              @click="toggleAppointment" @keydown.enter="toggleAppointment" @keydown.space.prevent="toggleAppointment"
+              :class="appointmentExpanded ? 'ring-2 ring-blue-400' : ''">
               <h3 class="text-xl font-semibold text-blue-600">
                 Eerstvolgende afspraak
               </h3>
@@ -155,13 +148,8 @@ const reloadPage = () => {
                 </p>
 
                 <!-- Uitklapbare details -->
-                <div
-                  v-if="appointmentExpanded"
-                  id="next-appointment-details"
-                  role="region"
-                  aria-label="Details van de afspraak"
-                  class="mt-4 border-t pt-3 text-gray-700 space-y-2 text-sm"
-                >
+                <div v-if="appointmentExpanded" id="next-appointment-details" role="region"
+                  aria-label="Details van de afspraak" class="mt-4 border-t pt-3 text-gray-700 space-y-2 text-sm">
                   <p class="font-bold text-blue-500">Instructies</p>
                   <p>
                     {{ nextAppointment.treatmentInstructions || 'Geen instructies.' }}
@@ -171,6 +159,15 @@ const reloadPage = () => {
                     Druk op Enter of Spatie om te sluiten.
                   </p>
                 </div>
+
+                <router-link :to="{
+                  name: '/(protected)/afspraken/[id]',
+                  params: { id: nextAppointment.id }
+                }" class="mt-4 inline-block text-blue-500 hover:text-blue-700">
+                  Bekijk details
+                </router-link>
+
+
               </template>
 
               <template v-else>
@@ -180,24 +177,19 @@ const reloadPage = () => {
               </template>
             </div>
 
-            <div
-              v-for="a in appointments
-                .filter(ap =>
-                  ap.referralId !== nextAppointment?.referralId &&
-                  ap.status !== 'AccessDenied' &&
-                  ap.status !== 'Cancelled'
-                )"
-              :key="getAppointmentKey(a)"
-              role="button"
-              tabindex="0"
+            <div v-for="a in appointments
+              .filter(ap =>
+                ap.referralId !== nextAppointment?.referralId &&
+                ap.status !== 'AccessDenied' &&
+                ap.status !== 'Cancelled'
+              )" :key="getAppointmentKey(a)" role="button" tabindex="0"
               :aria-expanded="expandedAppointmentKey === getAppointmentKey(a)"
               :aria-controls="`appointment-${getAppointmentKey(a)}`"
               @click="toggleAppointmentByKey(getAppointmentKey(a))"
               @keydown.enter="toggleAppointmentByKey(getAppointmentKey(a))"
               @keydown.space.prevent="toggleAppointmentByKey(getAppointmentKey(a))"
               class="p-6 bg-white rounded-2xl shadow hover:shadow-xl transition cursor-pointer"
-              :class="expandedAppointmentKey === getAppointmentKey(a) ? 'ring-2 ring-blue-400' : ''"
-            >
+              :class="expandedAppointmentKey === getAppointmentKey(a) ? 'ring-2 ring-blue-400' : ''">
               <h3 class="text-xl font-semibold text-blue-600">
                 Afspraak
               </h3>
@@ -210,18 +202,14 @@ const reloadPage = () => {
                 Datum: {{ new Date(a.date).toLocaleString('nl-NL') }}
               </p>
 
-              <div
-                v-if="expandedAppointmentKey === getAppointmentKey(a)"
-                :id="`appointment-${getAppointmentKey(a)}`"
-                role="region"
-                aria-label="Details van afspraak"
-                class="mt-4 border-t pt-3 text-sm text-gray-700 space-y-2"
-              >
+              <div v-if="expandedAppointmentKey === getAppointmentKey(a)" :id="`appointment-${getAppointmentKey(a)}`"
+                role="region" aria-label="Details van afspraak"
+                class="mt-4 border-t pt-3 text-sm text-gray-700 space-y-2">
                 <p class="font-semibold text-blue-500">Instructies</p>
                 <p>{{ a.treatmentInstructions || 'Geen instructies.' }}</p>
               </div>
             </div>
-            </div>
+          </div>
         </section>
 
         <!-- EXTRA RUIMTE -->
@@ -237,15 +225,9 @@ const reloadPage = () => {
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
             <!-- Kaart per verwijzing --> <!-- maakt een modal dat je er altijd invlijft misschien met modal strap.-->
-            <div
-              v-for="ref in safeReferrals"
-              :key="ref.id"
-              role="button"
-              tabindex="0"
-              :aria-expanded="expandedReferralId === ref.id"
-              :aria-controls="`referral-${ref.id}`"
-              @click="toggleReferral(ref.id)"
-              @keydown.enter="toggleReferral(ref.id)"
+            <div v-for="ref in safeReferrals" :key="ref.id" role="button" tabindex="0"
+              :aria-expanded="expandedReferralId === ref.id" :aria-controls="`referral-${ref.id}`"
+              @click="toggleReferral(ref.id)" @keydown.enter="toggleReferral(ref.id)"
               @keydown.space.prevent="toggleReferral(ref.id)"
               class="p-6 bg-white rounded-2xl shadow hover:shadow-xl transition cursor-pointer"
               :class="expandedReferralId === ref.id ? 'ring-2 ring-blue-400' : ''">
@@ -261,13 +243,8 @@ const reloadPage = () => {
                 Status: {{ ref.status }}
               </p>
 
-              <div
-                v-if="expandedReferralId === ref.id"
-                :id="`referral-${ref.id}`"
-                role="region"
-                aria-label="Details van doorverwijzing"
-                class="mt-4 border-t pt-3 text-sm text-gray-700 space-y-2"
-              >
+              <div v-if="expandedReferralId === ref.id" :id="`referral-${ref.id}`" role="region"
+                aria-label="Details van doorverwijzing" class="mt-4 border-t pt-3 text-sm text-gray-700 space-y-2">
                 <p class="font-semibold text-blue-500">Aangemaakt op</p>
                 <p>{{ new Date(ref.createdAt).toLocaleString('nl-NL') }}</p>
               </div>

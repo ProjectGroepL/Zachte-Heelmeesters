@@ -31,6 +31,7 @@ declare module 'vue-router/auto-routes' {
       | '/(protected)/'
       | '/(protected)/[...path]'
       | '/(protected)/afspraken/'
+      | '/(protected)/afspraken/[id]'
       | '/(protected)/afspraken/create'
       | '/(protected)/audits/'
       | '/(protected)/huisarts/CreateMedicalDocument'
@@ -64,6 +65,13 @@ declare module 'vue-router/auto-routes' {
       '/afspraken',
       Record<never, never>,
       Record<never, never>,
+      | never
+    >,
+    '/(protected)/afspraken/[id]': RouteRecordInfo<
+      '/(protected)/afspraken/[id]',
+      '/afspraken/:id',
+      { id: ParamValue<true> },
+      { id: ParamValue<false> },
       | never
     >,
     '/(protected)/afspraken/create': RouteRecordInfo<
@@ -206,6 +214,7 @@ declare module 'vue-router/auto-routes' {
         | '/(protected)/'
         | '/(protected)/[...path]'
         | '/(protected)/afspraken/'
+        | '/(protected)/afspraken/[id]'
         | '/(protected)/afspraken/create'
         | '/(protected)/audits/'
         | '/(protected)/huisarts/CreateMedicalDocument'
@@ -237,6 +246,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/(protected)/afspraken/index.vue': {
       routes:
         | '/(protected)/afspraken/'
+      views:
+        | never
+    }
+    'src/pages/(protected)/afspraken/[id].vue': {
+      routes:
+        | '/(protected)/afspraken/[id]'
       views:
         | never
     }

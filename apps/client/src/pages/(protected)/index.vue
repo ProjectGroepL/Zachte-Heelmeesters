@@ -120,6 +120,7 @@ const reloadPage = () => {
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
             <!-- Één afspraak-kaart -->
+            <!-- Één afspraak-kaart -->
             <div class="p-6 bg-white rounded-2xl shadow hover:shadow-xl transition cursor-pointer" role="button"
               tabindex="0" aria-controls="next-appointment-details" :aria-expanded="appointmentExpanded"
               @click="toggleAppointment" @keydown.enter="toggleAppointment" @keydown.space.prevent="toggleAppointment"
@@ -128,17 +129,14 @@ const reloadPage = () => {
                 Eerstvolgende afspraak
               </h3>
 
-              <!-- Loading -->
               <p v-if="appointmentsLoading" class="text-gray-500 mt-2">
                 Wordt geladen...
               </p>
 
-              <!-- Error -->
               <p v-if="appointmentsError" class="text-red-500 mt-2">
                 {{ appointmentsError }}
               </p>
 
-              <!-- Inhoud -->
               <template v-if="nextAppointment">
                 <p class="text-gray-700 mt-2 font-medium">
                   {{ nextAppointment.treatmentDescription }}
@@ -147,35 +145,27 @@ const reloadPage = () => {
                   Datum: {{ new Date(nextAppointment.date).toLocaleString('nl-NL') }}
                 </p>
 
-                <!-- Uitklapbare details -->
                 <div v-if="appointmentExpanded" id="next-appointment-details" role="region"
                   aria-label="Details van de afspraak" class="mt-4 border-t pt-3 text-gray-700 space-y-2 text-sm">
                   <p class="font-bold text-blue-500">Instructies</p>
-                  <p>
-                    {{ nextAppointment.treatmentInstructions || 'Geen instructies.' }}
-                  </p>
-
+                  <p>{{ nextAppointment.treatmentInstructions || 'Geen instructies.' }}</p>
                   <p class="text-xs italic text-gray-400">
                     Druk op Enter of Spatie om te sluiten.
                   </p>
                 </div>
 
-                <router-link :to="{
-                  name: '/(protected)/afspraken/[id]',
-                  params: { id: nextAppointment.id }
-                }" class="mt-4 inline-block text-blue-500 hover:text-blue-700">
+                <!-- ✅ Add the link here for nextAppointment -->
+                <router-link :to="{ name: '/(protected)/afspraken/[id]', params: { id: nextAppointment.id } }"
+                  class="mt-4 inline-block text-blue-500 hover:text-blue-700">
                   Bekijk details
                 </router-link>
-
-
               </template>
 
               <template v-else>
-                <p class="text-gray-400 mt-2">
-                  Geen geplande afspraken.
-                </p>
+                <p class="text-gray-400 mt-2">Geen geplande afspraken.</p>
               </template>
             </div>
+
 
             <div v-for="a in appointments
               .filter(ap =>
@@ -208,7 +198,14 @@ const reloadPage = () => {
                 <p class="font-semibold text-blue-500">Instructies</p>
                 <p>{{ a.treatmentInstructions || 'Geen instructies.' }}</p>
               </div>
+
+              <!-- ✅ Link for this specific appointment -->
+              <router-link :to="{ name: '/(protected)/afspraken/[id]', params: { id: a.id } }"
+                class="mt-4 inline-block text-blue-500 hover:text-blue-700">
+                Bekijk details
+              </router-link>
             </div>
+
           </div>
         </section>
 

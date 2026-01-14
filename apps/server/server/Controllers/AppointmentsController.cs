@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ZhmApi.Models;
 using ZhmApi.Data;
 using ZhmApi.Dtos;
+using ZhmApi.Services;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 
@@ -14,10 +15,12 @@ namespace ZhmApi.Controllers
     public class AppointmentsController : ControllerBase
     {
         private readonly ApiContext _context;
+        private readonly AppointmentService _appointmentService;
 
-        public AppointmentsController(ApiContext context)
+        public AppointmentsController(ApiContext context, AppointmentService appointmentService)
         {
             _context = context;
+            _appointmentService = appointmentService;
         }
 
         // POST: api/appointments
@@ -123,21 +126,7 @@ namespace ZhmApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<AppointmentDto>> GetAppointment(int id)
         {
-            var appointment = await _context.Appointments
-                .Where(a => a.Id == id)
-                .Select(a => new AppointmentDto
-                {
-                    Id = a.Id,
-                    ReferralId = a.ReferralId,
-                    Notes = a.Notes,
-                    Status = a.Status,
-                    TreatmentDescription = a.TreatmentDescription,
-                    TreatmentInstructions = a.TreatmentInstructions,
-                    PatientName = a.Patient.FirstName + " " + a.Patient.LastName,
-                    Date = a.Date
-                })
-                .FirstOrDefaultAsync();
-
+            var appointment = await _appointmentService.GetAppointmentAsync(id);
             if (appointment == null) return NotFound();
             return Ok(appointment);
         }

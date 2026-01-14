@@ -229,6 +229,13 @@ public class ApiContext : IdentityDbContext<User, Role, int>
       new Role { Id = 5, Name = "Systeembeheerder", NormalizedName = "SYSTEEMBEHEERDER", Description = "Systeembeheerder met volledige toegang tot alle functionaliteiten en gebruikersbeheer", ConcurrencyStamp = Guid.NewGuid().ToString() },
       new Role { Id = 6, Name = "Administratie", NormalizedName = "ADMINISTRATIE", Description = "Administratief medewerker in ziekenhuis die ondersteuning biedt bij balieservice en patiëntenzorg", ConcurrencyStamp = Guid.NewGuid().ToString() }
     );
+
+    modelBuilder.Entity<Treatment>().HasData(
+      new Treatment { Id = 1, Name = "Fysiotherapie", Description = "Behandeling voor lichamelijke klachten", Instructions = "Patiënt moet comfortabele kleding dragen" },
+      new Treatment { Id = 2, Name = "Psychotherapie", Description = "Behandeling voor mentale gezondheidsproblemen", Instructions = "Patiënt moet wekelijks sessies bijwonen" },
+      new Treatment { Id = 3, Name = "Artroscopie", Description = "Kijkoperatie van de mensicus", Instructions = "Patiënt moet nuchter zijn" },
+      new Treatment { Id = 4, Name = "Ergotherapie", Description = "Behandeling die zich richt op het verbeteren van de dagelijkse vaardigheden en zelfstandigheid van patiënten", Instructions = "Patiënt moet wekelijks sessies bijwonen" }
+    );
   }
 
   #endregion

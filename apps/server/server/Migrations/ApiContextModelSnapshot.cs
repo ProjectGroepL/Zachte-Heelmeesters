@@ -474,7 +474,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "feb7ce0f-ada8-4996-bec3-68c0d55c8ffb",
+                            ConcurrencyStamp = "990bedf8-14b6-43f2-892c-81a9bad68170",
                             Description = "Patiënt die gebruik maakt van het systeem voor medische zorg en behandelingen",
                             Name = "Patient",
                             NormalizedName = "PATIENT"
@@ -482,7 +482,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "ae133c37-1ce1-4f84-a507-6bc21e7ce012",
+                            ConcurrencyStamp = "ceb337d0-baff-475d-910e-6b954d95c652",
                             Description = "Medisch specialist die gespecialiseerde zorg verleent in een specifiek vakgebied",
                             Name = "Specialist",
                             NormalizedName = "SPECIALIST"
@@ -490,7 +490,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 3,
-                            ConcurrencyStamp = "73581610-932b-4826-82bf-517d4cfb3015",
+                            ConcurrencyStamp = "814dc0d6-917d-46ca-99bf-5f13b734b1fd",
                             Description = "Huisarts die eerste lijn zorg verleent en patiënten doorverwijst naar specialisten",
                             Name = "Huisarts",
                             NormalizedName = "HUISARTS"
@@ -498,7 +498,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 4,
-                            ConcurrencyStamp = "3cebb487-5bdc-4e0e-a9a5-fb45d125f7dd",
+                            ConcurrencyStamp = "d15d2096-f533-4b90-98b5-96fc460e11a9",
                             Description = "Medewerker van zorgverzekeraar die verantwoordelijk is voor vergoedingen en polisbeheer",
                             Name = "Zorgverzekeraar",
                             NormalizedName = "ZORGVERZEKERAAR"
@@ -506,7 +506,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 5,
-                            ConcurrencyStamp = "9852fd64-e287-42bd-a266-07780970120b",
+                            ConcurrencyStamp = "cee812e1-4136-4b86-b4aa-f7e8128ac7f4",
                             Description = "Systeembeheerder met volledige toegang tot alle functionaliteiten en gebruikersbeheer",
                             Name = "Systeembeheerder",
                             NormalizedName = "SYSTEEMBEHEERDER"
@@ -514,7 +514,7 @@ namespace ZhmApi.Migrations
                         new
                         {
                             Id = 6,
-                            ConcurrencyStamp = "ff146f58-71b3-4a13-af0b-a15df1d9b0a5",
+                            ConcurrencyStamp = "8f083d89-168b-4c2c-b17a-5830ebed2ad8",
                             Description = "Administratief medewerker in ziekenhuis die ondersteuning biedt bij balieservice en patiëntenzorg",
                             Name = "Administratie",
                             NormalizedName = "ADMINISTRATIE"
@@ -582,6 +582,36 @@ namespace ZhmApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Treatments");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Behandeling voor lichamelijke klachten",
+                            Instructions = "Patiënt moet comfortabele kleding dragen",
+                            Name = "Fysiotherapie"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Behandeling voor mentale gezondheidsproblemen",
+                            Instructions = "Patiënt moet wekelijks sessies bijwonen",
+                            Name = "Psychotherapie"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Kijkoperatie van de mensicus",
+                            Instructions = "Patiënt moet nuchter zijn",
+                            Name = "Artroscopie"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Description = "Behandeling die zich richt op het verbeteren van de dagelijkse vaardigheden en zelfstandigheid van patiënten",
+                            Instructions = "Patiënt moet wekelijks sessies bijwonen",
+                            Name = "Ergotherapie"
+                        });
                 });
 
             modelBuilder.Entity("ZhmApi.Models.TwoFactorCode", b =>

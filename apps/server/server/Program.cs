@@ -131,7 +131,7 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtAudience,
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
-        
+
     };
 });
 
@@ -270,5 +270,35 @@ using (var scope = app.Services.CreateScope())
     await CreateUser("patient@zhm.nl", "Patient123!", "Pieter", "Patient", "Patient");
     await CreateUser("verzekeraar@zhm.nl", "Insurance123!", "Vera", "Verzekeraar", "Zorgverzekeraar");
     await CreateUser("admin-ziekenhuis@zhm.nl", "AdminMed123!", "Anja", "Admin", "Administratie");
+
+    var context = scope.ServiceProvider.GetRequiredService<ApiContext>();
+    async Task AssignDoctorPatient(string doctorEmail, string patientEmail)
+    {
+        var doctor = await userManager.FindByEmailAsync(doctorEmail);
+        var patient = await userManager.FindByEmailAsync(patientEmail);
+
+        if (doctor == null || patient == null)
+            return; // safety
+
+        bool exists = await context.DoctorPatients.AnyAsync(dp =>
+            dp.DoctorId == doctor.Id &&
+            dp.PatientId == patient.Id);
+
+        if (!exists)
+        {
+            context.DoctorPatients.Add(new DoctorPatients
+            {
+                DoctorId = doctor.Id,
+                PatientId = patient.Id
+            });
+
+            await context.SaveChangesAsync();
+        }
+    }
+
+    await AssignDoctorPatient(
+    "huisarts@zhm.nl",   // Doctor
+    "patient@zhm.nl"     // Patient
+    );
 }
 app.Run();

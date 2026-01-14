@@ -37,9 +37,9 @@ const {
 
       <tbody>
         <tr v-for="r in referrals" :key="r.id" class="border-t">
-          <td class="p-2">{{ r.patientName }}</td>
-          <td class="p-2">{{ r.treatmentName }}</td>
-          <td class="p-2">{{ new Date(r.createdAt).toLocaleDateString() }}</td>
+          <td class="p-2 text-center">{{ r.patientName }}</td>
+          <td class="p-2 text-center">{{ r.treatmentName }}</td>
+          <td class="p-2 text-center">{{ new Date(r.createdAt).toLocaleDateString() }}</td>
         </tr>
       </tbody>
     </table>

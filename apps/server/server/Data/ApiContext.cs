@@ -13,18 +13,18 @@ public class ApiContext : IdentityDbContext<User, Role, int>
 
   public DbSet<Token> Tokens { get; set; } = null!;
   public DbSet<TwoFactorCode> TwoFactorCodes { get; set; } = null!;
-  public DbSet<DoctorPatients> DoctorPatients {get; set;}= null!;
-  public DbSet<Treatment> Treatments {get; set;}
-  public DbSet<Referral> Referrals {get; set;}
-  public DbSet<Appointment> Appointments {get; set;}
-  public DbSet<MedicalDocument> MedicalDocuments {get; set;}
+  public DbSet<DoctorPatients> DoctorPatients { get; set; } = null!;
+  public DbSet<Treatment> Treatments { get; set; }
+  public DbSet<Referral> Referrals { get; set; }
+  public DbSet<Appointment> Appointments { get; set; }
+  public DbSet<MedicalDocument> MedicalDocuments { get; set; }
   //this is already made a table so i couldnt delete the extra s so i guess we have to do with what we got
-  public DbSet<AccessRequest> AccesssRequests {get; set;}
-  public DbSet<Notification> Notifications {get; set;}
-  public DbSet<AppointmentReport> AppointmentReports {get; set;}
-  public DbSet<AppointmentReportItem> ApontmentReportItems {get; set;}
+  public DbSet<AccessRequest> AccesssRequests { get; set; }
+  public DbSet<Notification> Notifications { get; set; }
+  public DbSet<AppointmentReport> AppointmentReports { get; set; }
+  public DbSet<AppointmentReportItem> ApontmentReportItems { get; set; }
   public DbSet<AuditTrail> AuditTrails { get; set; }
- 
+
 
   #region UpdatedAt timestamp handling
   public override int SaveChanges()
@@ -126,30 +126,30 @@ public class ApiContext : IdentityDbContext<User, Role, int>
         .HasForeignKey(r => r.TreatmentId)
         .OnDelete(DeleteBehavior.NoAction);
 
-      //accesrequest specification on what to do when it gets deleted
-      modelBuilder.Entity<AccessRequest>()
-      .HasOne(ac => ac.Patient)
+    //accesrequest specification on what to do when it gets deleted
+    modelBuilder.Entity<AccessRequest>()
+    .HasOne(ac => ac.Patient)
+    .WithMany()
+    .HasForeignKey(ac => ac.PatientId)
+    .OnDelete(DeleteBehavior.NoAction);
+
+    modelBuilder.Entity<AccessRequest>()
+    .HasOne(ac => ac.Specialist)
+    .WithMany()
+    .HasForeignKey(ac => ac.SpecialistId)
+    .OnDelete(DeleteBehavior.NoAction);
+
+    modelBuilder.Entity<AccessRequest>()
+    .HasOne(a => a.Appointment)
+    .WithMany()
+    .HasForeignKey(a => a.AppointmentId)
+    .OnDelete(DeleteBehavior.Cascade);
+
+    modelBuilder.Entity<MedicalDocument>()
+      .HasOne(md => md.Patient)
       .WithMany()
-      .HasForeignKey(ac => ac.PatientId)
+      .HasForeignKey(md => md.PatientId)
       .OnDelete(DeleteBehavior.NoAction);
-
-      modelBuilder.Entity<AccessRequest>()
-      .HasOne(ac => ac.Specialist )
-      .WithMany()
-      .HasForeignKey(ac => ac.SpecialistId)
-      .OnDelete(DeleteBehavior.NoAction);  
-
-      modelBuilder.Entity<AccessRequest>()
-      .HasOne(a => a.Appointment)
-      .WithMany()
-      .HasForeignKey(a => a.AppointmentId)
-      .OnDelete(DeleteBehavior.Cascade);
-
-      modelBuilder.Entity<MedicalDocument>()
-        .HasOne(md => md.Patient)
-        .WithMany()
-        .HasForeignKey(md => md.PatientId)
-        .OnDelete(DeleteBehavior.NoAction);
 
     modelBuilder.Entity<MedicalDocument>()
     .HasOne(md => md.Appointment)
@@ -166,48 +166,48 @@ public class ApiContext : IdentityDbContext<User, Role, int>
         .OnDelete(DeleteBehavior.NoAction);
 
 
-        // Zorgt dat EF de tabel met de extra 's' gebruikt voor de notificatie-link
-        modelBuilder.Entity<Notification>()
-            .HasOne(n => n.AccessRequest)
-            .WithMany()
-            .HasForeignKey(n => n.AccessRequestId)
-            .OnDelete(DeleteBehavior.SetNull);
+    // Zorgt dat EF de tabel met de extra 's' gebruikt voor de notificatie-link
+    modelBuilder.Entity<Notification>()
+        .HasOne(n => n.AccessRequest)
+        .WithMany()
+        .HasForeignKey(n => n.AccessRequestId)
+        .OnDelete(DeleteBehavior.SetNull);
 
-        // Forceer de tabelnaam zodat EF niet stiekem naar 'AccessRequests' (2 s-en) zoekt
-        modelBuilder.Entity<AccessRequest>().ToTable("AccesssRequests");
-      
+    // Forceer de tabelnaam zodat EF niet stiekem naar 'AccessRequests' (2 s-en) zoekt
+    modelBuilder.Entity<AccessRequest>().ToTable("AccesssRequests");
+
     // enforce required fields, add sensible limits and prevent bad data
     modelBuilder.Entity<AuditTrail>(entity =>
  {
-    entity.HasKey(a => a.Id);
+   entity.HasKey(a => a.Id);
 
-    entity.Property(a => a.Method)
-          .IsRequired()
-          .HasMaxLength(10);   // GET, POST, PUT, DELETE
+   entity.Property(a => a.Method)
+         .IsRequired()
+         .HasMaxLength(10);   // GET, POST, PUT, DELETE
 
-    entity.Property(a => a.Path)
-          .IsRequired()
-          .HasMaxLength(500);  // /api/resource/123
+   entity.Property(a => a.Path)
+         .IsRequired()
+         .HasMaxLength(500);  // /api/resource/123
 
-    entity.Property(a => a.IpAddress)
-          .IsRequired()
-          .HasMaxLength(45);   // IPv4 + IPv6
+   entity.Property(a => a.IpAddress)
+         .IsRequired()
+         .HasMaxLength(45);   // IPv4 + IPv6
 
-    entity.Property(a => a.UserAgent)
-          .HasMaxLength(512);
+   entity.Property(a => a.UserAgent)
+         .HasMaxLength(512);
 
-    entity.Property(a => a.StatusCode)
-          .IsRequired();
+   entity.Property(a => a.StatusCode)
+         .IsRequired();
 
-    entity.Property(a => a.Timestamp)
-          .IsRequired();
+   entity.Property(a => a.Timestamp)
+         .IsRequired();
 
-    entity.Property(a => a.Details)
-          .HasMaxLength(2000);
+   entity.Property(a => a.Details)
+         .HasMaxLength(2000);
 
-    // Performance index for audit queries
-    entity.HasIndex(a => a.Timestamp)
-          .HasDatabaseName("IX_AuditTrails_Timestamp");
+   // Performance index for audit queries
+   entity.HasIndex(a => a.Timestamp)
+         .HasDatabaseName("IX_AuditTrails_Timestamp");
  });
 
 
@@ -215,7 +215,7 @@ public class ApiContext : IdentityDbContext<User, Role, int>
     SeedData(modelBuilder);
   }
 
-    
+
   #region Seed Data
 
   private void SeedData(ModelBuilder modelBuilder)

@@ -70,12 +70,17 @@ function selectOption(selectedValue: string) {
     </PopoverTrigger>
     <PopoverContent class="w-full p-0">
       <Command>
-        <CommandInput class="h-9" :placeholder="searchPlaceholder" />
+        <CommandInput class="h-9 focus-visible:outline-0!" :placeholder="searchPlaceholder" />
         <CommandList>
-          <CommandEmpty>{{ emptyMessage }}</CommandEmpty>
+          <CommandEmpty class="text-foreground overflow-hidden p-1">
+            <div
+              class="data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none pointer-events-none opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4">
+              {{ emptyMessage }}
+            </div>
+          </CommandEmpty>
           <CommandGroup>
-            <CommandItem v-for="option in options" :key="option.value" :value="option.value" :disabled="option.disabled"
-              @select="(ev) => {
+            <CommandItem v-if="options.length > 0" v-for="option in options" :key="option.value" :value="option.value"
+              :disabled="option.disabled" @select="(ev) => {
                 selectOption(ev.detail.value as string)
               }">
               {{ option.label }}
@@ -83,6 +88,9 @@ function selectOption(selectedValue: string) {
                 'ml-auto h-4 w-4',
                 modelValue === option.value ? 'opacity-100' : 'opacity-0',
               )" />
+            </CommandItem>
+            <CommandItem v-else value="-1" disabled>
+              {{ emptyMessage }}
             </CommandItem>
           </CommandGroup>
         </CommandList>

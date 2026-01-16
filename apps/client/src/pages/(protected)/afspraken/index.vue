@@ -129,15 +129,11 @@ const hasCancelledAppointments = computed(() =>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <TableRow 
-                                v-for="appointment in filteredAppointments" 
-                                :key="appointment.referralId" 
-                                @click="openAppointmentDetails(appointment)"
-                                class="cursor-pointer hover:bg-muted/50"
+                            <TableRow v-for="appointment in filteredAppointments" :key="appointment.referralId"
+                                @click="openAppointmentDetails(appointment)" class="cursor-pointer hover:bg-muted/50"
                                 :class="{
                                     'opacity-50 bg-muted/30': isEffectivelyCancelled(appointment.status)
-                                }"
-                            >
+                                }">
                                 <TableCell class="font-medium">
                                     {{ appointment.referralId }}
                                 </TableCell>
@@ -186,14 +182,12 @@ const hasCancelledAppointments = computed(() =>
                     </div>
                     <div>
                         <h3 class="text-sm font-semibold mb-1">Status</h3>
-                        <span
-                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                            :class="{
-                                'bg-green-100 text-green-800': selectedAppointment.status === 'Scheduled',
-                                'bg-yellow-100 text-yellow-800': selectedAppointment.status === 'PendingAccess',
-                                'bg-gray-100 text-gray-600': selectedAppointment.status === 'Cancelled',
-                                'bg-red-100 text-red-800': selectedAppointment.status === 'AccessDenied'
-                            }">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" :class="{
+                            'bg-green-100 text-green-800': selectedAppointment.status === 'Scheduled',
+                            'bg-yellow-100 text-yellow-800': selectedAppointment.status === 'PendingAccess',
+                            'bg-gray-100 text-gray-600': selectedAppointment.status === 'Cancelled',
+                            'bg-red-100 text-red-800': selectedAppointment.status === 'AccessDenied'
+                        }">
                             {{ displayStatus(selectedAppointment.status) }}
                         </span>
                     </div>

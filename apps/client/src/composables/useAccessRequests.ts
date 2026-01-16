@@ -36,3 +36,10 @@ export function useRevokeAccessRequest() {
         .then(res => res.data)
   )
 }
+
+export function useRequestReportAccess() {
+  return useMutation<void, { appointmentId: number; reason: string }>((dto) =>
+    api.post('/doctor/access-requests', dto).then(() => undefined)
+  )
+}
+

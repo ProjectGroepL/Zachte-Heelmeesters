@@ -31,7 +31,8 @@ import NavSpecialist from '@/components/layout/dashboard/NavSpecialist.vue'
 import NotificationBell from '@/components/NotificationBell.vue'
 import { computed } from 'vue'
 import { ClipboardList } from "lucide-vue-next"
-
+import NavAdministration from '@/components/layout/dashboard/NavAdministration.vue'
+import NavZorgverzekeraar from '@/components/layout/dashboard/NavZorgverzekeraar.vue'
 
 const props = withDefaults(defineProps<SidebarProps>(), {
   collapsible: "icon",
@@ -154,11 +155,12 @@ const data = {
       <div v-if="!open" class="w-full px-2">
         <Separator />
       </div>
-
+      <NavZorgverzekeraar v-if="hasRole('Zorgverzekeraar')" />
       <NavDoctor v-if="hasRole('Huisarts')" />
       <NavPatient v-if="hasRole('Patient')" />
+      <NavAdministration v-if="hasRole('Administratie')" />
       <NavAdmin
-        v-if="hasRole('Administratie') || hasRole('Admin') || hasRole('Systeembeheerder')"
+        v-if="hasRole('Admin') || hasRole('Systeembeheerder')"
         :items="adminItems"
       />
       <NavSpecialist v-if="hasRole('Specialist')" />

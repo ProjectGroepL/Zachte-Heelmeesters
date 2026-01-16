@@ -2,36 +2,42 @@
 import { ref, watch } from 'vue'
 import { useCreateAppointmentReport } from '@/composables/useAppointmentReport'
 import { CheckCircle2 } from 'lucide-vue-next'
+import { useSendReportToAdmin } from '@/composables/useSendReportToAdmin';
 
 const props = defineProps<{ appointmentId: number }>()
 const emit = defineEmits(['success'])
 
 // We maken de mutation reactief op de prop
-const { mutate, loading, error } = useCreateAppointmentReport(props.appointmentId)
+const {
+  mutate: createReport,
+  loading,
+  error
+} = useCreateAppointmentReport(props.appointmentId)
+
+const {
+  mutate: sendReportToAdmin
+} = useSendReportToAdmin()
 
 const summary = ref('')
 const items = ref([{ description: '', cost: 0 }])
 const isSuccess = ref(false)
 
+
 const addItem = () => items.value.push({ description: '', cost: 0 })
 const removeItem = (index: number) => items.value.splice(index, 1)
 
 const submit = async () => {
-  try {
-    await mutate({
-      summary: summary.value,
-      items: items.value
-    })
-    isSuccess.value = true
-    setTimeout(() => {
-      emit('success')
-      summary.value = ''
-      items.value = [{ description: '', cost: 0 }]
-      isSuccess.value = false
-    }, 2000)
-  } catch (e) {
-    console.error("Fout bij opslaan rapport", e)
-  }
+  const result = await createReport({
+    summary: summary.value,
+    items: items.value
+  })
+
+  if (!result?.id) return
+
+  await sendReportToAdmin({ reportId: result.id })
+
+  isSuccess.value = true
+  emit('success')
 }
 </script>
 

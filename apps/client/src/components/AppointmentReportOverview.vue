@@ -55,23 +55,13 @@ const formattedDate = computed(() =>
 
       <!-- Kosten -->
       <section class="bg-card p-6 border rounded-xl shadow-sm">
-        <h2 class="text-lg font-semibold mb-4">Verrichtingen & kosten</h2>
+        <h2 class="text-lg font-semibold mb-4">Medische verrichtingen</h2>
 
-        <div class="space-y-3">
-          <div
-            v-for="(item, i) in report.items"
-            :key="i"
-            class="flex justify-between items-center border-b pb-2"
-          >
-            <span>{{ item.description }}</span>
-            <span class="font-medium">€ {{ item.cost.toFixed(2) }}</span>
-          </div>
-        </div>
-
-        <div class="flex justify-between mt-6 pt-4 border-t font-bold">
-          <span>Totaal</span>
-          <span>€ {{ report.totalCost.toFixed(2) }}</span>
-        </div>
+        <ul class="list-disc pl-5 space-y-1">
+          <li v-for="(item, i) in report.items" :key="i">
+            {{ item }}
+          </li>
+        </ul>
       </section>
     </div>
   </div>

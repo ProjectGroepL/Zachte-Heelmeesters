@@ -160,5 +160,48 @@ namespace ZhmApi.Services
                 .OrderByDescending(r => r.RequestedAt)
                 .ToListAsync();
         }
+
+        public async Task<AccessRequest> RequestDoctorAccess(
+            int doctorId,
+            int appointmentId,
+            string reason
+        )
+        {
+            var appointment = await _context.Appointments
+                .Include(a => a.Referral)
+                .FirstOrDefaultAsync(a =>
+                    a.Id == appointmentId &&
+                    a.Referral.DoctorId == doctorId
+                );
+
+            if (appointment == null)
+                throw new InvalidOperationException("Appointment not found");
+
+            var exists = await _context.AccesssRequests.AnyAsync(r =>
+                r.AppointmentId == appointmentId &&
+                r.SpecialistId == doctorId &&
+                r.Status != AccessRequestStatus.Denied
+            );
+
+            if (exists)
+                throw new InvalidOperationException("Access request already exists");
+
+            var request = new AccessRequest
+            {
+                AppointmentId = appointmentId,
+                SpecialistId = doctorId, // ← huisarts stored here
+                PatientId = appointment.Referral.PatientId,
+                TreatmentId = appointment.Referral.TreatmentId,
+                Status = AccessRequestStatus.Pending,
+                Reason = reason,
+                RequestedAt = DateTime.UtcNow
+            };
+
+            _context.AccesssRequests.Add(request);
+            await _context.SaveChangesAsync();
+
+            return request;
+        }
+            
     }
 }

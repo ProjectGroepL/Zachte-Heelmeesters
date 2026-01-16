@@ -12,17 +12,32 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'request-access', appointmentId: number): void
+  (e: 'cancel-request'): void
 }>()
 
-const localStatus = ref(props.appointment.requestStatus ?? null)
+// 🔥 LOKALE UI STATUS (DIT IS DE SLEUTEL)
+const uiStatus = ref<'Pending' | 'Sent' | 'Approved' | 'Denied'>('Pending')
 
+// sync met backend als die verandert
 watch(
   () => props.appointment.requestStatus,
-  (v) => (localStatus.value = v ?? null)
+  (v) => {
+    if (v === 'Approved') uiStatus.value = 'Approved'
+    else if (v === 'Denied') uiStatus.value = 'Denied'
+    else if (v === null) uiStatus.value = 'Sent'
+    else uiStatus.value = 'Pending'
+  },
+  { immediate: true }
 )
 
 function requestAccess() {
+  uiStatus.value = 'Sent'          // ✅ SWITCH METEEN
   emit('request-access', props.appointment.id)
+}
+
+// wordt aangeroepen bij ANNULEREN
+function resetStatus() {
+  uiStatus.value = 'Pending'       // ✅ TERUG NAAR BEGIN
 }
 </script>
 
@@ -35,39 +50,40 @@ function requestAccess() {
       </p>
     </div>
 
-    <div>
-      <!-- GEEN AANVRAAG -->
-      <button
-        v-if="localStatus === null"
-        class="btn-primary"
-        @click="requestAccess"
-      >
-        Vraag toegang aan
-      </button>
+    <!-- NOG NIET AANGEVRAAGD -->
+<!-- VRAAG TOEGANG -->
+<button
+  v-if="uiStatus === 'Pending'"
+  class="btn-primary"
+  @click="requestAccess"
+>
+  Vraag toegang aan
+</button>
 
-      <!-- AANVRAAG VERSTUURD -->
-      <span
-        v-else-if="localStatus === 'Pending'"
-        class="text-yellow-600 font-medium"
-      >
-        Aanvraag verstuurd
-      </span>
+<!-- AANVRAAG VERSTUURD -->
+<span
+  v-else-if="uiStatus === 'Sent'"
+  class="text-yellow-600 font-medium"
+>
+  Aanvraag verstuurd
+</span>
 
-      <!-- GOEDGEKEURD -->
-      <span
-        v-else-if="localStatus === 'Approved'"
-        class="text-green-600 font-medium"
-      >
-        Toegang verleend
-      </span>
+<!-- GOEDGEKEURD -->
+<span
+  v-else-if="uiStatus === 'Approved'"
+  class="text-green-600 font-medium"
+>
+  Toegang verleend
+</span>
 
-      <!-- AFGEWEZEN -->
-      <span
-        v-else
-        class="text-gray-500 text-sm italic"
-      >
-        Aanvraag afgewezen
-      </span>
+<!-- AFGEWEZEN -->
+<span
+  v-else
+  class="text-gray-500 text-sm italic"
+>
+  Aanvraag afgewezen
+</span>
+
     </div>
-  </div>
+
 </template>

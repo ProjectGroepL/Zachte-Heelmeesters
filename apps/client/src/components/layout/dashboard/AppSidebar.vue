@@ -28,7 +28,6 @@ import { useAuth } from '@/composables/useAuth'
 import { onMounted, ref } from 'vue'
 import NavPatient from '@/components/layout/dashboard/NavPatient.vue'
 import NavSpecialist from '@/components/layout/dashboard/NavSpecialist.vue'
-import NotificationBell from '@/components/NotificationBell.vue'
 import { computed } from 'vue'
 import { ClipboardList } from "lucide-vue-next"
 
@@ -157,20 +156,15 @@ const data = {
 
       <NavDoctor v-if="hasRole('Huisarts')" />
       <NavPatient v-if="hasRole('Patient')" />
-      <NavAdmin
-        v-if="hasRole('Administratie') || hasRole('Admin') || hasRole('Systeembeheerder')"
-        :items="adminItems"
-      />
+      <NavAdmin v-if="hasRole('Administratie') || hasRole('Admin') || hasRole('Systeembeheerder')"
+        :items="adminItems" />
       <NavSpecialist v-if="hasRole('Specialist')" />
 
     </SidebarContent>
 
     <SidebarFooter>
-      <div :class="cn('flex items-center gap-2 p-2', !open ? 'flex-col' : 'flex-row justify-between')">
-        <NotificationBell />
-        <NavUser v-if="user" :user="user" />
-        <NavUser v-else :user="data.user" />
-      </div>
+      <NavUser v-if="user" :user="user" />
+      <NavUser v-else :user="data.user" />
     </SidebarFooter>
     <SidebarRail />
   </Sidebar>

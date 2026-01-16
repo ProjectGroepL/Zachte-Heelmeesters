@@ -5,11 +5,13 @@ import { usePatientReferrals } from '@/composables/useReferral'
 import { useAppointment } from '@/composables/useAppointments'
 import { useNotifications } from '@/composables/useNotifications'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Calendar, Bell, FileText, Clock, AlertCircle } from 'lucide-vue-next'
+import { Calendar, Bell, FileText, Clock, AlertCircle, ArrowRight } from 'lucide-vue-next'
 import type { AppointmentDto } from '@/types/appointment'
 import type { Referral } from '@/types/referral'
 import type { AxiosError } from 'axios'
 import { getFullNameFromUser } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { useNotificationStore } from '@/stores/notifications'
 
 
 const { getStoredUser, hasRole } = useAuth()
@@ -20,7 +22,8 @@ const isPatient = computed(() => hasRole('Patient'))
 // Only initialize composables when patient
 const referralQuery = isPatient.value ? usePatientReferrals() : null
 const appointmentQuery = isPatient.value ? useAppointment() : null
-const notificationsQuery = isPatient.value ? useNotifications() : null
+// Notifications available for all users
+const notificationsQuery = useNotifications()
 
 // 🔹 expose reactive data safely
 const referrals = computed(() => referralQuery?.data.value ?? [])
@@ -36,6 +39,7 @@ const notifications = computed(() => notificationsQuery?.data.value ?? [])
 const notificationsLoading = computed(() => notificationsQuery?.loading.value ?? false)
 const notificationsError = computed(() => notificationsQuery?.error.value ?? null)
 
+const notificationStore = useNotificationStore()
 
 // 🔹 local UI state
 const appointmentExpanded = ref(false)
@@ -219,10 +223,17 @@ const reloadPage = () => {
             <!-- Meldingen -->
             <Card class="flex flex-col flex-1" aria-label="Meldingen-overzicht">
               <CardHeader>
-                <CardTitle class="flex items-center gap-2">
-                  <Bell class="h-5 w-5" />
-                  Meldingen
-                </CardTitle>
+                <div class="flex items-center justify-between">
+                  <CardTitle class="flex items-center gap-2">
+                    <Bell class="h-5 w-5" />
+                    Meldingen
+                  </CardTitle>
+                  <Button v-if="notifications.length > 0" variant="ghost" size="sm"
+                    @click="notificationStore.openSheet()" class="text-xs">
+                    Bekijk alles
+                    <ArrowRight class="h-3 w-3 ml-1" />
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent class="flex-1 min-h-[200px]">
                 <!-- Loading -->
@@ -307,13 +318,71 @@ const reloadPage = () => {
 
       <!-- Medewerkers -->
       <template v-else>
-        <Card aria-label="Dashboard-medewerker-overzicht">
-          <CardContent class="pt-6">
-            <p class="text-muted-foreground text-center">
-              Dit is het dashboard voor medewerkers.
-            </p>
-          </CardContent>
-        </Card>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card aria-label="Dashboard-medewerker-overzicht">
+            <CardHeader>
+              <CardTitle>Dashboard</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p class="text-muted-foreground">
+                Welkom bij het medewerkers dashboard.
+              </p>
+            </CardContent>
+          </Card>
+
+          <!-- Meldingen voor medewerkers -->
+          <Card aria-label="Meldingen-overzicht">
+            <CardHeader>
+              <div class="flex items-center justify-between">
+                <CardTitle class="flex items-center gap-2">
+                  <Bell class="h-5 w-5" />
+                  Meldingen
+                </CardTitle>
+                <Button v-if="notifications.length > 0" variant="ghost" size="sm" @click="notificationStore.openSheet()"
+                  class="text-xs">
+                  Bekijk alles
+                  <ArrowRight class="h-3 w-3 ml-1" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent class="min-h-[200px]">
+              <!-- Loading -->
+              <div v-if="notificationsLoading" class="flex items-center justify-center h-full text-muted-foreground">
+                <div class="text-center space-y-2">
+                  <Clock class="h-6 w-6 mx-auto animate-pulse" />
+                  <p class="text-sm">Wordt geladen...</p>
+                </div>
+              </div>
+
+              <!-- Error -->
+              <div v-else-if="notificationsError" class="flex items-center justify-center h-full text-destructive">
+                <div class="text-center space-y-2">
+                  <AlertCircle class="h-6 w-6 mx-auto" />
+                  <p class="text-sm">{{ notificationsError }}</p>
+                </div>
+              </div>
+
+              <!-- Meldingen lijst -->
+              <div v-else-if="notifications.length > 0" class="space-y-3">
+                <div v-for="notification in notifications.slice(0, 5)" :key="notification.id"
+                  class="p-3 border rounded-md hover:bg-accent transition-colors">
+                  <p class="text-sm font-medium">{{ notification.message }}</p>
+                  <p class="text-xs text-muted-foreground mt-1">
+                    {{ new Date(notification.createdAt).toLocaleDateString('nl-NL') }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Geen meldingen -->
+              <div v-else class="flex items-center justify-center h-full text-muted-foreground">
+                <div class="text-center space-y-2">
+                  <Bell class="h-8 w-8 mx-auto opacity-50" />
+                  <p class="text-sm font-medium">Geen nieuwe meldingen</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </template>
 
     </div>

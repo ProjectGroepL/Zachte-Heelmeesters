@@ -11,6 +11,9 @@ import {
   Settings,
   Sparkles,
 } from "lucide-vue-next"
+import { useNotifications } from '@/composables/useNotifications'
+import { Badge } from '@/components/ui/badge'
+import { useNotificationStore } from '@/stores/notifications'
 
 import {
   Avatar,
@@ -42,6 +45,13 @@ const router = useRouter()
 
 const user = ref<User | null>(null)
 const isLoading = ref(true)
+
+// Notifications
+const { data: notifications } = useNotifications()
+const notificationStore = useNotificationStore()
+const unreadCount = computed(() =>
+  (notifications.value ?? []).filter(n => !n.isRead).length
+)
 
 // Computed values for display
 const displayName = computed(() => {
@@ -118,9 +128,13 @@ async function handleLogout() {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>
+            <DropdownMenuItem class="cursor-pointer" @click="notificationStore.openSheet()">
               <Bell />
-              Meldingen
+              <span class="flex-1">Meldingen</span>
+              <Badge v-if="unreadCount > 0"
+                class="ml-auto h-5 w-5 p-0 bg-primary flex items-center justify-center text-[10px]">
+                {{ unreadCount }}
+              </Badge>
             </DropdownMenuItem>
             <DropdownMenuItem>
               <Settings />

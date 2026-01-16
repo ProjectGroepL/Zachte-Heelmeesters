@@ -35,7 +35,7 @@ async function handleMarkSingleRead(id: number, isRead: boolean) {
 
 <template>
   <Sheet v-model:open="notificationStore.isSheetOpen">
-    <SheetContent class="w-[400px] sm:w-[540px]">
+    <SheetContent class="w-100 sm:w-135">
       <SheetHeader>
         <SheetTitle>Alle Notificaties</SheetTitle>
         <SheetDescription>

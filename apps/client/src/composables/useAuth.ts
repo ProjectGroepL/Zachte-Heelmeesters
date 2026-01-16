@@ -228,7 +228,7 @@ export const useAuth = () => {
   }
 
   // Get user info from localStorage (stored during login) or fallback to JWT
-  const getStoredUser = () => {
+  const getStoredUser = (): User | null => {
     const stored = localStorage.getItem('user_info')
     if (!stored) return null
     try {

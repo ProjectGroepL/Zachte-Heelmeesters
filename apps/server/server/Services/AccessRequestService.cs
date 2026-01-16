@@ -7,13 +7,16 @@ using ZhmApi.Models;
 
 namespace ZhmApi.Services
 {
-    public class AccessRequestService {
-        private readonly ApiContext _context; 
+    public class AccessRequestService
+    {
+        private readonly ApiContext _context;
 
         public AccessRequestService(ApiContext context)
         {
             _context = context;
-        } 
+        }
+
+        private static string getFullUserName(User patient) => $"{patient.FirstName}{(patient.MiddleName != null ? " " + patient.MiddleName : "")} {patient.LastName}";
 
         public async Task<AccessRequest> RequestAccess(int specialistId, int appointmentId, string reason)
         {
@@ -47,14 +50,17 @@ namespace ZhmApi.Services
                 RequestedAt = DateTime.UtcNow
             };
 
-             _context.AccesssRequests.Add(request);
+            _context.AccesssRequests.Add(request);
             await _context.SaveChangesAsync(); // request.Id NOW EXISTS
+
+            // Load the specialist for notification message
+            var specialist = await _context.Users.FindAsync(specialistId);
 
             _context.Notifications.Add(new Notification
             {
                 UserId = request.PatientId,
                 Type = NotificationType.AccessRequest,
-                Message = "A specialist has requested access to your medical file.",
+                Message = $"Specialist\"{(specialist != null ? " " + getFullUserName(specialist) : "Onbekend")}\" heeft toegang tot uw gegevens aangevraagd.",
                 AccessRequestId = request.Id
             });
 
@@ -94,6 +100,7 @@ namespace ZhmApi.Services
             var request = await _context.AccesssRequests
                 .Include(r => r.Appointment)
                     .ThenInclude(a => a.Referral)
+                .Include(r => r.Patient)
                 .FirstOrDefaultAsync(r =>
                     r.Id == requestId &&
                     r.PatientId == patientId &&
@@ -113,14 +120,16 @@ namespace ZhmApi.Services
                 ? AppointmentStatus.Scheduled
                 : AppointmentStatus.Cancelled;
 
+            Console.WriteLine(request.Patient);
+
             // 🔔 notify SPECIALIST
             _context.Notifications.Add(new Notification
             {
                 UserId = request.SpecialistId,
                 Type = NotificationType.AccessRequestDecision,
                 Message = approved
-                    ? "Your access request was approved."
-                    : "Your access request was denied.",
+                    ? $"Uw toegangsverzoek is goedgekeurd door {getFullUserName(request.Patient)}."
+                    : $"Uw toegangsverzoek is geweigerd door {getFullUserName(request.Patient)}.",
                 AccessRequestId = request.Id
             });
 

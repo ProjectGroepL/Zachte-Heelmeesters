@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "yuhL4c6bYYQ=",
+  "dgSpecHash": "HPG2wKPRca8=",
   "success": true,
-  "projectFilePath": "C:\\Users\\LuukO\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\ZhmApi.csproj",
+  "projectFilePath": "E:\\Development\\School\\Projects\\ZachteHeelmeesters\\apps\\server\\server\\ZhmApi.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\LuukO\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\LuukO\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",

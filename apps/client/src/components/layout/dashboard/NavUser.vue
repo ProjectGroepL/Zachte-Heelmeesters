@@ -34,6 +34,7 @@ import {
 } from '@/components/ui/sidebar'
 import { useAuth } from '@/composables/useAuth'
 import type { User } from '@/types/Auth'
+import { getFullNameFromUser } from "@/lib/utils"
 
 const { isMobile } = useSidebar()
 const { getUser } = useAuth()
@@ -45,8 +46,7 @@ const isLoading = ref(true)
 // Computed values for display
 const displayName = computed(() => {
   if (!user.value) return 'Loading...'
-  const { firstName, middleName, lastName } = user.value
-  return middleName ? `${firstName} ${middleName} ${lastName}` : `${firstName} ${lastName}`
+  return getFullNameFromUser(user.value)
 })
 
 const initials = computed(() => {

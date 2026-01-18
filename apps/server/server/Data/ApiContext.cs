@@ -24,7 +24,7 @@ public class ApiContext : IdentityDbContext<User, Role, int>
   public DbSet<AppointmentReport> AppointmentReports { get; set; }
   public DbSet<AppointmentReportItem> ApontmentReportItems { get; set; }
   public DbSet<AuditTrail> AuditTrails { get; set; }
-
+  public DbSet<InsuranceInvoice> InsuranceInvoices {get; set;}
 
   #region UpdatedAt timestamp handling
   public override int SaveChanges()

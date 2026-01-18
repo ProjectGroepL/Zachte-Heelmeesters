@@ -89,7 +89,7 @@ namespace ZhmApi.Controllers
             }
 
             // Enable 2FA for new users by default
-            await _userManager.SetTwoFactorEnabledAsync(user, true);
+            await _userManager.SetTwoFactorEnabledAsync(user, false);
 
             // Add user to default role
             await _userManager.AddToRoleAsync(user, "Patient");

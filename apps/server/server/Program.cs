@@ -162,6 +162,11 @@ builder.Services.AddScoped<AccessRequestService>();
 
 builder.Services.AddScoped<AppointmentReportService>();
 builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<AdminReportService>();
+builder.Services.AddScoped<InsuranceInvoiceService>();
+builder.Services.AddScoped<PatientInvoiceService>();
+builder.Services.AddScoped<DoctorReportService>();
+
 
 // Register email sender based on environment
 if (builder.Environment.IsDevelopment())

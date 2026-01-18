@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { FileText, ShieldCheck } from 'lucide-vue-next'
+import { Receipt } from 'lucide-vue-next'
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -10,10 +10,11 @@ import {
 import { useRouter } from 'vue-router'
 
 const items = [
-  { title: 'Toegangsverzoeken', url: '/patient/requests', icon: ShieldCheck },
-  { title: 'Documenten', url: '/patient', icon: FileText },
-  { title: 'PatientReportSelectPage', url: '/Patient/PatientReportSelectPage', icon: FileText }, 
-  { title: 'Kosten Overzicht', url: '/Patient/PatientBetaling', icon: FileText },
+  {
+    title: 'Declaraties',
+    url: '/insurance/InsuranceDashboard',
+    icon: Receipt
+  }
 ]
 
 const { currentRoute } = useRouter()
@@ -22,9 +23,13 @@ const isActive = (url: string) => currentRoute.value.path === url
 
 <template>
   <SidebarGroup>
-    <SidebarGroupLabel>Patiënt</SidebarGroupLabel>
+    <SidebarGroupLabel>Zorgverzekeraar</SidebarGroupLabel>
+
     <SidebarMenu>
-      <SidebarMenuItem v-for="item in items" :key="item.title">
+      <SidebarMenuItem
+        v-for="item in items"
+        :key="item.title"
+      >
         <RouterLink :to="item.url">
           <SidebarMenuButton
             :aria-current="isActive(item.url) ? 'page' : undefined"

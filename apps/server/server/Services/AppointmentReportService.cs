@@ -21,6 +21,8 @@ namespace ZhmApi.Services
         )
         {
             var appointment = await _context.Appointments
+                .Include(a => a.Referral)
+                    .ThenInclude(r => r.Patient)
                 .FirstOrDefaultAsync(a =>
                     a.Id == appointmentId &&
                     a.SpecialistId == specialistId &&
@@ -28,7 +30,7 @@ namespace ZhmApi.Services
                 );
 
             if (appointment == null)
-                throw new InvalidOperationException("Appointment not found or not allowed");
+                throw new InvalidOperationException("Appointment not found");
 
             var report = new AppointmentReport
             {
@@ -45,6 +47,9 @@ namespace ZhmApi.Services
 
             appointment.Status = AppointmentStatus.Completed;
 
+            // 👇 BELANGRIJK
+            report.Status = AppointmentReportStatus.Created;
+
             _context.AppointmentReports.Add(report);
             await _context.SaveChangesAsync();
 
@@ -56,6 +61,70 @@ namespace ZhmApi.Services
             return await _context.AppointmentReports
                 .Include(r => r.Items)
                 .FirstOrDefaultAsync(r => r.AppointmentId == appointmentId);
+        }
+
+        public async Task<AppointmentReportInternalDto> GetInternal(int reportId)
+        {
+            var report = await _context.AppointmentReports 
+                .Include(r => r.Items)
+                .FirstOrDefaultAsync(r => r.Id == reportId);
+
+            if (report == null)
+                throw new InvalidOperationException("Report not found");
+
+            return new AppointmentReportInternalDto
+            {
+                Id = report.Id,
+                Summary = report.Summary,
+                CreatedAt = report.CreatedAt,
+                TotalCost = report.TotalCost,
+                Items = report.Items.Select(i => new AppointmentReportItemDto
+                {
+                    Description = i.Description,
+                    Cost = i.Cost
+                }).ToList()
+            };
+        }
+
+        public async Task<AppointmentReportPatientDto?> GetForPatientByAppointment(
+            int appointmentId,
+            int patientId
+        )
+        {
+            var report = await _context.AppointmentReports 
+                .Include(r => r.Items)
+                .Include(r => r.Appointment)
+                    .ThenInclude(a => a.Referral)
+                .FirstOrDefaultAsync(r => 
+                r.AppointmentId == appointmentId 
+                && r.Appointment.Referral.PatientId == patientId);
+
+            if (report == null)
+                return null; 
+
+            return new AppointmentReportPatientDto
+            {
+                Id = report.Id,
+                Summary = report.Summary,
+                CreatedAt = report.CreatedAt,
+                Items = report.Items.Select(i => i.Description).ToList()
+            };
+        }
+
+        public async Task SendToAdmin(int reportId, int specialistId)
+        {
+            var report = await _context.AppointmentReports
+                .Include(r => r.Appointment)
+                .FirstOrDefaultAsync(r =>
+                    r.Id == reportId &&
+                    r.Appointment.SpecialistId == specialistId
+                );
+
+            if (report == null)
+                throw new InvalidOperationException("Report not found");
+
+            report.Status = AppointmentReportStatus.SentToAdmin;
+            await _context.SaveChangesAsync();
         }
     }
 }

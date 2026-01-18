@@ -17,6 +17,8 @@ const items = [
   { title: "Nieuwe Doorverwijzing", url: "/referrals/new", icon: Plus },
   { title: "Medisch document Maken", url: "/huisarts/CreateMedicalDocument", icon: Plus },
   { title: "Medisch document Finalize", url: "/huisarts/MyMedicalDocuments", icon: Plus },
+  { title: "EindRapport aanvraag", url: "/huisarts/DoctorAppointmentsPage", icon: Plus },
+    { title: "EindRapport overzicht", url: "/huisarts/DoctorReportsPage", icon: Plus },
 ]
 
 const { currentRoute } = useRouter()

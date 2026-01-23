@@ -202,6 +202,8 @@ export const useAuth = () => {
     const user = getStoredUser()
     if (!user) return false
 
+    console.log(user.role, roleName.toLowerCase())
+
     // Case 1: user.role = Role[]
     if (Array.isArray(user.role)) {
       return user.role.some(

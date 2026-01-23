@@ -94,44 +94,26 @@ const adminItems = computed(() => {
   return items
 })
 
-// This is sample data.
-const data = {
-  user: {
-    name: "Jan Jansen",
-    email: "jan.jansen@example.com",
-    avatar: null
-  },
-
-  navMain: [
+const navMain = computed(() => {
+  const items = [
     {
       title: "Overzicht",
       url: "/",
       icon: ChartColumn
     },
-    {
+  ]
+
+  // Only show Afspraken for patients
+  if (hasRole('Patient')) {
+    items.push({
       title: "Afspraken",
       url: "/afspraken",
       icon: ClipboardClock,
-    },
-    {
-      title: "Agenda",
-      url: "/agenda",
-      icon: Calendar,
-    },
-  ],
-  projects: [
-    {
-      title: "Gebruikers",
-      url: "/admin/gebruikers",
-      icon: Users2,
-    },
-    {
-      title: "Activiteiten",
-      url: "/admin/activiteiten",
-      icon: Activity,
-    },
-  ],
-}
+    })
+  }
+
+  return items
+})
 </script>
 
 <template>
@@ -150,7 +132,7 @@ const data = {
     </SidebarHeader>
 
     <SidebarContent>
-      <NavMain :items="data.navMain" />
+      <NavMain :items="navMain" />
       <div v-if="!open" class="w-full px-2">
         <Separator />
       </div>
@@ -165,7 +147,6 @@ const data = {
 
     <SidebarFooter>
       <NavUser v-if="user" :user="user" />
-      <NavUser v-else :user="data.user" />
     </SidebarFooter>
     <SidebarRail />
   </Sidebar>

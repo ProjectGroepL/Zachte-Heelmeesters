@@ -3,6 +3,22 @@ import axios, { AxiosError } from 'axios'
 // Base API URL
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://localhost:7048/api'
 
+// Flag to prevent multiple simultaneous refresh attempts
+let isRefreshing = false
+let failedQueue: Array<{ resolve: Function; reject: Function }> = []
+
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error)
+    } else {
+      prom.resolve(token)
+    }
+  })
+  
+  failedQueue = []
+}
+
 // Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -42,35 +58,71 @@ api.interceptors.response.use(
 
     // Handle unauthorized for non-auth endpoints only
     if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
+      if (isRefreshing) {
+        // If already refreshing, queue this request
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject })
+        }).then(token => {
+          originalRequest.headers.Authorization = `Bearer ${token}`
+          return api(originalRequest)
+        }).catch(err => {
+          return Promise.reject(err)
+        })
+      }
+
       originalRequest._retry = true
+      isRefreshing = true
+
+      const refreshToken = localStorage.getItem('refresh_token')
+      
+      if (!refreshToken) {
+        isRefreshing = false
+        processQueue(new Error('No refresh token'), null)
+        localStorage.removeItem('access_token')
+        localStorage.removeItem('refresh_token')
+        localStorage.removeItem('user_info')
+        
+        // Only redirect if not already on login page
+        if (!window.location.pathname.startsWith('/auth')) {
+          window.location.href = '/auth/login'
+        }
+        return Promise.reject(error)
+      }
 
       try {
-        // Try to refresh the token
-        const refreshToken = localStorage.getItem('refresh_token')
-        if (!refreshToken) {
-          throw new Error('No refresh token available')
-        }
-
         const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
           refreshToken: refreshToken
         })
 
         if (response.status === 200 && response.data) {
+          const newToken = response.data.token
+          
           // Update stored tokens
-          localStorage.setItem('access_token', response.data.token)
+          localStorage.setItem('access_token', newToken)
           localStorage.setItem('refresh_token', response.data.refreshToken)
 
           // Update the authorization header for the original request
-          originalRequest.headers.Authorization = `Bearer ${response.data.token}`
+          originalRequest.headers.Authorization = `Bearer ${newToken}`
+
+          processQueue(null, newToken)
+          isRefreshing = false
 
           // Retry the original request
           return api(originalRequest)
         }
       } catch (refreshError) {
-        // Refresh failed, redirect to login
+        // Refresh failed, clear tokens and redirect to login
+        processQueue(refreshError, null)
+        isRefreshing = false
+        
         localStorage.removeItem('access_token')
         localStorage.removeItem('refresh_token')
-        window.location.href = '/auth/login'
+        localStorage.removeItem('user_info')
+        
+        // Only redirect if not already on login page
+        if (!window.location.pathname.startsWith('/auth')) {
+          window.location.href = '/auth/login'
+        }
         return Promise.reject(refreshError)
       }
     }

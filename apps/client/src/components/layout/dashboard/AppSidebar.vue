@@ -28,7 +28,6 @@ import { useAuth } from '@/composables/useAuth'
 import { onMounted, ref } from 'vue'
 import NavPatient from '@/components/layout/dashboard/NavPatient.vue'
 import NavSpecialist from '@/components/layout/dashboard/NavSpecialist.vue'
-import NotificationBell from '@/components/NotificationBell.vue'
 import { computed } from 'vue'
 import { ClipboardList } from "lucide-vue-next"
 import NavAdministration from '@/components/layout/dashboard/NavAdministration.vue'
@@ -70,18 +69,7 @@ const hasRole = (roleName: string) => {
 }
 
 const adminItems = computed(() => {
-  const items = [
-    {
-      title: "Gebruikers",
-      url: "/admin/gebruikers",
-      icon: Users2,
-    },
-    {
-      title: "Activiteiten",
-      url: "/admin/activiteiten",
-      icon: Activity,
-    },
-  ]
+  const items = []
 
   // Only show Audit logs if user has role "Systeembeheerder"
   if (hasRole("Systeembeheerder")) {
@@ -95,44 +83,26 @@ const adminItems = computed(() => {
   return items
 })
 
-// This is sample data.
-const data = {
-  user: {
-    name: "Jan Jansen",
-    email: "jan.jansen@example.com",
-    avatar: null
-  },
-
-  navMain: [
+const navMain = computed(() => {
+  const items = [
     {
       title: "Overzicht",
       url: "/",
       icon: ChartColumn
     },
-    {
+  ]
+
+  // Only show Afspraken for patients
+  if (hasRole('Patient')) {
+    items.push({
       title: "Afspraken",
       url: "/afspraken",
       icon: ClipboardClock,
-    },
-    {
-      title: "Agenda",
-      url: "/agenda",
-      icon: Calendar,
-    },
-  ],
-  projects: [
-    {
-      title: "Gebruikers",
-      url: "/admin/gebruikers",
-      icon: Users2,
-    },
-    {
-      title: "Activiteiten",
-      url: "/admin/activiteiten",
-      icon: Activity,
-    },
-  ],
-}
+    })
+  }
+
+  return items
+})
 </script>
 
 <template>
@@ -151,7 +121,7 @@ const data = {
     </SidebarHeader>
 
     <SidebarContent>
-      <NavMain :items="data.navMain" />
+      <NavMain :items="navMain" />
       <div v-if="!open" class="w-full px-2">
         <Separator />
       </div>
@@ -159,20 +129,13 @@ const data = {
       <NavDoctor v-if="hasRole('Huisarts')" />
       <NavPatient v-if="hasRole('Patient')" />
       <NavAdministration v-if="hasRole('Administratie')" />
-      <NavAdmin
-        v-if="hasRole('Admin') || hasRole('Systeembeheerder')"
-        :items="adminItems"
-      />
+      <NavAdmin v-if="hasRole('Admin') || hasRole('Systeembeheerder')" :items="adminItems" />
       <NavSpecialist v-if="hasRole('Specialist')" />
 
     </SidebarContent>
 
     <SidebarFooter>
-      <div :class="cn('flex items-center gap-2 p-2', !open ? 'flex-col' : 'flex-row justify-between')">
-        <NotificationBell />
-        <NavUser v-if="user" :user="user" />
-        <NavUser v-else :user="data.user" />
-      </div>
+      <NavUser v-if="user" :user="user" />
     </SidebarFooter>
     <SidebarRail />
   </Sidebar>

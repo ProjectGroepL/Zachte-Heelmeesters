@@ -22,6 +22,6 @@ namespace ZhmApi.Models
 
         public string Country { get; set; } = null!;
 
-        public ICollection<DoctorPatients> DoctorPatients {get; set;} = new List<DoctorPatients>();
+        public ICollection<DoctorPatients> DoctorPatients { get; set; } = new List<DoctorPatients>();
     }
 }

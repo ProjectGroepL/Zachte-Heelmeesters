@@ -41,8 +41,8 @@ declare module 'vue-router/auto-routes' {
       | '/(protected)/huisarts/MyMedicalDocuments'
       | '/(protected)/insurance/InsuranceDashboard'
       | '/(protected)/patient/'
-      | '/(protected)/patient/PatientBetaling'
-      | '/(protected)/patient/PatientReportSelectPage'
+      | '/(protected)/patient/payments'
+      | '/(protected)/patient/reports'
       | '/(protected)/patient/requests'
       | '/(protected)/referrals/'
       | '/(protected)/referrals/new'
@@ -142,16 +142,16 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/(protected)/patient/PatientBetaling': RouteRecordInfo<
-      '/(protected)/patient/PatientBetaling',
-      '/patient/PatientBetaling',
+    '/(protected)/patient/payments': RouteRecordInfo<
+      '/(protected)/patient/payments',
+      '/patient/payments',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/(protected)/patient/PatientReportSelectPage': RouteRecordInfo<
-      '/(protected)/patient/PatientReportSelectPage',
-      '/patient/PatientReportSelectPage',
+    '/(protected)/patient/reports': RouteRecordInfo<
+      '/(protected)/patient/reports',
+      '/patient/reports',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -264,8 +264,8 @@ declare module 'vue-router/auto-routes' {
         | '/(protected)/huisarts/MyMedicalDocuments'
         | '/(protected)/insurance/InsuranceDashboard'
         | '/(protected)/patient/'
-        | '/(protected)/patient/PatientBetaling'
-        | '/(protected)/patient/PatientReportSelectPage'
+        | '/(protected)/patient/payments'
+        | '/(protected)/patient/reports'
         | '/(protected)/patient/requests'
         | '/(protected)/referrals/'
         | '/(protected)/referrals/new'
@@ -354,15 +354,15 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/(protected)/patient/PatientBetaling.vue': {
+    'src/pages/(protected)/patient/payments.vue': {
       routes:
-        | '/(protected)/patient/PatientBetaling'
+        | '/(protected)/patient/payments'
       views:
         | never
     }
-    'src/pages/(protected)/patient/PatientReportSelectPage.vue': {
+    'src/pages/(protected)/patient/reports.vue': {
       routes:
-        | '/(protected)/patient/PatientReportSelectPage'
+        | '/(protected)/patient/reports'
       views:
         | never
     }

@@ -13,7 +13,7 @@ export function useDoctorPatients() {
           patientId: p.patientId ?? p.PatientId ?? null,
           fullName:
             p.fullName ??
-            ((p.firstName ?? '') + ' ' + (p.lastName ?? '')).trim()
+            (`${p.firstName ?? ''}${p.middleName ? ' ' + p.middleName : ''} ${p.lastName ?? ''}`.trim())
         }))
         .filter(p => p.patientId != null)
   })

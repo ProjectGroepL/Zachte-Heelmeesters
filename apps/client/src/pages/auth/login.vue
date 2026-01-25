@@ -128,9 +128,6 @@ const props = defineProps<{
           <FieldLabel for="password">
             Wachtwoord
           </FieldLabel>
-          <a href="#" class="ml-auto text-sm underline-offset-4 hover:underline">
-            Wachtwoord vergeten?
-          </a>
         </div>
         <Input id="password" type="password" required @input="clearFieldError('password')" v-model="password" />
         <FieldError v-if="errors.password && errors.password[0]">{{ errors.password[0] }}</FieldError>

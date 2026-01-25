@@ -10,10 +10,10 @@ import {
 import { useRouter } from 'vue-router'
 
 const items = [
-  { title: 'Toegangsverzoeken', url: '/patient/requests', icon: ShieldCheck },
   { title: 'Documenten', url: '/patient', icon: FileText },
-  { title: 'PatientReportSelectPage', url: '/Patient/PatientReportSelectPage', icon: FileText }, 
-  { title: 'Kosten Overzicht', url: '/Patient/PatientBetaling', icon: FileText },
+  { title: 'Toegangsverzoeken', url: '/patient/requests', icon: ShieldCheck },
+  { title: 'Rapporten', url: '/patient/reports', icon: FileText },
+  { title: 'Kosten Overzicht', url: '/patient/payments', icon: FileText },
 ]
 
 const { currentRoute } = useRouter()
@@ -26,9 +26,7 @@ const isActive = (url: string) => currentRoute.value.path === url
     <SidebarMenu>
       <SidebarMenuItem v-for="item in items" :key="item.title">
         <RouterLink :to="item.url">
-          <SidebarMenuButton
-            :aria-current="isActive(item.url) ? 'page' : undefined"
-          >
+          <SidebarMenuButton :aria-current="isActive(item.url) ? 'page' : undefined">
             <component :is="item.icon" aria-hidden="true" />
             <span>{{ item.title }}</span>
           </SidebarMenuButton>

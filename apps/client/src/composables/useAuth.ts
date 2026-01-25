@@ -202,6 +202,8 @@ export const useAuth = () => {
     const user = getStoredUser()
     if (!user) return false
 
+    console.log(user.role, roleName.toLowerCase())
+
     // Case 1: user.role = Role[]
     if (Array.isArray(user.role)) {
       return user.role.some(
@@ -228,7 +230,7 @@ export const useAuth = () => {
   }
 
   // Get user info from localStorage (stored during login) or fallback to JWT
-  const getStoredUser = () => {
+  const getStoredUser = (): User | null => {
     const stored = localStorage.getItem('user_info')
     if (!stored) return null
     try {

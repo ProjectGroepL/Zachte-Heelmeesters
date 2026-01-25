@@ -66,31 +66,18 @@ const submitReferral = async () => {
           Patiënt
         </label>
 
-        <select
-          id="patient"
-          v-model="patientId"
-          class="border p-2 rounded w-full"
-          aria-describedby="patient-help"
-          required
-        >
+        <select id="patient" v-model="patientId" class="border p-2 rounded w-full" aria-describedby="patient-help"
+          required>
           <option :value="null" disabled>
             {{ hasPatients ? 'Selecteer patiënt' : 'Geen patiënten beschikbaar' }}
           </option>
 
-          <option
-            v-for="p in patients ?? []"
-            :key="p.patientId"
-            :value="p.patientId"
-          >
+          <option v-for="p in patients ?? []" :key="p.patientId" :value="p.patientId">
             {{ p.fullName }}
           </option>
         </select>
 
-        <p
-          id="patient-help"
-          v-if="!hasPatients"
-          class="text-sm text-gray-600 mt-1"
-        >
+        <p id="patient-help" v-if="!hasPatients" class="text-sm text-gray-600 mt-1">
           Er zijn momenteel geen patiënten beschikbaar om te selecteren.
         </p>
       </div>
@@ -101,31 +88,18 @@ const submitReferral = async () => {
           Behandeling
         </label>
 
-        <select
-          id="treatment"
-          v-model="treatmentId"
-          class="border p-2 rounded w-full"
-          aria-describedby="treatment-help"
-          required
-        >
+        <select id="treatment" v-model="treatmentId" class="border p-2 rounded w-full" aria-describedby="treatment-help"
+          required>
           <option :value="null" disabled>
             {{ hasTreatments ? 'Selecteer behandeling' : 'Geen behandelingen beschikbaar' }}
           </option>
 
-          <option
-            v-for="t in treatments ?? []"
-            :key="t.id"
-            :value="t.id"
-          >
+          <option v-for="t in treatments ?? []" :key="t.id" :value="t.id">
             {{ t.name }}
           </option>
         </select>
 
-        <p
-          id="treatment-help"
-          v-if="!hasTreatments"
-          class="text-sm text-gray-600 mt-1"
-        >
+        <p id="treatment-help" v-if="!hasTreatments" class="text-sm text-gray-600 mt-1">
           Er zijn momenteel geen behandelingen beschikbaar.
         </p>
       </div>
@@ -136,30 +110,19 @@ const submitReferral = async () => {
           Opmerkingen (optioneel)
         </label>
 
-        <textarea
-          id="notes"
-          v-model="notes"
-          class="border p-2 rounded w-full h-24"
-          placeholder="Eventuele aanvullende informatie"
-        />
+        <textarea id="notes" v-model="notes" class="border p-2 rounded w-full h-24"
+          placeholder="Eventuele aanvullende informatie" />
       </div>
 
       <!-- Submit -->
-      <button
-        type="submit"
-        :disabled="!canSubmit"
-        class="bg-blue-600 text-white px-4 py-2 rounded w-full disabled:opacity-50"
-      >
+      <button type="submit" :disabled="!canSubmit"
+        class="bg-blue-600 text-white px-4 py-2 rounded w-full disabled:opacity-50">
         {{ createReferral.loading.value ? 'Verzenden…' : 'Verzenden' }}
       </button>
 
       <!-- Submit error -->
-      <p
-        v-if="createReferral.error.value"
-        role="alert"
-        class="text-sm text-red-600"
-      >
-        Doorverwijzing aanmaken mislukt.
+      <p v-if="createReferral.error.value" role="alert" class="text-sm text-red-600">
+        {{ createReferral.error.value.response?.data || 'Er is een fout opgetreden bij het aanmaken van de doorverwijzing.' }}
       </p>
     </form>
   </main>

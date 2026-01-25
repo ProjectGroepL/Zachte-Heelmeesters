@@ -23,16 +23,28 @@ router.beforeEach(async (to, from, next) => { // <-- mark async here
 
   // --- Admin guard for /audits ---
   if (to.path === '/audits') {
-    const { isAuthenticated, getStoredUser, hasRole } = useAuth()
+    const { isAuthenticated, hasRole } = useAuth()
 
     if (!isAuthenticated()) {
       return next('/auth/login')
     }
 
-    const user = getStoredUser()
-
     // ✅ Role-name based check
     if (!hasRole('Systeembeheerder')) {
+      return next('/')
+    }
+  }
+
+  // --- Patient guard for /afspraken ---
+  if (to.path.startsWith('/afspraken')) {
+    const { isAuthenticated, hasRole } = useAuth()
+
+    if (!isAuthenticated()) {
+      return next('/auth/login')
+    }
+
+    // Only patients can access appointments page
+    if (!hasRole('Patient')) {
       return next('/')
     }
   }

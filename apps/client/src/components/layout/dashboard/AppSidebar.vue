@@ -69,18 +69,7 @@ const hasRole = (roleName: string) => {
 }
 
 const adminItems = computed(() => {
-  const items = [
-    {
-      title: "Gebruikers",
-      url: "/admin/gebruikers",
-      icon: Users2,
-    },
-    {
-      title: "Activiteiten",
-      url: "/admin/activiteiten",
-      icon: Activity,
-    },
-  ]
+  const items = []
 
   // Only show Audit logs if user has role "Systeembeheerder"
   if (hasRole("Systeembeheerder")) {

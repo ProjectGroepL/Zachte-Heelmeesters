@@ -136,10 +136,6 @@ async function handleLogout() {
                 {{ unreadCount }}
               </Badge>
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Settings />
-              Instellingen
-            </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem @click="handleLogout">

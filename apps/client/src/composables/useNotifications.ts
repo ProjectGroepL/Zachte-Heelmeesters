@@ -3,7 +3,12 @@ import api from '@/lib/api'
 import type { Notification } from '@/types/Notification'
 
 export function useNotifications() {
-  return useQuery<Notification[]>('/notifications')
+  // Only fetch notifications if user has a token
+  const hasToken = !!localStorage.getItem('access_token')
+  
+  return useQuery<Notification[]>('/notifications', {
+    immediate: hasToken // Only auto-fetch if authenticated
+  })
 }
 
 export function useMarkNotificationRead() {

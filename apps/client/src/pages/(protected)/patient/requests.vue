@@ -1,151 +1,149 @@
 <script setup lang="ts">
-    import { ref } from 'vue'
-    import {
-        usePatientAccessRequests,
-        useDecideAccessRequest,
-        useRevokeAccessRequest
-    } from "@/composables/useAccessRequests"
+import { ref } from 'vue'
+import {
+  usePatientAccessRequests,
+  useDecideAccessRequest,
+  useRevokeAccessRequest
+} from "@/composables/useAccessRequests"
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { ShieldCheck, Clock, AlertCircle, Info } from 'lucide-vue-next'
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from '@/components/ui/alert'
 
-    const {
-        data: requests,
-        loading,
-        error,
-        execute: refetch
-    } = usePatientAccessRequests();
+const {
+  data: requests,
+  loading,
+  error,
+  execute: refetch
+} = usePatientAccessRequests();
 
-    const decideMutation = useDecideAccessRequest();
-    const revokeMutation = useRevokeAccessRequest()
-    const revokeConfirmId = ref<number | null>(null)
+const decideMutation = useDecideAccessRequest();
+const revokeMutation = useRevokeAccessRequest()
+const revokeConfirmId = ref<number | null>(null)
 
-    const revoke = async (id: number) => {
-      await revokeMutation.mutate({ id })
-      if (!revokeMutation.error.value) {
-        await refetch()
-      }
-    }
-    const askRevoke = (id: number) => {
-      revokeConfirmId.value = id
-    }
+const revoke = async (id: number) => {
+  await revokeMutation.mutate({ id })
+  if (!revokeMutation.error.value) {
+    await refetch()
+  }
+}
+const askRevoke = (id: number) => {
+  revokeConfirmId.value = id
+}
 
-    const cancelRevoke = () => {
-      revokeConfirmId.value = null
-    }
+const cancelRevoke = () => {
+  revokeConfirmId.value = null
+}
 
-    const confirmRevoke = async (id: number) => {
-      await revoke(id)
-      revokeConfirmId.value = null
-    }
-    const decide = async (id: number, approved: boolean) => {
-        // We voeren de mutatie uit
-        await decideMutation.mutate({ id, data: { approved } })
-        
-        // Alleen refetchen als het gelukt is
-        if (!decideMutation.error.value) {
-            await refetch()
-        }
-    }
+const confirmRevoke = async (id: number) => {
+  await revoke(id)
+  revokeConfirmId.value = null
+}
+const decide = async (id: number, approved: boolean) => {
+  await decideMutation.mutate({ id, data: { approved } })
+
+  if (!decideMutation.error.value) {
+    await refetch()
+  }
+}
 </script>
 
 <template>
-  <main aria-labelledby="access-title" class="max-w-4xl mx-auto p-6">
-    <h1 id="access-title" class="text-2xl font-bold mb-4">
-      Toegangsverzoeken
-    </h1>
+  <div class="container mx-auto p-6 space-y-6">
+    <h1 class="text-3xl font-bold">Toegangsverzoeken</h1>
 
-    <div v-if="loading && !requests" role="status" aria-live="polite" class="text-gray-500">
-      Verzoeken laden…
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle class="flex items-center gap-2">
+          <ShieldCheck class="h-5 w-5" />
+          Verzoeken Overzicht
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <!-- Loading -->
+        <div v-if="loading && !requests" class="flex flex-col items-center justify-center py-12 text-muted-foreground">
+          <Clock class="h-12 w-12 mb-4 animate-pulse opacity-50" />
+          <p class="font-medium">Verzoeken laden...</p>
+        </div>
 
-    <div v-if="error" role="alert" class="p-4 mb-4 bg-red-50 text-red-600 rounded-lg border border-red-200">
-      <strong>Fout bij laden:</strong> {{ error.message }}
-    </div>
+        <!-- Error -->
+        <Alert v-if="error" variant="destructive" class="mb-4">
+          <AlertCircle class="h-4 w-4" />
+          <AlertTitle>Fout bij laden</AlertTitle>
+          <AlertDescription>{{ error.message }}</AlertDescription>
+        </Alert>
 
-    <ul v-if="requests && requests.length > 0" class="space-y-4">
-      <li
-        v-for="r in requests"
-        :key="r.id"
-        class="p-5 border-2 border-gray-100 rounded-2xl shadow-sm bg-white"
-      >
-        <div class="flex flex-col gap-2">
-          <h2 class="font-bold text-lg text-gray-900">
-            Verzoek van {{ r.specialistName }}
-          </h2>
+        <!-- Empty State -->
+        <div v-if="!loading && (!requests || requests.length === 0)"
+          class="flex flex-col items-center justify-center py-12 text-muted-foreground">
+          <ShieldCheck class="h-12 w-12 mb-4 opacity-50" />
+          <p class="font-medium">Geen openstaande verzoeken</p>
+          <p class="text-sm mt-2">Er zijn op dit moment geen openstaande verzoeken voor toegang tot uw dossier.</p>
+        </div>
 
-          <div class="bg-blue-50 p-3 rounded-lg border border-blue-100">
-            <p class="text-sm font-semibold text-blue-800 mb-1">Reden voor aanvraag:</p>
-            <p class="text-gray-700 italic">"{{ r.reason }}"</p>
-          </div>
+        <!-- Requests List -->
+        <div v-if="requests && requests.length > 0" class="space-y-4">
+          <Card v-for="r in requests" :key="r.id" class="border">
+            <CardContent class="p-6">
+              <div class="space-y-4">
+                <h2 class="text-lg font-semibold">
+                  Verzoek van {{ r.specialistName }}
+                </h2>
 
-          <div class="flex gap-3 mt-4">
+                <Alert class="bg-blue-50 border-blue-200">
+                  <Info class="h-4 w-4 text-blue-600" />
+                  <AlertTitle class="text-blue-800">Reden voor aanvraag</AlertTitle>
+                  <AlertDescription class="text-blue-900 italic">
+                    "{{ r.reason }}"
+                  </AlertDescription>
+                </Alert>
 
-          <!-- Pending: approve / deny -->
-          <template v-if="r.status === 'Pending'">
-            <button
-              class="px-6 py-2 bg-green-600 text-white rounded-xl"
-              @click="decide(r.id, true)"
-            >
-              Goedkeuren
-            </button>
-
-            <button
-              class="px-6 py-2 border-2 border-red-200 text-red-600 rounded-xl"
-              @click="decide(r.id, false)"
-            >
-              Weigeren
-            </button>
-          </template>
-
-          <!-- Approved -->
-          <template v-else-if="r.status === 'Approved'">
-            <template v-if="revokeConfirmId === r.id">
-              <div class="bg-red-50 border border-red-200 p-3 rounded-xl">
-                <p class="text-sm text-red-800 mb-2">
-                  Door het intrekken van toegang kan de specialist deze afspraak niet uitvoeren.
-                  De afspraak wordt daarom geannuleerd
-                </p>
-
-                <div class="flex gap-2">
-                  <button
-                    class="px-4 py-1 bg-red-600 text-white rounded-lg"
-                    @click="confirmRevoke(r.id)"
-                  >
-                    Bevestigen
-                  </button>
-
-                  <button
-                    class="px-4 py-1 border rounded-lg"
-                    @click="cancelRevoke"
-                  >
-                    Annuleren
-                  </button>
+                <!-- Pending: approve / deny -->
+                <div v-if="r.status === 'Pending'" class="flex gap-3">
+                  <Button @click="decide(r.id, true)" class="bg-green-600 hover:bg-green-700">
+                    Goedkeuren
+                  </Button>
+                  <Button @click="decide(r.id, false)" variant="destructive">
+                    Weigeren
+                  </Button>
                 </div>
+
+                <!-- Approved -->
+                <div v-else-if="r.status === 'Approved'">
+                  <Alert v-if="revokeConfirmId === r.id" variant="destructive" class="mb-3">
+                    <AlertCircle class="h-4 w-4" />
+                    <AlertDescription>
+                      Door het intrekken van toegang kan de specialist deze afspraak niet uitvoeren.
+                      De afspraak wordt daarom geannuleerd.
+                    </AlertDescription>
+                    <div class="flex gap-2 mt-3">
+                      <Button size="sm" variant="destructive" @click="confirmRevoke(r.id)">
+                        Bevestigen
+                      </Button>
+                      <Button size="sm" variant="outline" @click="cancelRevoke">
+                        Annuleren
+                      </Button>
+                    </div>
+                  </Alert>
+
+                  <Button v-else variant="destructive" @click="askRevoke(r.id)">
+                    Toegang intrekken
+                  </Button>
+                </div>
+
+                <!-- Denied / Revoked: info only -->
+                <p v-else class="text-sm text-muted-foreground italic">
+                  Geen acties mogelijk
+                </p>
               </div>
-            </template>
-
-            <button
-              v-else
-              class="px-6 py-2 bg-red-600 text-white rounded-xl"
-              @click="askRevoke(r.id)"
-            >
-              Toegang intrekken
-            </button>
-          </template>
-
-          <!-- Denied / Revoked: info only -->
-          <template v-else>
-            <span class="text-sm text-gray-500 italic">
-              Geen acties mogelijk
-            </span>
-          </template>
-
+            </CardContent>
+          </Card>
         </div>
-          
-        </div>
-      </li>
-    </ul>
-
-    <p v-else-if="!loading" class="text-gray-500 bg-gray-50 p-8 rounded-2xl border-2 border-dashed text-center">
-      Er zijn op dit moment geen openstaande verzoeken voor toegang tot uw dossier.
-    </p>
-  </main>
+      </CardContent>
+    </Card>
+  </div>
 </template>
